@@ -1,0 +1,12 @@
+name: NationCraft
+main: io.github.eirikh1996.nationcraft.NationCraft
+version: 1.0
+author: eirikh1996
+commands:
+  createnation:
+    usage: /createnation <name>
+    description: Creates a new nation
+    permission: nationcraft.nation.create
+    permission-message: You don't have permission
+  createsettlement:
+    usage: /createsettlement <name>
