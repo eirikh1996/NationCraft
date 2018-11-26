@@ -8,5 +8,9 @@ commands:
     description: Creates a new nation
     permission: nationcraft.nation.create
     permission-message: You don't have permission
+    default: true
   createsettlement:
     usage: /createsettlement <name>
+    description: Creates a new settlement
+    permission: nationcraft.settlement.create
+    permission-message: You don't have permission
