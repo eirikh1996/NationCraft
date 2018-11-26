@@ -55,7 +55,7 @@ public class Nation {
 				if (parts[0] == p.getUniqueId().toString()) {
 					Player returnP = p;
 				}
-				if ()
+
 			}
 		}
 		
