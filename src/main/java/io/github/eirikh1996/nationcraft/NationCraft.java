@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
 import io.github.eirikh1996.nationcraft.commands.ClaimSettlementTerritoryCommand;
-import io.github.eirikh1996.nationcraft.commands.CreateNationCommand;
+import io.github.eirikh1996.nationcraft.commands.NationCommand;
 import io.github.eirikh1996.nationcraft.commands.CreateSettlementCommand;
 import io.github.eirikh1996.nationcraft.commands.NationInfoCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,7 +27,7 @@ public class NationCraft extends JavaPlugin {
 		}
 		//Now register commands
 		this.getCommand("claimsettlementterritory").setExecutor(new ClaimSettlementTerritoryCommand(this));
-		this.getCommand("createnation").setExecutor(new CreateNationCommand(this));
+		this.getCommand("nation").setExecutor(new NationCommand());
 		this.getCommand("createsettlement").setExecutor(new CreateSettlementCommand());
 		this.getCommand("nationinfo").setExecutor(new NationInfoCommand(this));
 	}

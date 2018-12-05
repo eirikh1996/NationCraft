@@ -47,31 +47,7 @@ public class Settlement {
 	public Settlement() {
 		// TODO Auto-generated constructor stub
 	}
-	public void saveToFile(File settlementFile) {
-		if (!settlementFile.exists()) {
-			try {
-				settlementFile.createNewFile();			
-				PrintWriter writer = new PrintWriter(settlementFile);
-				writer.println("name: " + this.name);
-				writer.println("townCenter: " + this.townCenter);
-				writer.println("territory:");
-				for (int i = 0 ; i <= territory.size() ; i++) {
-					writer.println("- " + territory.get(i));
-				}
-				writer.println("players:");
-				for (int i = 0 ; i <= players.size() ; i++) {
-					writer.println("- " + players.get(i));
-				}
-				writer.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		} else {
-			
-		}
-	}
+
 	
 	public void addPlayer(Player p) {
 		players.add(p);

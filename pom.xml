@@ -34,6 +34,13 @@
            <scope>provided</scope>
        </dependency>
        <dependency>
+           <groupId>org.spigotmc</groupId>
+           <artifactId>spigot-api</artifactId>
+           <version>1.12.2-R0.1-SNAPSHOT</version><!--change this value depending on the version-->
+           <type>jar</type>
+           <scope>provided</scope>
+       </dependency>
+       <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
             <version>1.10</version>
@@ -53,6 +60,11 @@
             <artifactId>annotations-java5</artifactId>
             <version>RELEASE</version>
         </dependency>
+       <dependency>
+           <groupId>net.md-5</groupId>
+           <artifactId>bungeecord-chat</artifactId>
+           <version>1.13-SNAPSHOT</version>
+       </dependency>
    </dependencies>
    
 </project>

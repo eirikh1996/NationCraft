@@ -11,7 +11,7 @@ import io.github.eirikh1996.nationcraft.NationCraft;
 public class NationManager {
 	private static NationManager ourInstance;
 	@NotNull private static Set<Nation> nations = new HashSet<>();
-	private NationManager() {
+	public NationManager() {
 		this.nations = loadNations();
 	}
 	public Set<Nation> loadNations(){
@@ -34,9 +34,21 @@ public class NationManager {
 		}
 		return nations;
 	}
-	
+
+	@NotNull
+	public Set<Nation> getNations() {
+		return nations;
+	}
+
 	public void initialize() {
 		
 	}
+
+	public void saveAllNationsToFile(){
+		for (Nation n : nations){
+			n.saveNationToFile();
+		}
+	}
+
 	
 }
