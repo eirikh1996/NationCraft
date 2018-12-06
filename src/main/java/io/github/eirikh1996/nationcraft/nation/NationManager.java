@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import io.github.eirikh1996.nationcraft.NationCraft;
@@ -11,9 +12,11 @@ import io.github.eirikh1996.nationcraft.NationCraft;
 public class NationManager {
 	private static NationManager ourInstance;
 	@NotNull private static Set<Nation> nations = new HashSet<>();
+
 	public NationManager() {
 		this.nations = loadNations();
 	}
+
 	public Set<Nation> loadNations(){
 		File nationFiles = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations");
 		Set<Nation> nations = new HashSet<>();
@@ -42,6 +45,26 @@ public class NationManager {
 
 	public void initialize() {
 		
+	}
+
+	public Nation getNationByName(String name){
+		Nation returnNation = null;
+		for (Nation n : nations){
+			if (n.getName().equalsIgnoreCase(name)){
+				returnNation = n;
+			}
+		}
+		return returnNation;
+	}
+
+	public Nation getNationByPlayer(Player p){
+		Nation returnNation = null;
+		for (Nation n : nations){
+			if (n.hasPlayer(p)){
+				returnNation = n;
+			}
+		}
+		return returnNation;
 	}
 
 	public void saveAllNationsToFile(){

@@ -20,6 +20,10 @@ public class Nation {
 	public Nation() {
 		
 	}
+	/**
+	 * Constructs a nation from the data stored in each nation file
+	 * @param nationFile The nation file's path
+	 */
 	public Nation(File nationFile) {
 		Map data = new HashMap<Object, Object>();
 		try {
@@ -52,6 +56,10 @@ public class Nation {
 		}
 		return returnMap;
 	}
+	/**
+	 *  Saves the nation data to .nation file
+	 *
+	 */
 	public void saveNationToFile(){
 		String path = NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations";
 		File f = new File(path);
@@ -94,20 +102,41 @@ public class Nation {
 		}
 
 	}
+
+	/**
+	 *
+	 * @return The name of a nation
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Sets the nation's name
+	 * @param name The nation's name
+	 */
 	public void setName(String name) { this.name = name; }
 
+	/**
+	 * Returns the description of a nation
+	 * @return Nation's description
+	 */
 	public String getDescription() {
 		return description;
 	}
 
 	public void setDescription(String description){ this.description = description; }
 
+	/**
+	 * Get the capital of the nation
+	 * @return Nation's capital
+	 */
 	public String getCapital(){ return capital; }
 
+	/**
+	 * Set a settlement as a nation's capital
+	 * @param capital
+	 */
 	public void setCapital(String capital) { this.capital = capital; }
 
 	public List<String> getAllies(){
@@ -116,8 +145,24 @@ public class Nation {
 
 	public void setAllies(List<String> allies) { this.allies = allies; }
 
+	public boolean addAlly(String ally){
+		return allies.add(ally);
+	}
+
+	public boolean removeAlly(String ally){
+		return allies.remove(ally);
+	}
+
 	public List<String> getEnemies(){
 		return enemies;
+	}
+
+	public boolean addEnemy(String enemy){
+		return enemies.add(enemy);
+	}
+
+	public boolean removeEnemy(String enemy){
+		return enemies.remove(enemy);
 	}
 
 	public void setEnemies(List<String> enemies) { this.enemies = enemies; }
@@ -132,7 +177,11 @@ public class Nation {
 		return players;
 	}
 
-
+	/**
+	 * Returns true if a nation contains given player
+	 * @param p Player that is part of a nation
+	 * @return true if given player is part of a nation
+	 */
 	public boolean hasPlayer(Player p) {
 		return players.containsKey(p);
 	}
