@@ -17,17 +17,17 @@ public class Messages {
 	public static String MUST_BE_PLAYER = "You must be player to execute this command!";
 	public void nationInfo(String nationName, Player p, Boolean ally, Boolean enemy) {
 		Nation n = new Nation();
+		String name = n.getName();
+		String description = n.getDescription();
+		List<String> allyList = n.getAllies();
+		List<String> enemyList = n.getEnemies();
+		Map<Player, Ranks> playerList = n.getPlayers();
+		final List<String> onlinePlayerList = new ArrayList();
+		final List<String> offlinePlayerList =  new ArrayList();
 		while (nationName == n.getName()) {
-			String name = n.getName();
-			String description = n.getDescription();
-			List<String> allyList = n.getAllies();
-			List<String> enemyList = n.getEnemies();
-			Map<List<Player>, Ranks> playerList = n.getPlayers();
-			List<String> onlinePlayerList = new ArrayList();
-			List<String> offlinePlayerList =  new ArrayList();
-			for (List<Player> pList : playerList.keySet()) {
-				for (int i = 0 ; i <= pList.size() ; i++) {
-					Player player = pList.get(i);
+
+			for (Player player : playerList.keySet()) {
+
 					if (player.isOnline()) {
 						
 						String playerName = player.getName();
@@ -95,5 +95,5 @@ public class Messages {
 			p.sendMessage(ChatColor.YELLOW + "Players online: " + color + onlinePlayerList.toString());
 			p.sendMessage(ChatColor.YELLOW + "Players offline: " + color + offlinePlayerList.toString());
 		}
-	}
+
 }

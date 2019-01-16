@@ -3,9 +3,16 @@ package io.github.eirikh1996.nationcraft.commands;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import io.github.eirikh1996.nationcraft.events.NationCreateEvent;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
+import io.github.eirikh1996.nationcraft.nation.Ranks;
+import org.bukkit.Chunk;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,8 +29,12 @@ public class NationCommand implements CommandExecutor {
 				sender.sendMessage("Error: You must be a player to execute this command!");
 				return true;
 			}
+			if (args.length < 1){
+				sender.sendMessage("Type /nation help for halp on the nation command");
+				return true;
+			}
 			if (args[0].equalsIgnoreCase("create")){
-				if (args[1].length() < 1){
+				if (args.length < 2){
 					sender.sendMessage("You need to specify a name for your nation");
 					return false;
 				}
@@ -65,18 +76,32 @@ public class NationCommand implements CommandExecutor {
 			sender.sendMessage("Error: You do not have permission to use this command!");
 			return;
 		}
-		if (name.length() >= 1) {
-			File file = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations/" + name + ".nation");
-			if (file.mkdirs() && !file.exists()) {
-				try {
-					PrintWriter writer = new PrintWriter(name + ".nation");
-
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		if (name.length() < 2) {
+			sender.sendMessage("Error: Nation names must be at least 2 characters long");
+			return;
+		}
+		for (Nation existing : NationManager.getInstance().getNations()){
+			if (existing.getName().equalsIgnoreCase(name)){
+				sender.sendMessage(String.format("Error: A nation with the name of %s already exists!", name));
+				return;
 			}
 		}
+		String description = "Default description";
+		List<Chunk> territory = new ArrayList<>();
+		String capital = "(none)";
+		List<String> settlements = new ArrayList<>();
+		List<String> allies = new ArrayList<>();
+		List<String> enemies = new ArrayList<>();
+		Map<Player, Ranks> players = new HashMap<>();
+		players.put((Player) sender,Ranks.LEADER);
+
+		Nation newNation = new Nation(name, description, capital, allies, enemies, settlements, territory, players);
+		//Call event
+		NationCreateEvent event = new NationCreateEvent(newNation, (Player) sender);
+		if (event.isCancelled()){
+			return;
+		}
+		NationManager.getInstance().getNations().add(newNation);
 
 	}
 	private void allyNationCommand(CommandSender sender, String name){

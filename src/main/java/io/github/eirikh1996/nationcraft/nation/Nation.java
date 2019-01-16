@@ -17,8 +17,15 @@ public class Nation {
 	private static List<Chunk> territory;
 	private static Map<Player,Ranks> players;
 	
-	public Nation() {
-		
+	public Nation(String name, String description, String capital, List<String> allies, List<String> enemies, List<String> settlements, List<Chunk> territory, Map<Player,Ranks> players) {
+		this.name = name;
+		this.description = description;
+		this.capital = capital;
+		this.allies = allies;
+		this.enemies = enemies;
+		this.settlements = settlements;
+		this.territory = territory;
+		this.players = players;
 	}
 	/**
 	 * Constructs a nation from the data stored in each nation file
@@ -89,7 +96,7 @@ public class Nation {
 			}
 			writer.println("territory:");
 			for (int i = 0 ; i <= territory.size() ; i++){
-				writer.println("- " + territory.get(i));
+				writer.println("- " + territory.get(i).getWorld().getName() + ", " + territory.get(i).getX() + ", " + territory.get(i).getZ() + ")");
 			}
 			writer.println("members:");
 			for (Player p : players.keySet()){

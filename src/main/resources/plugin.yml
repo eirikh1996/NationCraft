@@ -3,15 +3,10 @@ main: io.github.eirikh1996.nationcraft.NationCraft
 version: 1.0
 author: eirikh1996
 commands:
-  createnation:
+  nation:
     usage: /createnation <name>
     description: Creates a new nation
-    permission: nationcraft.nation.create
-    permission-message: You don't have permission
-  createsettlement:
+  settlement:
     usage: /createsettlement <name>
     description: Creates a new settlement
-    permission: nationcraft.settlement.create
-    permission-message: You don't have permission
-  nationinfo:
-    usage:
+

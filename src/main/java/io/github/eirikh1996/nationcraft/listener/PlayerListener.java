@@ -21,28 +21,14 @@ import java.util.Set;
 public class PlayerListener implements Listener {
     @EventHandler
     public void onLogin(PlayerLoginEvent event){
-        Player p = event.getPlayer();
-        int maxStrength = Settings.maxStrengthPerPlayer;
-        PlayerData data = new PlayerData();
-        if (!data.getPlayerMap().containsKey(p)){
-            data.addPlayerToMap(p, maxStrength);
-        }
+
     }
 
 
 
     @EventHandler
     public void  onPlayerDeath(PlayerDeathEvent event){
-        Player p = event.getEntity().getPlayer();
-        PlayerData data = new PlayerData();
-        Map<Player, Integer> pMap = data.getPlayerMap();
-        if (pMap.containsKey(p)){
-            Integer currentStrength = pMap.get(p);
-            Integer strengthDecrement = Settings.reduceStrengthOnDeath;
-            Integer reducedStrength = currentStrength - strengthDecrement;
-            pMap.put(p,reducedStrength);
-            data.setPlayerMap(pMap);
-        }
+
     }
 
     @EventHandler

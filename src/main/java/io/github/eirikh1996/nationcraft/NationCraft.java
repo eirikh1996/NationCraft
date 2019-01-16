@@ -4,16 +4,25 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
-import io.github.eirikh1996.nationcraft.commands.ClaimSettlementTerritoryCommand;
 import io.github.eirikh1996.nationcraft.commands.NationCommand;
-import io.github.eirikh1996.nationcraft.commands.CreateSettlementCommand;
-import io.github.eirikh1996.nationcraft.commands.NationInfoCommand;
+import io.github.eirikh1996.nationcraft.config.Settings;
+import io.github.eirikh1996.nationcraft.nation.NationManager;
+import io.github.eirikh1996.nationcraft.nation.NationSaveTask;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class NationCraft extends JavaPlugin {
 	private static NationCraft instance;
+
 	
 	public void onEnable() {
+
+		//Load config file
+		this.saveDefaultConfig();
+		NationManager.initialize();
+		//Read config file
+		Settings.maxPlayersPerNation = getConfig().getInt("MaxPlayersPerNation", 50);
+
+		//Load players file
 		File playerFile = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "players.yml");
 		if (!playerFile.exists()) {
 			try {
@@ -25,17 +34,18 @@ public class NationCraft extends JavaPlugin {
 				e.printStackTrace();
 			}
 		}
+		//
+
 		//Now register commands
-		this.getCommand("claimsettlementterritory").setExecutor(new ClaimSettlementTerritoryCommand(this));
 		this.getCommand("nation").setExecutor(new NationCommand());
-		this.getCommand("createsettlement").setExecutor(new CreateSettlementCommand());
-		this.getCommand("nationinfo").setExecutor(new NationInfoCommand(this));
 	}
-	
+
+	@Override
 	public void onDisable() {
 		
 	}
-	
+
+	@Override
 	public void onLoad() {
 		instance = this;
 	}
