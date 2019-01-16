@@ -14,8 +14,4 @@ public class NationSaveTask extends BukkitRunnable {
             nation.saveNationToFile();
         }
     }
-
-    private void saveNationToFile(Nation n){
-
-    }
 }

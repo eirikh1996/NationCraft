@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.eirikh1996.nationcraft.events.NationCreateEvent;
+import io.github.eirikh1996.nationcraft.messages.Messages;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.nation.Ranks;
@@ -65,6 +66,29 @@ public class NationCommand implements CommandExecutor {
 			}
 			if (args[0].equalsIgnoreCase("info")){
 
+			}
+			if (args[0].equalsIgnoreCase("join")){
+				if (args.length == 1){
+					sender.sendMessage(Messages.ERROR + "You must specify the nation you wish to join");
+				} else if (args.length >= 2){
+					Nation nation = NationManager.getInstance().getNationByName(args[1]);
+					Player p = (Player) sender;
+					if (!nation.isOpen() && !nation.getInvitedPlayers().contains(p)){
+						sender.sendMessage("This nation requires invitation");
+						for (Player player : nation.getPlayers().keySet()){
+							if (!player.isOnline()){
+								continue;
+							}
+							player.sendMessage(String.format("&s tried to join your nation.", p.getName()));
+						}
+						return true;
+					}
+					if (nation.addPlayer(p)) {
+						p.sendMessage(String.format("You successfully joined %s", nation.getName()));
+					} else {
+						p.sendMessage(String.format("You are already a member of %s",nation.getName()));
+					}
+				}
 			}
 		}
 		

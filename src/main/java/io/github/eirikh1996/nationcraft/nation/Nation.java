@@ -16,6 +16,8 @@ public class Nation {
 	private static List<String> allies, enemies, settlements;
 	private static List<Chunk> territory;
 	private static Map<Player,Ranks> players;
+	private static List<Player> invitedPlayers;
+	private static boolean isOpen;
 	
 	public Nation(String name, String description, String capital, List<String> allies, List<String> enemies, List<String> settlements, List<Chunk> territory, Map<Player,Ranks> players) {
 		this.name = name;
@@ -26,6 +28,7 @@ public class Nation {
 		this.settlements = settlements;
 		this.territory = territory;
 		this.players = players;
+		invitedPlayers = new ArrayList<>();
 	}
 	/**
 	 * Constructs a nation from the data stored in each nation file
@@ -184,6 +187,14 @@ public class Nation {
 		return players;
 	}
 
+	public boolean addPlayer(Player player){
+		if (players.containsKey(player)){
+			return false;
+		}
+		players.put(player, Ranks.RECRUIT);
+		return true;
+	}
+
 	/**
 	 * Returns true if a nation contains given player
 	 * @param p Player that is part of a nation
@@ -226,5 +237,12 @@ public class Nation {
 			return false;
 		}
 	}
-	
+
+	public boolean isOpen(){
+		return isOpen;
+	}
+
+	public List<Player> getInvitedPlayers() {
+		return invitedPlayers;
+	}
 }

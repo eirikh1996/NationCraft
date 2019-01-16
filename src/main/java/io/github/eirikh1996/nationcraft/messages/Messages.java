@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.github.eirikh1996.nationcraft.nation.NationManager;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -15,8 +16,9 @@ public class Messages {
 	public static String ERROR = ChatColor.DARK_RED + "Error: ";
 	public static String WARNING = ChatColor.YELLOW + "Warning: ";
 	public static String MUST_BE_PLAYER = "You must be player to execute this command!";
+	public static String NO_PERMISSION = "You don't have permission!";
 	public void nationInfo(String nationName, Player p, Boolean ally, Boolean enemy) {
-		Nation n = new Nation();
+		Nation n = NationManager.getInstance().getNationByName(nationName);
 		String name = n.getName();
 		String description = n.getDescription();
 		List<String> allyList = n.getAllies();
