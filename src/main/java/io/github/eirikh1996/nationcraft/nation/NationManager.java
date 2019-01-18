@@ -1,12 +1,9 @@
 package io.github.eirikh1996.nationcraft.nation;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -17,13 +14,12 @@ import org.jetbrains.annotations.Nullable;
 
 public class NationManager implements Iterable<Nation> {
 	private static NationManager ourInstance;
-	private BukkitTask saveTask;
+	private boolean fileCreated;
 	private String nationFilePath = NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations";
 	@Nullable private static Set<Nation> nations = new HashSet<>();
 
 	public NationManager(){
 		nations = loadNations();
-		saveTask = new NationSaveTask().runTaskTimerAsynchronously(NationCraft.getInstance(), 0,1);
 	}
 	public static void initialize(){ ourInstance = new NationManager();}
 
@@ -45,11 +41,6 @@ public class NationManager implements Iterable<Nation> {
 					nations.add(n);
 				}
 			}
-		}
-		if (nations.isEmpty()){
-			NationCraft.getInstance().getLogger().info("No nation files found.");
-		} else {
-			NationCraft.getInstance().getLogger().info(String.format("Loaded %d Nation files", nations.size()));
 		}
 		return nations;
 	}
@@ -84,17 +75,14 @@ public class NationManager implements Iterable<Nation> {
 
 	public boolean nationDataChanged(Nation nation){
 		File nationFile = getNationFile(nation.getName());
+		if (!nationFile.exists()){
+			return true;
+		}
 		Nation fileNation = new Nation(nationFile);
 		if (fileNation == null){
 			return true;
 		}
-		return nation.getName() != fileNation.getName() ||
-				nation.getAllies() != fileNation.getAllies()||
-				nation.getEnemies() != fileNation.getEnemies() ||
-				nation.getDescription() != fileNation.getDescription() ||
-				nation.getCapital() != fileNation.getCapital() ||
-				nation.getPlayers() != fileNation.getPlayers() ||
-				nation.getTerritory() != fileNation.getTerritory();
+		return fileNation != nation;
 	}
 
 	public File getNationFile(String nationName){
@@ -118,17 +106,96 @@ public class NationManager implements Iterable<Nation> {
 	public Nation getNationByPlayer(Player p){
 		Nation returnNation = null;
 		for (Nation n : nations){
-			if (n.hasPlayer(p)){
+			if (n.getPlayers().containsKey(p.getUniqueId())){
 				returnNation = n;
 			}
 		}
 		return returnNation;
 	}
 
-	public void saveAllNationsToFile(){
-		for (Nation n : nations){
-			n.saveNationToFile();
+	public boolean saveNationToFile(Nation n){
+		String path = NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations";
+		File f = new File(path);
+		if (!f.exists()){
+			f.mkdirs();
 		}
+		path += "/";
+		path += n.getName();
+		path += ".nation";
+		f = new File(path);
+		if (!f.exists()){
+			try {
+				f.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+
+		try {
+			FileWriter writer = new FileWriter(path);
+			writer.write("name: " + n.getName() + "\n");
+			writer.write("description: " + n.getDescription() + "\n");
+			writer.write("capital: " + n.getCapital() + "\n");
+			writer.write("allies:\n");
+			for (String ally : n.getAllies()){
+				writer.write("- " + ally + "\n");
+			}
+			writer.write("enemies:\n");
+			for (String enemy : n.getEnemies()){
+				writer.write("- " + enemy + "\n");
+			}
+			writer.write("settlements:\n");
+			for (String settlement : n.getSettlements()){
+				writer.write("- " + settlement + "\n");
+			}
+			writer.write("territory:\n");
+			for (Chunk tc : n.getTerritory()){
+				writer.write("- [" + tc.getWorld().getName() + ", " + tc.getX() + ", " + tc.getZ() + "]\n");
+			}
+			writer.write("isOpen: " + n.isOpen() + "\n");
+			writer.write("invitedPlayers:\n");
+			for (UUID id : n.getInvitedPlayers()){
+				writer.write("- " + id + "\n");
+			}
+
+			writer.write("players:\n");
+			for (UUID id : n.getPlayers().keySet()){
+				Ranks r = n.getPlayers().get(id);
+				writer.write("  " + id + ": " + r + "\n");
+			}
+			writer.close();
+			return true;
+		} catch (IOException e){
+			e.printStackTrace();
+			return false;
+		}
+
+	}
+	public boolean deleteNation(Nation n){
+		File nationFile = getNationFile(n.getName());
+		if (nations.remove(n)){
+			return nationFile.delete();
+		}
+		return false;
+	}
+
+	public ChatColor getColor(Player p, Nation n){
+		ChatColor returnColor = ChatColor.RESET;
+		Nation pNation = NationManager.getInstance().getNationByPlayer(p);
+		if (pNation == n){
+			returnColor = ChatColor.GREEN;
+		}
+		else if (pNation.getRelationTo(n) == Relation.ENEMY){
+			returnColor = ChatColor.RED;
+		}
+		else if (pNation.getRelationTo(n) == Relation.ALLY){
+			returnColor = ChatColor.DARK_PURPLE;
+		}
+		else if (pNation.getRelationTo(n) == Relation.NEUTRAL){
+			returnColor = ChatColor.WHITE;
+		}
+		return returnColor;
 	}
 
 	public static NationManager getInstance(){

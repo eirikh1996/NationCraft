@@ -1,12 +1,26 @@
 name: NationCraft
 main: io.github.eirikh1996.nationcraft.NationCraft
-version: 1.0
+version: ${project.version}
 author: eirikh1996
 commands:
   nation:
-    usage: /createnation <name>
+    usage: /nation <name>
     description: Creates a new nation
   settlement:
-    usage: /createsettlement <name>
+    usage: /settlement <name>
     description: Creates a new settlement
-
+permissions:
+  nationcraft.nation.*:
+    default: true
+    children:
+      create: true
+      join: true
+      leave: true
+      disband: true
+      war: true
+  nationcraft.settlement.*:
+     default: true
+     children:
+       create: true
+  nationcraft.admin.*:
+    default: op

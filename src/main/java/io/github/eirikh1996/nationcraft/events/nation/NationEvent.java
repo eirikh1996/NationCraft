@@ -1,4 +1,4 @@
-package io.github.eirikh1996.nationcraft.events;
+package io.github.eirikh1996.nationcraft.events.nation;
 
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import org.bukkit.event.Cancellable;
