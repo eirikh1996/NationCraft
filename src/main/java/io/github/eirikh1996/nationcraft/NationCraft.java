@@ -12,6 +12,7 @@ import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,18 +31,18 @@ public class NationCraft extends JavaPlugin {
 		else {
 			getLogger().info(String.format("Loaded %d nation files", NationManager.getInstance().getNations().size()));
 		}
-		Nation safezone = nManager.getNationByName("Safezone");
-		Nation warzone = nManager.getNationByName("Warzone");
 		boolean szCreated = false;
 		boolean wzCreated = false;
-		if (safezone == null){
+		File szFile = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations/Safezone.nation");
+		File wzFile = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations/Warzone.nation");
+		if (!szFile.exists()){
 			szCreated = nManager.createSafezone();
 			if (szCreated)
 				getLogger().info("Safezone file created.");
 			else
 				getLogger().warning("Safezone failed to create file!");
 		}
-		if (warzone == null){
+		if (!wzFile.exists()){
 			wzCreated = nManager.createWarzone();
 			if (wzCreated)
 			getLogger().info("Safezone file created.");

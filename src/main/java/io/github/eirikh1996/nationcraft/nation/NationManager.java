@@ -28,24 +28,32 @@ public class NationManager implements Iterable<Nation> {
 	    this.nations = loadNations();
     }
 
-	public Set<Nation> loadNations(){
+	public HashSet<Nation> loadNations(){
 		File nationFiles = new File(nationFilePath);
 		if (!nationFiles.exists()){
 			nationFiles.mkdirs();
 		}
-		Set<Nation> nations = new HashSet<>();
+		HashSet<Nation> nations = new HashSet<>();
 		File[] files = nationFiles.listFiles();
 		if (files == null) {
 			return nations;
 		}
 
 		for (File file : files) {
-			if (file.isFile()) {
-				if (file.getName().contains(".nation")) {
-					nations.add(new Nation(file));
-				}
+			if (!file.isFile()) {
+				continue;
 			}
+			if (!file.getName().contains(".nation")) {
+				continue;
+			}
+			Nation n = new Nation(file);
+			nations.add(n);
+			NationCraft.getInstance().getLogger().info(n.getName());
 		}
+        NationCraft.getInstance().getLogger().info("Nations loaded: ");
+		for (Nation nation : nations){
+		    NationCraft.getInstance().getLogger().info(nation.getName());
+        }
 		return nations;
 	}
 	public Nation getNationAt(Chunk chunk){

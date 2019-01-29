@@ -7,6 +7,7 @@ import io.github.eirikh1996.nationcraft.NationCraft;
 import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.events.nation.NationPlayerInviteEvent;
 import io.github.eirikh1996.nationcraft.events.nation.NationPlayerJoinEvent;
+import io.github.eirikh1996.nationcraft.exception.NationNotFoundException;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -16,13 +17,13 @@ import org.yaml.snakeyaml.Yaml;
 
 
 
-public class Nation {
-	private static String name, description, capital;
-	private static List<String> allies, enemies, settlements;
-	private static Set<Chunk> territory;
-	private static Map<UUID, Ranks> players;
-	private static Set<UUID> invitedPlayers;
-	private static boolean isOpen;
+final public class Nation {
+	private String name, description, capital;
+	private final List<String> allies, enemies, settlements;
+	private final Set<Chunk> territory;
+	private final Map<UUID, Ranks> players;
+	private final Set<UUID> invitedPlayers;
+	private final boolean isOpen;
 	
 	public Nation(String name, String description, String capital, List<String> allies, List<String> enemies, List<String> settlements, Set<Chunk> territory, Map<UUID,Ranks> players) {
 		this.name = name;
@@ -33,6 +34,7 @@ public class Nation {
 		this.settlements = settlements;
 		this.territory = territory;
 		this.players = players;
+		isOpen = false;
 		invitedPlayers = new HashSet<>();
 	}
 	/**
@@ -40,14 +42,14 @@ public class Nation {
 	 * @param nationFile The nation file's path
 	 */
 	public Nation(File nationFile) {
-		Map data = new HashMap<Object, Object>();
+		final Map data;
 		try {
 			InputStream input = new FileInputStream(nationFile);
 			Yaml yaml = new Yaml();
 			data = (Map) yaml.load(input);
 			input.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new NationNotFoundException("File at " + nationFile.getAbsolutePath() + " was fot found!");
 		}
 		name = (String) data.get("name");
 		description = (String) data.get("description");
@@ -184,8 +186,6 @@ public class Nation {
 		return allies;
 	}
 
-	public void setAllies(List<String> allies) { this.allies = allies; }
-
 	public boolean addAlly(String ally){
 		return allies.add(ally);
 	}
@@ -205,8 +205,6 @@ public class Nation {
 	public boolean removeEnemy(String enemy){
 		return enemies.remove(enemy);
 	}
-
-	public void setEnemies(List<String> enemies) { this.enemies = enemies; }
 
 	public List<String> getSettlements() { return settlements; }
 	
