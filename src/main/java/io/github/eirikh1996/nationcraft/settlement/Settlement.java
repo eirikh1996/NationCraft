@@ -6,9 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
@@ -17,10 +15,10 @@ import org.yaml.snakeyaml.Yaml;
 public class Settlement {
 	private static String name;
 	private static Chunk townCenter;
-	private static List<Chunk> territory;
-	private static List<Player> players;
+	private static LinkedList<Chunk> territory;
+	private static List<UUID> players;
 	
-	public Settlement(File settlementFile) throws FileNotFoundException {
+	public Settlement(File settlementFile) {
 		Map data = new HashMap();
 		try {
 			InputStream input = new FileInputStream(settlementFile);
@@ -33,11 +31,11 @@ public class Settlement {
 		}
 			name = (String) data.get("name");
 			townCenter = (Chunk) data.get("townCenter"); 
-			territory = (List<Chunk>) data.get("territory");
-			players = (List<Player>) data.get("players");
+			territory = (LinkedList<Chunk>) data.get("territory");
+			players = (List<UUID>) data.get("players");
 		
 	}
-	public Settlement(String name, Chunk townCenter, List<Chunk> territory, List<Player> players) {
+	public Settlement(String name, Chunk townCenter, LinkedList<Chunk> territory, List<UUID> players) {
 		this.name = name;
 		this.townCenter = townCenter;
 		this.territory = territory;
@@ -50,11 +48,11 @@ public class Settlement {
 
 	
 	public void addPlayer(Player p) {
-		players.add(p);
+		players.add(p.getUniqueId());
 	}
 	
 	public void removePlayer(Player p) {
-		players.remove(p);
+		players.remove(p.getUniqueId());
 	}
 	
 	public void setName(String name) {
@@ -86,7 +84,7 @@ public class Settlement {
 		return name;
 	}
 	
-	public List<Player> getPlayers() {
+	public List<UUID> getPlayers() {
 		return players;
 	}
 	

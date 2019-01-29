@@ -1,5 +1,10 @@
 maxStrengthPerPlayer: 30
 maxAllies: -1
+maxTruces: -1
 maxPlayersPerNation: 50
 forbiddenNames: #Names that are forbidden to use for nations or settlements
 reduceStrengthOnDeath: 1
+forbiddenCommandsInEnemyTerritory:
+  - tpa
+  - home
+  - warp

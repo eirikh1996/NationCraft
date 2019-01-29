@@ -2,11 +2,16 @@ package io.github.eirikh1996.nationcraft.commands;
 
 import java.util.*;
 
+import io.github.eirikh1996.nationcraft.claiming.ClaimUtils;
+import io.github.eirikh1996.nationcraft.claiming.Shape;
+import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.events.nation.NationCreateEvent;
+import io.github.eirikh1996.nationcraft.events.nation.NationPlayerInviteEvent;
 import io.github.eirikh1996.nationcraft.messages.Messages;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.nation.Ranks;
+import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.utils.TopicPaginator;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -30,7 +35,7 @@ public class NationCommand implements TabExecutor {
 			return true;
 		}
 		if (args.length < 1) {
-			sender.sendMessage("Type /nation help for halp on the nation command");
+			sender.sendMessage("Type /nation help for help on the nation command");
 			return true;
 		}
 		if (args[0].equalsIgnoreCase("create")){
@@ -101,6 +106,14 @@ public class NationCommand implements TabExecutor {
 				return true;
 			}
 			listNationsCommand((Player) sender,Integer.parseInt(args[1]));
+		} else if (args[0].equalsIgnoreCase("invite")){
+			if (args.length == 1){
+				sender.sendMessage(Messages.ERROR + "You must specify a player name!");
+				return true;
+			}
+            invitePlayerCommand((Player) sender, args[1]);
+		} else if (args[0].equalsIgnoreCase("claim")) {
+
 		}
 		return true;
 	}
@@ -126,7 +139,7 @@ public class NationCommand implements TabExecutor {
 			return;
 		}
 		String description = "Default description";
-		List<Chunk> territory = new ArrayList<>();
+		Set<Chunk> territory = new HashSet<>();
 		String capital = "(none)";
 		List<String> settlements = new ArrayList<>();
 		List<String> allies = new ArrayList<>();
@@ -210,9 +223,10 @@ public class NationCommand implements TabExecutor {
 			return;
 		}
 		TopicPaginator paginator = new TopicPaginator("Nations");
-		for (Nation n : NationManager.getInstance().getNations()){
+		for (Nation n : NationManager.getInstance()){
 			String nationName = NationManager.getInstance().getColor(p,n) + n.getName() + ChatColor.YELLOW;
-			paginator.addLine(String.format("%s: Players: %d, Settlements: %d, Capital: %s", nationName,n.getPlayers().keySet().size(),n.getSettlements().size(),n.getCapital()));
+			int settlements = n.getSettlements() != null ? n.getSettlements().size() : 0;
+			paginator.addLine(String.format("%s: Players: %d, Settlements: %d, Capital: %s", nationName,n.getPlayers().keySet().size(),settlements,n.getCapital()));
 		}
 		for (String msg : paginator.getPage(page)){
 			p.sendMessage(msg);
@@ -229,7 +243,7 @@ public class NationCommand implements TabExecutor {
 			p.sendMessage(Messages.ERROR + "You must leave your nation before you can join another");
 			return;
 		}
-		if (!nation.isOpen() && !nation.getInvitedPlayers().contains(p)){
+		if (!nation.isOpen() && !nation.getInvitedPlayers().contains(p.getUniqueId())){
 			p.sendMessage("This nation requires invitation");
 			for (UUID id : nation.getPlayers().keySet()){
 				Player player = Bukkit.getPlayer(id);
@@ -240,7 +254,12 @@ public class NationCommand implements TabExecutor {
 			}
 			return;
 		}
+		if (nation.getPlayers().keySet().size() >= Settings.maxPlayersPerNation){
+			p.sendMessage(Messages.ERROR + "Nation " + nation.getName() + " is full! Join another nation, or create your own.");
+			return;
+		}
 		if (nation.addPlayer(p)) {
+		    nation.getInvitedPlayers().remove(p.getUniqueId());
 			p.sendMessage(String.format("You successfully joined %s", nation.getName()));
 		} else {
 			p.sendMessage(String.format("You are already a member of %s",nation.getName()));
@@ -270,25 +289,139 @@ public class NationCommand implements TabExecutor {
 			}
 		}
 	}
+	private void invitePlayerCommand(Player p, String playerName){
+		Nation n = NationManager.getInstance().getNationByPlayer(p);
+		if (n == null){
+			p.sendMessage(Messages.ERROR + "You are not in a nation!");
+			return;
+		}
+		if (!PlayerManager.getInstance().playerIsAtLeast(p, Ranks.OFFICER)){
+			p.sendMessage("You must be at least officer to invite players");
+			return;
+		}
+		UUID id;
+		if (Bukkit.getPlayer(playerName) != null){
+		    Player target = Bukkit.getPlayer(playerName);
+			id = target.getUniqueId();
+            target.sendMessage("You have been invited to join " + NationManager.getInstance().getColor(target, n) + n.getName());
+		} else {
+			id = PlayerManager.getInstance().getPlayerIDFromName(playerName);
+		}
+		if (id == null){
+			p.sendMessage(Messages.ERROR + "Player " + playerName + " has never joined the server!");
+			return;
+		}
+        n.invite(id);
+	}
+
+	private void claimTerritoryCommand(Player sender, String shapeName, int radius, String nationName){
+		Nation nation = NationManager.getInstance().getNationByPlayer(sender);
+		NationManager manager = NationManager.getInstance();
+		Shape shape = Shape.getShape(shapeName);
+		if (nation == null){
+			sender.sendMessage(Messages.ERROR + "You are not in a nation!");
+			return;
+		}
+		if (shape == null){
+			Chunk claim = sender.getLocation().getChunk();
+			Nation foundNation = manager.getNationAt(claim);
+			if (foundNation != null){
+				if (foundNation.isStrongEnough()){
+					sender.sendMessage(foundNation.getName() + " owns this land and is strong enough to hold it.");
+				} else if (foundNation.getName().equalsIgnoreCase("safezone") || foundNation.getName().equalsIgnoreCase("warzone")){
+					sender.sendMessage("You cannot claim from " + foundNation.getName() + "'s territory!");
+				}
+				else {
+					sender.sendMessage("You claimed 1 piece of land from " + foundNation.getName());
+					for (UUID id : foundNation.getPlayers().keySet()){
+						Player p = Bukkit.getPlayer(id);
+						if (p == null){
+							continue;
+						}
+						p.sendMessage(nation.getName() + " claimed 1 piece of territory from your land!");
+					}
+				}
+			}
+			if (nation.getTerritory().add(claim)){
+
+			}
+		} else if (shape == Shape.CIRCLE){
+			Set<Chunk> claimedTerritory = ClaimUtils.claimCircularTerritory(sender, radius);
+			boolean alreadyOwning = false;
+			boolean strongEnough = false;
+			for (Chunk c : claimedTerritory){
+			    Nation owner = NationManager.getInstance().getNationAt(c);
+			    if (owner == nation){
+			        alreadyOwning = true;
+			        claimedTerritory.remove(c);
+                }
+			    else if (owner != null && owner != nation){
+			        if (owner.isStrongEnough()){
+			            strongEnough = true;
+			            claimedTerritory.remove(c);
+                    }
+                }
+            }
+			if (alreadyOwning){
+			    sender.sendMessage("Your nation already owns this land");
+            }
+			if (strongEnough){
+			    sender.sendMessage("");
+            }
+		}
+		if (nationName != null){
+			if (!sender.hasPermission("nation.claim.others")){
+				sender.sendMessage(Messages.ERROR + "You can only claim territory for your own nation");
+				return;
+			}
+		}
+	}
 
 
 	@Override
 	public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
-		List<String> returnList = new ArrayList<>();
-		if (commandSender.hasPermission("nationcraft.nation.create"))
-			returnList.add("create");
-		if (commandSender.hasPermission("nationcraft.nation.join"))
-			returnList.add("join");
-		if (commandSender.hasPermission("nationcraft.nation.leave"))
-			returnList.add("leave");
-		if (commandSender.hasPermission("nationcraft.nation.info"))
-			returnList.add("info");
-		if (commandSender.hasPermission("nationcraft.nation.disband"))
-			returnList.add("disband");
-		if (commandSender.hasPermission("nationcraft.nation.kick"))
-			returnList.add("kick");
-		if (commandSender.hasPermission("nationcraft.nation.claim"))
-			returnList.add("claim");
-		return null;
+		List<String> completions = new ArrayList<>();
+		if (strings.length != 1 && !strings[0].equalsIgnoreCase("invite")){
+			return Collections.emptyList();
+		}else if (strings[0].equalsIgnoreCase("invite")){
+			//first, fetch names of players currently online
+			for (Player p : Bukkit.getOnlinePlayers()){
+				completions.add(p.getName());
+			}
+			//then add the names of players that have joined in the past
+			for (Map<String, Object> dataMap : PlayerManager.getInstance().getPlayers().values()){
+				for (String key : dataMap.keySet()){
+					String name = (String) dataMap.get("name");
+					if (!completions.contains(name)){
+						completions.add(name);
+					}
+				}
+			}
+		}
+		else  {
+			if (commandSender.hasPermission("nationcraft.nation.create"))
+				completions.add("create");
+			if (commandSender.hasPermission("nationcraft.nation.join"))
+				completions.add("join");
+			if (commandSender.hasPermission("nationcraft.nation.leave"))
+				completions.add("leave");
+			if (commandSender.hasPermission("nationcraft.nation.info"))
+				completions.add("info");
+			if (commandSender.hasPermission("nationcraft.nation.disband"))
+				completions.add("disband");
+			if (commandSender.hasPermission("nationcraft.nation.kick"))
+				completions.add("kick");
+			if (commandSender.hasPermission("nationcraft.nation.claim"))
+				completions.add("claim");
+			if (commandSender.hasPermission("nationcraft.nation.invite"))
+				completions.add("invite");
+		}
+		List<String> returnValues = new ArrayList<>();
+		for (String completion : completions){
+			if (completion.startsWith(strings[strings.length - 1].toLowerCase())){
+				returnValues.add(completion);
+			}
+		}
+		return returnValues;
 	}
 }

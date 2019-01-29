@@ -4,7 +4,10 @@ import java.io.*;
 import java.util.*;
 
 import io.github.eirikh1996.nationcraft.NationCraft;
+import io.github.eirikh1996.nationcraft.config.Settings;
+import io.github.eirikh1996.nationcraft.events.nation.NationPlayerInviteEvent;
 import io.github.eirikh1996.nationcraft.events.nation.NationPlayerJoinEvent;
+import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -16,12 +19,12 @@ import org.yaml.snakeyaml.Yaml;
 public class Nation {
 	private static String name, description, capital;
 	private static List<String> allies, enemies, settlements;
-	private static List<Chunk> territory;
+	private static Set<Chunk> territory;
 	private static Map<UUID, Ranks> players;
-	private static List<UUID> invitedPlayers;
+	private static Set<UUID> invitedPlayers;
 	private static boolean isOpen;
 	
-	public Nation(String name, String description, String capital, List<String> allies, List<String> enemies, List<String> settlements, List<Chunk> territory, Map<UUID,Ranks> players) {
+	public Nation(String name, String description, String capital, List<String> allies, List<String> enemies, List<String> settlements, Set<Chunk> territory, Map<UUID,Ranks> players) {
 		this.name = name;
 		this.description = description;
 		this.capital = capital;
@@ -30,7 +33,7 @@ public class Nation {
 		this.settlements = settlements;
 		this.territory = territory;
 		this.players = players;
-		invitedPlayers = new ArrayList<>();
+		invitedPlayers = new HashSet<>();
 	}
 	/**
 	 * Constructs a nation from the data stored in each nation file
@@ -49,26 +52,33 @@ public class Nation {
 		name = (String) data.get("name");
 		description = (String) data.get("description");
 		capital = (String) data.get("capital");
-		allies = (List<String>) data.get("allies");
-		enemies = (List<String>) data.get("enemies");
-		settlements = (List<String>) data.get("settlements");
+		allies = (List<String>) data.getOrDefault("allies", Collections.emptyList());
+		enemies = (List<String>) data.getOrDefault("enemies", Collections.emptyList());
+		settlements = (List<String>) data.getOrDefault("settlements", Collections.emptyList());
 		territory = chunkListFromObject(data.get("territory"));
 		invitedPlayers = playerIDListFromObject(data.get("invitedPlayers"));
 		isOpen = (boolean) data.get("isOpen");
 		players = getPlayersAndRanksFromObject(data.get("players"));
 	}
-	private List<UUID> playerIDListFromObject(Object obj){
-		List<UUID> returnList = new ArrayList<>();
+	private Set<UUID> playerIDListFromObject(Object obj){
+		Set<UUID> returnList = new HashSet<>();
 		List<Object> objList = (List<Object>) obj;
-		for (Object o : objList){
-			String idStr = (String) o;
-			returnList.add(UUID.fromString(idStr));
+		if (objList == null){
+			returnList = Collections.emptySet();
+		} else {
+			for (Object o : objList) {
+				String idStr = (String) o;
+				returnList.add(UUID.fromString(idStr));
+			}
 		}
 		return returnList;
 	}
 	private Map<UUID, Ranks> getPlayersAndRanksFromObject(Object obj){
 		HashMap<UUID, Ranks> returnMap = new HashMap<>();
 		HashMap<Object, Object> objMap = (HashMap<Object, Object>) obj;
+		if (objMap == null){
+			return Collections.emptyMap();
+		}
 		for (Object o : objMap.keySet()) {
 			UUID id = null;
 			if (o instanceof UUID){
@@ -92,11 +102,11 @@ public class Nation {
 		return returnMap;
 	}
 
-	private List<Chunk> chunkListFromObject(Object obj){
-		List<Chunk> returnList = new ArrayList<>();
+	private Set<Chunk> chunkListFromObject(Object obj){
+		Set<Chunk> returnList = new HashSet<>();
 		List<Object> objList = (List<Object>) obj;
 		if (objList == null){
-			return returnList;
+			return Collections.emptySet();
 		}
 		for (Object o : objList){
 			if (o instanceof ArrayList){
@@ -116,8 +126,12 @@ public class Nation {
 		return getRelationTo(NationManager.getInstance().getNationByName(nationName));
 	}
 	public Relation getRelationTo(Nation otherNation){
+		if (allies == null || enemies == null){
+
+			return Relation.NEUTRAL;
+		}
 		if (otherNation == this){
-			return null;
+			return Relation.OWN;
 		}
 		else if (allies.contains(otherNation.getName()) && otherNation.getAllies().contains(name)){
 			return Relation.ALLY;
@@ -128,10 +142,6 @@ public class Nation {
 			return Relation.NEUTRAL;
 		}
 	}
-	/**
-	 *  Saves the nation data to .nation file
-	 *
-	 */
 
 
 	/**
@@ -200,7 +210,7 @@ public class Nation {
 
 	public List<String> getSettlements() { return settlements; }
 	
-	public List<Chunk> getTerritory(){
+	public Set<Chunk> getTerritory(){
 		return territory;
 	}
 	
@@ -209,18 +219,19 @@ public class Nation {
 	}
 
 	public boolean addPlayer(Player player){
-		if (players.containsKey(player)){
+		if (players.containsKey(player.getUniqueId())){
 			return false;
 		}
 		//call event
         NationPlayerJoinEvent event = new NationPlayerJoinEvent(player, this);
-		NationCraft.getInstance().getServer().getPluginManager().callEvent(event);
+
 		//check if event was cancelled
 		if (event.isCancelled()){
 		    return false;
         }
 		//if not, add the player and assign recruit rank
 		players.put(player.getUniqueId(), Ranks.RECRUIT);
+		NationCraft.getInstance().getServer().getPluginManager().callEvent(event);
 		return true;
 	}
 
@@ -274,7 +285,25 @@ public class Nation {
 	public boolean hasPlayer(Player p) {
 		return players.containsKey(p);
 	}
-	
+	public boolean isStrongEnough(){
+		return getStrength() >= territory.size();
+	}
+
+	public int getStrength(){
+		int strength = 0;
+		for (UUID id : players.keySet()){
+			strength += PlayerManager.getInstance().getPlayerStrength(id);
+		}
+		return strength;
+	}
+
+	public int getMaxStrength(){
+		int maxStrength = 0;
+		for (UUID id : players.keySet()){
+			maxStrength += Settings.maxStrengthPerPlayer;
+		}
+		return maxStrength;
+	}
 	public boolean isAlliedWith(String alliedNation) {
 		List<String> alliedNations = allies;
 		if (alliedNations.contains(alliedNation)) {
@@ -309,11 +338,29 @@ public class Nation {
 		}
 	}
 
+	public Ranks getRankByPlayer(Player p){
+		return players.get(p.getUniqueId());
+	}
+
 	public boolean isOpen(){
 		return isOpen;
 	}
 
-	public List<UUID> getInvitedPlayers() {
+	public Set<UUID> getInvitedPlayers() {
 		return invitedPlayers;
+	}
+
+	public boolean invite(UUID id){
+		invitedPlayers.add(id);
+		NationPlayerInviteEvent event = new NationPlayerInviteEvent(this, id);
+		NationCraft.getInstance().getServer().getPluginManager().callEvent(event);
+		if (event.isCancelled()){
+			invitedPlayers.remove(id);
+			return false;
+		}
+		return true;
+	}
+	public boolean deinvite(UUID id){
+		return invitedPlayers.remove(id);
 	}
 }

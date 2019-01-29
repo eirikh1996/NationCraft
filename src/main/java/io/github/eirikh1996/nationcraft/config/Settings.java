@@ -10,6 +10,7 @@ public class Settings {
 	public static List<String> forbiddenNames = null; //Names that are forbidden to use for nations or settlements
 	public static int reduceStrengthOnDeath = 1;
 	public static List<String> reduceStrengthInWorlds = new ArrayList<>();
+	public static List<String> forbiddenCommandsInEnemyTerritory = new ArrayList<>();
 
 
 	

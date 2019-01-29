@@ -6,6 +6,9 @@ commands:
   nation:
     usage: /nation <name>
     description: Creates a new nation
+  map:
+    usage: /map [auto]
+    description: Displays territory map
   settlement:
     usage: /settlement <name>
     description: Creates a new settlement

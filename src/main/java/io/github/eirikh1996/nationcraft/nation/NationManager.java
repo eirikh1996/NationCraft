@@ -2,6 +2,7 @@ package io.github.eirikh1996.nationcraft.nation;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -16,12 +17,16 @@ public class NationManager implements Iterable<Nation> {
 	private static NationManager ourInstance;
 	private boolean fileCreated;
 	private String nationFilePath = NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations";
-	@Nullable private static Set<Nation> nations = new HashSet<>();
+	@NotNull private Set<Nation> nations;
 
 	public NationManager(){
-		nations = loadNations();
+		this.nations = loadNations();
 	}
 	public static void initialize(){ ourInstance = new NationManager();}
+
+	public void reload(){
+	    this.nations = loadNations();
+    }
 
 	public Set<Nation> loadNations(){
 		File nationFiles = new File(nationFilePath);
@@ -37,8 +42,7 @@ public class NationManager implements Iterable<Nation> {
 		for (File file : files) {
 			if (file.isFile()) {
 				if (file.getName().contains(".nation")) {
-					Nation n = new Nation(file);
-					nations.add(n);
+					nations.add(new Nation(file));
 				}
 			}
 		}
@@ -105,7 +109,7 @@ public class NationManager implements Iterable<Nation> {
 
 	public Nation getNationByPlayer(Player p){
 		Nation returnNation = null;
-		for (Nation n : nations){
+		for (Nation n : this){
 			if (n.getPlayers().containsKey(p.getUniqueId())){
 				returnNation = n;
 			}
@@ -138,27 +142,47 @@ public class NationManager implements Iterable<Nation> {
 			writer.write("description: " + n.getDescription() + "\n");
 			writer.write("capital: " + n.getCapital() + "\n");
 			writer.write("allies:\n");
-			for (String ally : n.getAllies()){
-				writer.write("- " + ally + "\n");
+			if (n.getAllies() != null) {
+				if (!n.getAllies().isEmpty()) {
+					for (String ally : n.getAllies()) {
+						writer.write("- " + ally + "\n");
+					}
+				}
 			}
 			writer.write("enemies:\n");
-			for (String enemy : n.getEnemies()){
-				writer.write("- " + enemy + "\n");
+			if (n.getEnemies() != null) {
+				if (!n.getEnemies().isEmpty()) {
+					for (String enemy : n.getEnemies()) {
+						writer.write("- " + enemy + "\n");
+					}
+				}
 			}
 			writer.write("settlements:\n");
-			for (String settlement : n.getSettlements()){
-				writer.write("- " + settlement + "\n");
+			if (n.getSettlements() != null) {
+				if (!n.getSettlements().isEmpty()) {
+					for (String settlement : n.getSettlements()) {
+						writer.write("- " + settlement + "\n");
+					}
+				}
 			}
 			writer.write("territory:\n");
-			for (Chunk tc : n.getTerritory()){
-				writer.write("- [" + tc.getWorld().getName() + ", " + tc.getX() + ", " + tc.getZ() + "]\n");
+			if (n.getTerritory() != null) {
+				if (!n.getTerritory().isEmpty()) {
+					for (Chunk tc : n.getTerritory()) {
+						writer.write("- [" + tc.getWorld().getName() + ", " + tc.getX() + ", " + tc.getZ() + "]\n");
+					}
+				}
 			}
 			writer.write("isOpen: " + n.isOpen() + "\n");
 			writer.write("invitedPlayers:\n");
-			for (UUID id : n.getInvitedPlayers()){
-				writer.write("- " + id + "\n");
-			}
+			if (n.getInvitedPlayers() != null) {
+				if (n.getInvitedPlayers().isEmpty()) {
 
+					for (UUID id : n.getInvitedPlayers()) {
+						writer.write("- " + id + "\n");
+					}
+				}
+			}
 			writer.write("players:\n");
 			for (UUID id : n.getPlayers().keySet()){
 				Ranks r = n.getPlayers().get(id);
@@ -183,7 +207,10 @@ public class NationManager implements Iterable<Nation> {
 	public ChatColor getColor(Player p, Nation n){
 		ChatColor returnColor = ChatColor.RESET;
 		Nation pNation = NationManager.getInstance().getNationByPlayer(p);
-		if (pNation == n){
+		if (pNation == null){
+		    return ChatColor.WHITE;
+        }
+		else if (pNation == n){
 			returnColor = ChatColor.GREEN;
 		}
 		else if (pNation.getRelationTo(n) == Relation.ENEMY){
@@ -193,9 +220,27 @@ public class NationManager implements Iterable<Nation> {
 			returnColor = ChatColor.DARK_PURPLE;
 		}
 		else if (pNation.getRelationTo(n) == Relation.NEUTRAL){
-			returnColor = ChatColor.WHITE;
+			if (n.getName().equalsIgnoreCase("safezone")){
+				returnColor = ChatColor.GOLD;
+			} else if (n.getName().equalsIgnoreCase("warzone")){
+				returnColor = ChatColor.DARK_RED;
+			} else {
+				returnColor = ChatColor.WHITE;
+			}
 		}
 		return returnColor;
+	}
+
+	public boolean createSafezone(){
+
+		Nation safezone = new Nation("Safezone","Free from PvP and monsters", "(none)",Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptySet(),Collections.emptyMap());
+		return saveNationToFile(safezone);
+	}
+
+	public boolean createWarzone(){
+
+		Nation safezone = new Nation("Warzone","Not the safest place to be!", "(none)",Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptySet(),Collections.emptyMap());
+		return saveNationToFile(safezone);
 	}
 
 	public static NationManager getInstance(){
@@ -206,9 +251,14 @@ public class NationManager implements Iterable<Nation> {
 		return nationFilePath;
 	}
 
+	public void saveAllNations(){
+		for (Nation n : nations){
+			saveNationToFile(n);
+		}
+	}
 	@NotNull
 	@Override
 	public Iterator<Nation> iterator() {
-		return Collections.unmodifiableSet(nations).iterator();
+		return Collections.unmodifiableSet(this.nations).iterator();
 	}
 }

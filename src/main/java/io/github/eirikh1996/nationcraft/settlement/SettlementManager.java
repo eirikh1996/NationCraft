@@ -3,22 +3,32 @@ package io.github.eirikh1996.nationcraft.settlement;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import io.github.eirikh1996.nationcraft.NationCraft;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import org.bukkit.Chunk;
+import org.jetbrains.annotations.NotNull;
 
-public class SettlementManager {
+public class SettlementManager implements Iterable<Settlement> {
 	private static List<Settlement> settlements;
-	private static List<Nation> nations;
-	
+	private static SettlementManager instance;
+	public SettlementManager(){
+
+	}
+	public static void initialize(){
+		instance = new SettlementManager();
+	}
 	public List<Settlement> getSettlements(){
 		return settlements;
 	}
-	
-	public boolean isOwnNationTerritory(Chunk territory) {
 
+	public static SettlementManager getInstance(){
+		return instance;
+	}
+	public boolean isOwnNationTerritory(Chunk territory) {
 		return false;
 	}
 	public void saveToFile(Settlement s) {
@@ -46,5 +56,12 @@ public class SettlementManager {
 		} else {
 
 		}
+	}
+
+
+	@NotNull
+	@Override
+	public Iterator<Settlement> iterator() {
+		return settlements.iterator();
 	}
 }

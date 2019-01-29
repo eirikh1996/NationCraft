@@ -1,0 +1,57 @@
+package io.github.eirikh1996.nationcraft.commands;
+
+import io.github.eirikh1996.nationcraft.messages.Messages;
+import io.github.eirikh1996.nationcraft.player.PlayerManager;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
+
+public class MapCommand implements TabExecutor {
+
+    @Override
+    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
+        if (!command.getName().equalsIgnoreCase("map")){
+            return false;
+        }
+        if (!(commandSender instanceof Player)){
+            commandSender.sendMessage(Messages.ERROR + Messages.MUST_BE_PLAYER);
+            return true;
+        }
+        Player p = (Player) commandSender;
+        if (strings.length == 0){
+            Messages.generateTerritoryMap(p);
+        } else if (strings[0].equalsIgnoreCase("auto")){
+            @NotNull String status = "";
+            @NotNull Map<UUID, Boolean> autoUpdateEnabled = PlayerManager.getInstance().getPlayerAutoMapUpdateEnabled();
+            if (autoUpdateEnabled.get(p.getUniqueId()) == null || !autoUpdateEnabled.get(p.getUniqueId())){
+                autoUpdateEnabled.put(p.getUniqueId(), true);
+                status = "enabled";
+            } else {
+                autoUpdateEnabled.put(p.getUniqueId(), false);
+                status = "disabled";
+            }
+            PlayerManager.getInstance().setPlayerAutoMapUpdateEnabled(autoUpdateEnabled);
+            p.sendMessage("Automatic map updates " + status);
+        }
+        return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
+        List<String> completions = new ArrayList<>();
+        if (commandSender.hasPermission("nationcraft.map")){
+            return Collections.emptyList();
+        } else {
+            completions.add("auto");
+        }
+        List<String> returnValues = new ArrayList<>();
+        for (String completion : completions){
+            returnValues.add(completion);
+        }
+        return returnValues;
+    }
+}
