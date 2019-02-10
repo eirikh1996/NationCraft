@@ -11,10 +11,13 @@ import org.bukkit.entity.Player;
 
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.Ranks;
+import org.jetbrains.annotations.NotNull;
 
 public class Messages {
 	public static String ERROR = ChatColor.DARK_RED + "Error: ";
 	public static String WARNING = ChatColor.YELLOW + "Warning: ";
+	public static String CLAIMED_TERRITORY = "%s claimed %d pieces of territory from %s";
+	public static String WILDERNESS = ChatColor.DARK_GREEN + "Wilderness";
 	public static String MUST_BE_PLAYER = "You must be player to execute this command!";
 	public static String NO_PERMISSION = "You don't have permission!";
 	public static void nationInfo(Nation n, Player p, ChatColor color) {
@@ -93,12 +96,14 @@ public class Messages {
 		}
 	public static void generateTerritoryMap(Player p){
 		Chunk chunk = p.getLocation().getChunk();
+		NationManager nManager = NationManager.getInstance();
+		Nation locN = nManager.getNationAt(chunk);
 		int minX = chunk.getX() - 20;
 		int maxX = chunk.getX() + 20;
 		int minZ = chunk.getZ() - 10;
 		int maxZ = chunk.getZ() + 10;
-		Map<Nation, String> nationMarkers = nationMarkers(20, p);
-		p.sendMessage(ChatColor.YELLOW + "======{" + ChatColor.GREEN + "Nation map" + ChatColor.YELLOW + "}======");
+		@NotNull final Map<Nation, String> nationMarkers = nationMarkers(20, p);
+		p.sendMessage(ChatColor.YELLOW + "======{" + (locN != null ? nManager.getColor(p,locN) + locN.getName() : ChatColor.DARK_GREEN + "Wilderness") + ChatColor.YELLOW + "}======");
 		for (int z = minZ ; z <= maxZ ; z++){
 			String mapLine = "";
 			String compass = "";
@@ -109,25 +114,32 @@ public class Messages {
 			for (int x = minX ; x <= maxX ; x++){
 				int column = x - minX;
 				Chunk testChunk = p.getWorld().getChunkAt(x,z);
-
+				if (line <= 2 && column <= 4){
+					continue;
+				}
 				mapLine += getTerritoryMarker(nationMarkers, testChunk, p);
 
-			}
-			if (compass.length() > 0){
-				mapLine = mapLine.substring(5, 41);
 			}
 			NationCraft.getInstance().getLogger().info(String.valueOf(compass.length()));
 			p.sendMessage(compass + mapLine);
 		}
+		if (!nationMarkers.isEmpty()){
+			String nations = "";
+			for (Nation listed : nationMarkers.keySet()){
+				if (listed == null){
+					continue;
+				}
+				nations += NationManager.getInstance().getColor(p, listed) + listed.getName() + " " + ChatColor.RESET;
+			}
+			p.sendMessage(nations);
+		}
 		p.sendMessage(ChatColor.YELLOW + "==============================================");
 	}
 
-	private static Map<Nation, String> nationMarkers( int scanRange, Player p){
+	private static Map< Nation, String> nationMarkers( int scanRange, @NotNull Player p){
 		String[] markerArray = new String[]{"/", "\\", "#", "%","+","?","$","¤","@","&","*","£","<", ">"};
-		TreeSet<String> markers = new TreeSet<>();
-		for (String marker : markerArray){
-			markers.add(marker);
-		}
+		LinkedList<String> markers = new LinkedList<>();
+		markers.addAll(Arrays.asList(markerArray));
 		Map<Nation, String> returnMap = new HashMap<>();
 		Chunk chunk = p.getLocation().getChunk();
 		int minX = chunk.getX() - scanRange;
@@ -139,20 +151,20 @@ public class Messages {
 				Chunk foundChunk = p.getWorld().getChunkAt(x,z);
 				Nation foundNation = NationManager.getInstance().getNationAt(foundChunk);
 				if (!returnMap.containsKey(foundNation)){
-					returnMap.put(foundNation, markers.first());
+					returnMap.put(foundNation, markers.pop());
 				}
 			}
 		}
 		return returnMap;
 	}
 	private static String getTerritoryMarker(Map<Nation, String> nationMarkers , Chunk territory, Player player){
-
+        Chunk pChunk = player.getLocation().getChunk();
 		String marker = "-";
-
 		Nation n = NationManager.getInstance().getNationAt(territory);
-		if (n != null){
-			marker = NationManager.getInstance().getColor(player,n) + nationMarkers.get(n);
-		} else if (territory == player.getLocation().getChunk()){
+		if (n != null ){
+			marker = NationManager.getInstance().getColor(player,n) + nationMarkers.get(n) + ChatColor.RESET;
+		}
+		if (territory == pChunk){
 			marker = ChatColor.BLUE + "+" + ChatColor.RESET;
 		}
 		return marker;

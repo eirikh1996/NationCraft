@@ -2,10 +2,12 @@ package io.github.eirikh1996.nationcraft.listener;
 
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 
 public class BlockListener implements Listener {
     @EventHandler
@@ -16,11 +18,19 @@ public class BlockListener implements Listener {
         if (foundNation == null){
             return;
         }
-
-        if (pNation != foundNation){
-            event.setCancelled(true);
-            p.sendMessage(String.format("%s does not allow you to build in their territory"));
+        if (p.hasPermission("nationcraft.territory.bypass")){
             return;
         }
+        if (pNation != foundNation){
+            event.setCancelled(true);
+            String name = NationManager.getInstance().getColor(p,foundNation) + foundNation.getName() + ChatColor.RESET;
+            p.sendMessage(String.format("%s does not allow you to build in their territory", name));
+            return;
+        }
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event){
+
     }
 }

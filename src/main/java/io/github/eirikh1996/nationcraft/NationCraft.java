@@ -1,5 +1,6 @@
 package io.github.eirikh1996.nationcraft;
 
+import com.earth2me.essentials.Essentials;
 import io.github.eirikh1996.nationcraft.commands.MapCommand;
 import io.github.eirikh1996.nationcraft.commands.NationCommand;
 import io.github.eirikh1996.nationcraft.config.Settings;
@@ -10,6 +11,9 @@ import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationFileManager;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -18,6 +22,8 @@ import java.util.List;
 
 public class NationCraft extends JavaPlugin {
 	private static NationCraft instance;
+	private static Economy economy;
+	private static Essentials essentialsPlugin;
 
 	
 	public void onEnable() {
@@ -65,6 +71,39 @@ public class NationCraft extends JavaPlugin {
 			Settings.forbiddenCommandsInEnemyTerritory = forbiddenCommandsInEnemyTerritory;
 		}
 
+		//Load plugins that are required for full functionality
+		//Essentials
+		Plugin essPlugin = getServer().getPluginManager().getPlugin("Essentials");
+		if (essPlugin != null){
+			if (essPlugin instanceof Essentials){
+				getLogger().info("NationCraft found a compatible version of Essentials. Enabling Essentials integration.");
+				essentialsPlugin = (Essentials) essPlugin;
+			}
+		}
+		if (essentialsPlugin == null){
+			getLogger().info("NationCraft did not find a compatible version of Essentials. Disabling Essentials integration");
+		}
+		//Vault
+		if (getServer().getPluginManager().getPlugin("Vault") != null){
+			RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+			if (rsp != null){
+				getLogger().info("NationCraft found a compatible version of Vault. Enabling Vault integration.");
+				economy = rsp.getProvider();
+			} else {
+				economy = null;
+			}
+		}
+		if (economy == null){
+			getLogger().info("NationCraft did not find a compatible version of Vault. Disabling Vault integration");
+			Settings.nationBankMaxBalance = 0;
+		} else {
+			long maxNationBal = getConfig().getLong("nationBankMaxBalance", 1000000000);
+			if (maxNationBal > Long.MAX_VALUE){
+				getLogger().warning("nationBankMaxBalance in config.yml was set to " + maxNationBal + ", which may cause an overflow. Setting to maximum allowed value");
+				maxNationBal = Long.MAX_VALUE;
+			}
+			Settings.nationBankMaxBalance = maxNationBal;
+		}
 		//Load players file
 
 		//register events
@@ -92,5 +131,13 @@ public class NationCraft extends JavaPlugin {
 	
 	public static synchronized NationCraft getInstance() {
 		return instance;
+	}
+
+	public Economy getEconomy(){
+		return economy;
+	}
+
+	public Essentials getEssentialsPlugin(){
+		return essentialsPlugin;
 	}
 }

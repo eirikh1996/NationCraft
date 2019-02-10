@@ -6,12 +6,15 @@ commands:
   nation:
     usage: /nation <name>
     description: Creates a new nation
+    aliases: [n]
   map:
     usage: /map [auto]
     description: Displays territory map
+    #m could have been a viable alias, but that would interfere with Essentials as /m is an alias of /msg
   settlement:
     usage: /settlement <name>
     description: Creates a new settlement
+    aliases: [s, sm]
 permissions:
   nationcraft.nation.*:
     default: true

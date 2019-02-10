@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.claiming;
 
 import org.bukkit.Chunk;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -22,14 +23,17 @@ public class ClaimUtils {
                 Vector distance = new Vector(x - pChunk.getX(), 0,z - pChunk.getZ());
                 if (distance.length() <= radius){
                     Chunk foundChunk = player.getWorld().getChunkAt(x,z);
+                    if (!foundChunk.isLoaded()){
+                        foundChunk.load();
+                    }
                     returnList.add(foundChunk);
                 }
             }
         }
         return returnList;
     }
-    public static List<Chunk> claimSquareTerritory(Player player, int radius){
-        List<Chunk> returnList = new ArrayList<>();
+    public static Set<Chunk> claimSquareTerritory(Player player, int radius){
+        Set<Chunk> returnList = new HashSet<>();
         Chunk pChunk = player.getLocation().getChunk();
         int maxX = pChunk.getX() + radius;
         int maxZ = pChunk.getZ() + radius;
@@ -41,6 +45,14 @@ public class ClaimUtils {
                 returnList.add(foundChunk);
             }
         }
+        return returnList;
+    }
+    public static Set<Chunk> claimLineTerritory(Player player, int distance) {
+        Set<Chunk> returnList = new HashSet<>();
+        int minX;
+        int minZ;
+        int maxX;
+        int maxZ;
         return returnList;
     }
 }

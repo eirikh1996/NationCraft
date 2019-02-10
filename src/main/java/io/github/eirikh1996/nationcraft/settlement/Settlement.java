@@ -8,18 +8,24 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.*;
 
+import io.github.eirikh1996.nationcraft.nation.Nation;
+import io.github.eirikh1996.nationcraft.nation.NationManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.yaml.snakeyaml.Yaml;
 
-public class Settlement {
-	private static String name;
-	private static Chunk townCenter;
-	private static LinkedList<Chunk> territory;
-	private static List<UUID> players;
+final public class Settlement {
+	private String name;
+	private final World world;
+	private Nation nation;
+	private Chunk townCenter;
+	private final Set<Chunk> territory;
+	private final List<UUID> players;
 	
 	public Settlement(File settlementFile) {
-		Map data = new HashMap();
+		final Map data;
 		try {
 			InputStream input = new FileInputStream(settlementFile);
 			Yaml yaml = new Yaml();
@@ -27,23 +33,57 @@ public class Settlement {
 			input.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SettlementNotFoundException("Settlement file at " + settlementFile.getAbsolutePath() + " was not found");
 		}
 			name = (String) data.get("name");
+			nation = NationManager.getInstance().getNationByName((String) data.get("nation"));
+			world = worldFromObject(data.get("world"));
 			townCenter = (Chunk) data.get("townCenter"); 
-			territory = (LinkedList<Chunk>) data.get("territory");
+			territory = chunkListFromObject(data.get("territory"));
 			players = (List<UUID>) data.get("players");
 		
 	}
-	public Settlement(String name, Chunk townCenter, LinkedList<Chunk> territory, List<UUID> players) {
+	public Settlement(String name, Nation nation, World world, Chunk townCenter, Set<Chunk> territory, List<UUID> players) {
 		this.name = name;
+		this.nation = nation;
+		this.world = world;
 		this.townCenter = townCenter;
 		this.territory = territory;
 		this.players = players;
 	}
-	
-	public Settlement() {
-		// TODO Auto-generated constructor stub
+	private World worldFromObject(Object obj){
+		World  returnWorld = null;
+		UUID id = null;
+		if (obj instanceof UUID){
+			id = (UUID) obj;
+		} else if (obj instanceof String){
+			String str = (String) obj;
+			id = UUID.fromString(str);
+		}
+		if (id != null){
+			returnWorld = Bukkit.getServer().getWorld(id);
+		}
+		return returnWorld;
+	}
+	private Set<Chunk> chunkListFromObject(Object obj){
+		Set<Chunk> returnList = new HashSet<>();
+		List<Object> objList = (List<Object>) obj;
+		if (objList == null){
+			return Collections.emptySet();
+		}
+		for (Object o : objList){
+			if (o instanceof ArrayList){
+				List<?> objects = (List<?>) o;
+				String wName = (String) objects.get(0);
+				int x = (Integer) objects.get(1);
+				int z = (Integer) objects.get(2);
+				World world = Bukkit.getWorld(wName);
+				returnList.add(world.getChunkAt(x, z));
+			} else if (o instanceof String){
+
+			}
+		}
+		return returnList;
 	}
 
 	
@@ -88,11 +128,25 @@ public class Settlement {
 		return players;
 	}
 	
-	public List<Chunk> getTerritory() {
+	public Set<Chunk> getTerritory() {
 		return territory;
 	}
 	
 	public Chunk getTownCenter() {
 		return townCenter;
+	}
+
+	public World getWorld(){
+		return world;
+	}
+
+	public Nation getNation(){
+		return nation;
+	}
+
+	private class SettlementNotFoundException extends RuntimeException{
+		public SettlementNotFoundException(String s){
+			super(s);
+		}
 	}
 }

@@ -40,8 +40,8 @@ public class SettlementManager implements Iterable<Settlement> {
 				writer.println("name: " + s.getName());
 				writer.println("townCenter: " + s.getTownCenter());
 				writer.println("territory:");
-				for (int i = 0 ; i <= s.getTerritory().size() ; i++) {
-					writer.println("- " + s.getTerritory().get(i));
+				for (Chunk tChunk : s.getTerritory()) {
+					writer.println("- [" + tChunk.getWorld().getName() + "," + tChunk.getX() + "," + tChunk.getZ() + "]");
 				}
 				writer.println("players:");
 				for (int i = 0 ; i <= s.getPlayers().size() ; i++) {

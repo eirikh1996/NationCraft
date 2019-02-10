@@ -13,19 +13,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
 
 
 final public class Nation {
-	private String name, description, capital;
-	private final List<String> allies, enemies, settlements;
-	private final Set<Chunk> territory;
-	private final Map<UUID, Ranks> players;
-	private final Set<UUID> invitedPlayers;
+	@NotNull private String name, description, capital;
+	@NotNull private final List<String> allies, enemies, settlements;
+	@NotNull private final Set<Chunk> territory;
+	@NotNull private final Map<UUID, Ranks> players;
+	@NotNull private final Set<UUID> invitedPlayers;
 	private final boolean isOpen;
 	
-	public Nation(String name, String description, String capital, List<String> allies, List<String> enemies, List<String> settlements, Set<Chunk> territory, Map<UUID,Ranks> players) {
+	public Nation(@NotNull String name, @NotNull String description, @NotNull String capital, @NotNull List<String> allies, @NotNull List<String> enemies, @NotNull List<String> settlements, @NotNull Set<Chunk> territory, @NotNull Map<UUID,Ranks> players) {
 		this.name = name;
 		this.description = description;
 		this.capital = capital;
@@ -54,13 +55,34 @@ final public class Nation {
 		name = (String) data.get("name");
 		description = (String) data.get("description");
 		capital = (String) data.get("capital");
-		allies = (List<String>) data.getOrDefault("allies", Collections.emptyList());
-		enemies = (List<String>) data.getOrDefault("enemies", Collections.emptyList());
-		settlements = (List<String>) data.getOrDefault("settlements", Collections.emptyList());
+		allies = stringListFromObject("allies");
+		enemies = stringListFromObject("enemies");
+		settlements = stringListFromObject("settlements");
 		territory = chunkListFromObject(data.get("territory"));
 		invitedPlayers = playerIDListFromObject(data.get("invitedPlayers"));
 		isOpen = (boolean) data.get("isOpen");
 		players = getPlayersAndRanksFromObject(data.get("players"));
+	}
+	private List<String> stringListFromObject(Object obj){
+		ArrayList<String> returnList = new ArrayList<>();
+		if (obj == null){
+			return Collections.emptyList();
+		} else if (obj instanceof ArrayList) {
+			List<Object> objList = (List<Object>) obj;
+			for (Object o : objList) {
+				if (o instanceof String) {
+					String str = (String) o;
+					returnList.add(str);
+				}
+			}
+		} else if (obj instanceof String){
+			String string = (String) obj;
+			if (string == null || string.length() == 0){
+				return Collections.emptyList();
+			}
+			returnList.add(string);
+		}
+		return returnList;
 	}
 	private Set<UUID> playerIDListFromObject(Object obj){
 		Set<UUID> returnList = new HashSet<>();
@@ -105,19 +127,23 @@ final public class Nation {
 	}
 
 	private Set<Chunk> chunkListFromObject(Object obj){
-		Set<Chunk> returnList = new HashSet<>();
+		HashSet<Chunk> returnList = new HashSet<>();
 		List<Object> objList = (List<Object>) obj;
 		if (objList == null){
-			return Collections.emptySet();
+			return returnList;
 		}
 		for (Object o : objList){
 			if (o instanceof ArrayList){
 				List<?> objects = (List<?>) o;
-				String wName = (String) objects.get(0);
+				UUID wID = UUID.fromString((String) objects.get(0));
 				int x = (Integer) objects.get(1);
 				int z = (Integer) objects.get(2);
-				World world = Bukkit.getWorld(wName);
-				returnList.add(world.getChunkAt(x, z));
+				World world = NationCraft.getInstance().getServer().getWorld(wID);
+				Chunk c = world.getChunkAt(x, z);
+				if (!c.isLoaded()){
+					c.load();
+				}
+				returnList.add(c);
 			} else if (o instanceof String){
 
 			}
@@ -128,8 +154,7 @@ final public class Nation {
 		return getRelationTo(NationManager.getInstance().getNationByName(nationName));
 	}
 	public Relation getRelationTo(Nation otherNation){
-		if (allies == null || enemies == null){
-
+		if (otherNation == null){
 			return Relation.NEUTRAL;
 		}
 		if (otherNation == this){
@@ -150,7 +175,7 @@ final public class Nation {
 	 *
 	 * @return The name of a nation
 	 */
-	public String getName() {
+	@NotNull public String getName() {
 		return name;
 	}
 
@@ -158,31 +183,31 @@ final public class Nation {
 	 * Sets the nation's name
 	 * @param name The nation's name
 	 */
-	public void setName(String name) { this.name = name; }
+	public void setName(@NotNull String name) { this.name = name; }
 
 	/**
 	 * Returns the description of a nation
 	 * @return Nation's description
 	 */
-	public String getDescription() {
+	@NotNull public String getDescription() {
 		return description;
 	}
 
-	public void setDescription(String description){ this.description = description; }
+	public void setDescription(@NotNull String description){ this.description = description; }
 
 	/**
 	 * Get the capital of the nation
 	 * @return Nation's capital
 	 */
-	public String getCapital(){ return capital; }
+	@NotNull public String getCapital(){ return capital; }
 
 	/**
 	 * Set a settlement as a nation's capital
 	 * @param capital
 	 */
-	public void setCapital(String capital) { this.capital = capital; }
+	public void setCapital(@NotNull String capital) { this.capital = capital; }
 
-	public List<String> getAllies(){
+	@NotNull public List<String> getAllies(){
 		return allies;
 	}
 
@@ -194,7 +219,7 @@ final public class Nation {
 		return allies.remove(ally);
 	}
 
-	public List<String> getEnemies(){
+	@NotNull public List<String> getEnemies(){
 		return enemies;
 	}
 
@@ -206,13 +231,13 @@ final public class Nation {
 		return enemies.remove(enemy);
 	}
 
-	public List<String> getSettlements() { return settlements; }
+	@NotNull public List<String> getSettlements() { return settlements; }
 	
-	public Set<Chunk> getTerritory(){
+	@NotNull public Set<Chunk> getTerritory(){
 		return territory;
 	}
 	
-	public Map<UUID, Ranks> getPlayers(){
+	@NotNull public Map<UUID, Ranks> getPlayers(){
 		return players;
 	}
 

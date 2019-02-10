@@ -24,6 +24,14 @@
             <id>sk89q-repo</id>
             <url>http://maven.sk89q.com/repo/</url>
         </repository>
+       <repository>
+           <id>vault-repo</id>
+           <url>http://nexus.hc.to/content/repositories/pub_releases</url>
+       </repository>
+       <repository>
+           <id>ess-repo</id>
+           <url>http://repo.ess3.net/content/groups/essentials</url>
+       </repository>
    </repositories>
    <dependencies>
        <dependency>
@@ -36,7 +44,7 @@
        <dependency>
            <groupId>org.spigotmc</groupId>
            <artifactId>spigot-api</artifactId>
-           <version>1.12.2-R0.1-SNAPSHOT</version><!--change this value depending on the version-->
+           <version>1.13.2-R0.1-SNAPSHOT</version><!--change this value depending on the version-->
            <type>jar</type>
            <scope>provided</scope>
        </dependency>
@@ -59,6 +67,16 @@
            <groupId>net.md-5</groupId>
            <artifactId>bungeecord-chat</artifactId>
            <version>1.13-SNAPSHOT</version>
+       </dependency>
+       <dependency>
+           <groupId>net.ess3</groupId>
+           <artifactId>Essentials</artifactId>
+           <version>LATEST</version>
+       </dependency>
+       <dependency>
+           <groupId>net.milkbowl.vault</groupId>
+           <artifactId>VaultAPI</artifactId>
+           <version>LATEST</version>
        </dependency>
    </dependencies>
    

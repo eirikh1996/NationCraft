@@ -59,15 +59,20 @@ public class PlayerListener implements Listener {
         }
         String fromNationName = (fromN != null ? NationManager.getInstance().getColor(event.getPlayer(), fromN) + fromN.getName() : ChatColor.DARK_GREEN + "Wilderness") + ChatColor.RESET;
         String toNationName = (toN != null ? NationManager.getInstance().getColor(event.getPlayer(), toN) + toN.getName() : ChatColor.DARK_GREEN + "Wilderness") + ChatColor.RESET;
+        event.getPlayer().sendTitle(toNationName, toN == null ? "" : toN.getDescription(),10,70,20);
         event.getPlayer().sendMessage(String.format("Leaving %s, entering %s", fromNationName, toNationName));
         //auto update map if player is moving
         Chunk fromChunk = event.getFrom().getChunk();
         Chunk toChunk = event.getTo().getChunk();
         if (PlayerManager.getInstance().getPlayerAutoMapUpdateEnabled() != null) {
-            if (PlayerManager.getInstance().getPlayerAutoMapUpdateEnabled().get(event.getPlayer().getUniqueId())) {
-                if (fromChunk != toChunk) {
-                    Messages.generateTerritoryMap(event.getPlayer());
-                }
+            if (PlayerManager.getInstance().getPlayerAutoMapUpdateEnabled().get(event.getPlayer().getUniqueId()) == null) {
+                return;
+            }
+            if (!PlayerManager.getInstance().getPlayerAutoMapUpdateEnabled().get(event.getPlayer().getUniqueId())) {
+                return;
+            }
+            if (fromChunk != toChunk) {
+                Messages.generateTerritoryMap(event.getPlayer());
             }
         }
     }
@@ -92,8 +97,9 @@ public class PlayerListener implements Listener {
         String command = event.getMessage().substring(1);
         Nation pNation = NationManager.getInstance().getNationByPlayer(p);
         Nation nationAtTerritory = NationManager.getInstance().getNationAt(p.getLocation());
-        boolean isInEnemyTerritory = pNation.getRelationTo(nationAtTerritory) == Relation.ENEMY;
-        NationCraft.getInstance().getLogger().info(command);
+        boolean isInEnemyTerritory = false;
+        if (pNation != null)
+                isInEnemyTerritory = pNation.getRelationTo(nationAtTerritory) == Relation.ENEMY;
         if (Settings.forbiddenCommandsInEnemyTerritory.contains(command) && isInEnemyTerritory && !p.hasPermission("nationcraft.territory.cmdbypass")){
             event.setCancelled(true);
             p.sendMessage(Messages.ERROR + String.format("You are not allowed to use command /%s in enemy territory!", command));

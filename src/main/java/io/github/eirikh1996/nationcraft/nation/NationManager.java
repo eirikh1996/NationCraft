@@ -59,7 +59,9 @@ public class NationManager implements Iterable<Nation> {
 	public Nation getNationAt(Chunk chunk){
 		Nation returnNation = null;
 		for (Nation nation : nations){
-			returnNation = nation.getTerritory().contains(chunk) ? nation : null;
+			if (nation.getTerritory().contains(chunk)){
+				returnNation = nation;
+			}
 		}
 		return returnNation;
 	}
@@ -67,7 +69,8 @@ public class NationManager implements Iterable<Nation> {
 	public Nation getNationAt(Location location){
 		Nation returnNation = null;
 		for (Nation nation : nations){
-			returnNation = nation.getTerritory().contains(location.getChunk()) ? nation : null;
+			if (nation.getTerritory().contains(location.getChunk()))
+				returnNation = nation;
 		}
 		return returnNation;
 	}
@@ -117,7 +120,7 @@ public class NationManager implements Iterable<Nation> {
 
 	public Nation getNationByPlayer(Player p){
 		Nation returnNation = null;
-		for (Nation n : this){
+		for (Nation n : nations){
 			if (n.getPlayers().containsKey(p.getUniqueId())){
 				returnNation = n;
 			}
@@ -177,7 +180,7 @@ public class NationManager implements Iterable<Nation> {
 			if (n.getTerritory() != null) {
 				if (!n.getTerritory().isEmpty()) {
 					for (Chunk tc : n.getTerritory()) {
-						writer.write("- [" + tc.getWorld().getName() + ", " + tc.getX() + ", " + tc.getZ() + "]\n");
+						writer.write("- [" + tc.getWorld().getUID() + ", " + tc.getX() + ", " + tc.getZ() + "]\n");
 					}
 				}
 			}
@@ -212,7 +215,7 @@ public class NationManager implements Iterable<Nation> {
 		return false;
 	}
 
-	public ChatColor getColor(Player p, Nation n){
+	public ChatColor getColor(@NotNull Player p,@NotNull Nation n){
 		ChatColor returnColor = ChatColor.RESET;
 		Nation pNation = NationManager.getInstance().getNationByPlayer(p);
 		if (pNation == null){
