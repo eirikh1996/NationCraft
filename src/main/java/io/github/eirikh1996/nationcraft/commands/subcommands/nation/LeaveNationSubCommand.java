@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class LeaveNationSubCommand extends NationSubCommand {
+public final class LeaveNationSubCommand extends NationSubCommand {
 
     public LeaveNationSubCommand(Player sender){
         super(sender);

@@ -19,7 +19,7 @@ public enum Shape {
         }
     }
 
-    public static Shape getShape(String name){
+    public static Shape getShape(String name) throws InvalidShapeException{
         if (!FROM_STRING.containsKey(name.toLowerCase())){
             throw new InvalidShapeException( name.toLowerCase() + " is not a valid shape!");
         }

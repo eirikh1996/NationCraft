@@ -8,6 +8,7 @@ import java.util.List;
 public class Settings {
 	public static long nationBankMaxBalance = 1000000000;
 	public static int maxStrengthPerPlayer = 30;
+	public static int NationCreateCost;
 	public static int maxAllies = -1;
 	public static int maxPlayersPerNation = 50;
 	@NotNull public static List<String> forbiddenNames = null; //Names that are forbidden to use for nations or settlements
@@ -16,5 +17,5 @@ public class Settings {
 	public static List<String> forbiddenCommandsInEnemyTerritory = new ArrayList<>();
 
 
-	
+    public static boolean Debug;
 }

@@ -7,8 +7,6 @@ import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.listener.BlockListener;
 import io.github.eirikh1996.nationcraft.listener.ChatListener;
 import io.github.eirikh1996.nationcraft.listener.PlayerListener;
-import io.github.eirikh1996.nationcraft.nation.Nation;
-import io.github.eirikh1996.nationcraft.nation.NationFileManager;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import net.milkbowl.vault.economy.Economy;
@@ -64,12 +62,14 @@ public class NationCraft extends JavaPlugin {
 
 		//Read config file
 		Settings.maxPlayersPerNation = getConfig().getInt("MaxPlayersPerNation", 50);
+		Settings.NationCreateCost = getConfig().getInt("NationCreateCost",1000);
 		List<String> forbiddenCommandsInEnemyTerritory = getConfig().getStringList("forbiddenCommandsInEnemyTerritory");
 		if (forbiddenCommandsInEnemyTerritory == null){
 			Settings.forbiddenCommandsInEnemyTerritory = Collections.emptyList();
 		} else {
 			Settings.forbiddenCommandsInEnemyTerritory = forbiddenCommandsInEnemyTerritory;
 		}
+		Settings.Debug = getConfig().getBoolean("Debug", false);
 
 		//Load plugins that are required for full functionality
 		//Essentials
@@ -110,7 +110,6 @@ public class NationCraft extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		getServer().getPluginManager().registerEvents(new BlockListener(), this);
 		getServer().getPluginManager().registerEvents(new ChatListener(), this);
-		getServer().getPluginManager().registerEvents(new NationFileManager(), this);
 
 		//Now register commands
 		this.getCommand("nation").setExecutor(new NationCommand());

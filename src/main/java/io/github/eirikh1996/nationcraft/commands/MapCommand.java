@@ -1,7 +1,9 @@
 package io.github.eirikh1996.nationcraft.commands;
 
+import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.messages.Messages;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -14,6 +16,7 @@ public class MapCommand implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
+        long startTime = System.currentTimeMillis();
         if (!command.getName().equalsIgnoreCase("map")){
             return false;
         }
@@ -36,6 +39,10 @@ public class MapCommand implements TabExecutor {
             }
             PlayerManager.getInstance().setPlayerAutoMapUpdateEnabled(autoUpdateEnabled);
             p.sendMessage("Automatic map updates " + status);
+        }
+        long endTime = System.currentTimeMillis();
+        if (Settings.Debug){
+            Bukkit.broadcastMessage("Command processing took (ms): " + (endTime - startTime));
         }
         return true;
     }

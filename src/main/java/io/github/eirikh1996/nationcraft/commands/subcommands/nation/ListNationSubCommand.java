@@ -7,7 +7,7 @@ import io.github.eirikh1996.nationcraft.utils.TopicPaginator;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-public class ListNationSubCommand extends NationSubCommand {
+public final class ListNationSubCommand extends NationSubCommand {
     private final int page;
     public ListNationSubCommand(Player p, int page){
         super(p);

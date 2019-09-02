@@ -3,18 +3,7 @@
   <groupId>io.github.eirikh1996</groupId>
   <artifactId>NationCraft</artifactId>
   <version>1.0.0</version>
-   <build>
-      <plugins>
-          <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-compiler-plugin</artifactId>
-              <configuration>
-                  <source>1.8</source>
-                  <target>1.8</target>
-              </configuration>
-          </plugin>
-      </plugins>
-   </build>
+
    <repositories>
        <repository>
          <id>spigot-repo</id>
@@ -79,5 +68,18 @@
            <version>LATEST</version>
        </dependency>
    </dependencies>
-   
+    <build>
+        <finalName>NationCraft</finalName>
+        <directory>target</directory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -1,32 +1,84 @@
 package io.github.eirikh1996.nationcraft.utils;
 
+import org.bukkit.ChatColor;
+import org.bukkit.block.BlockFace;
+
+import java.util.UUID;
+
 public class Compass {
-    public enum Direction {
-        SOUTH, SOUTH_WEST, WEST, NORTH_WEST, NORTH, NORTH_EAST, EAST, SOUTH_EAST
-    }
-    public static Direction getDirection(double degrees){
-        if (degrees < 0){
-            degrees += 360.0;
+    private final BlockFace direction;
+    private final UUID id;
+    private final String[] lines;
+    public Compass(BlockFace direction) {
+        id = UUID.randomUUID();
+        this.direction = direction;
+        lines = new String[3];
+        switch (direction){
+            case NORTH:
+                lines[0] = ChatColor.YELLOW + "\\ " + ChatColor.DARK_RED + "N" + ChatColor.YELLOW + " /" + ChatColor.RESET;
+                lines[1] = ChatColor.YELLOW + "W O E" + ChatColor.RESET;
+                lines[2] = ChatColor.YELLOW + "/ S \\" + ChatColor.RESET;
+                break;
+            case NORTH_EAST:
+                lines[0] = ChatColor.YELLOW + "\\ N " + ChatColor.DARK_RED + "/" + ChatColor.RESET;
+                lines[1] = ChatColor.YELLOW + "W O E" + ChatColor.RESET;
+                lines[2] = ChatColor.YELLOW + "/ S \\" + ChatColor.RESET;
+                break;
+            case EAST:
+                lines[0] = ChatColor.YELLOW + "\\ N /" + ChatColor.RESET;
+                lines[1] = ChatColor.YELLOW + "W O " + ChatColor.DARK_RED + "E" + ChatColor.RESET;
+                lines[2] = ChatColor.YELLOW + "/ S \\" + ChatColor.RESET;
+                break;
+            case SOUTH_EAST:
+                lines[0] = ChatColor.YELLOW + "\\ N /" + ChatColor.RESET;
+                lines[1] = ChatColor.YELLOW + "W O E" + ChatColor.RESET;
+                lines[2] = ChatColor.YELLOW + "/ S " + ChatColor.DARK_RED + "\\" + ChatColor.RESET;
+                break;
+            case SOUTH:
+                lines[0] = ChatColor.YELLOW + "\\ N /" + ChatColor.RESET;
+                lines[1] = ChatColor.YELLOW + "W O E" + ChatColor.RESET;
+                lines[2] = ChatColor.YELLOW + "/ " + ChatColor.DARK_RED + "S" + ChatColor.YELLOW + " \\" + ChatColor.RESET;
+                break;
+            case SOUTH_WEST:
+                lines[0] = ChatColor.YELLOW + "\\ N /" + ChatColor.RESET;
+                lines[1] = ChatColor.YELLOW + "W O E" + ChatColor.RESET;
+                lines[2] = ChatColor.DARK_RED + "/ " + ChatColor.YELLOW + " S \\" + ChatColor.RESET;
+                break;
+            case WEST:
+                lines[0] = ChatColor.YELLOW + "\\ N /" + ChatColor.RESET;
+                lines[1] = ChatColor.DARK_RED + "W " + ChatColor.YELLOW + " O E" + ChatColor.RESET;
+                lines[2] = ChatColor.YELLOW + "/ S \\" + ChatColor.RESET;
+                break;
+            case NORTH_WEST:
+                lines[0] = ChatColor.DARK_RED + "\\" + ChatColor.YELLOW +" N /" + ChatColor.RESET;
+                lines[1] = ChatColor.YELLOW + "W O E" + ChatColor.RESET;
+                lines[2] = ChatColor.YELLOW + "/ S \\" + ChatColor.RESET;
+                break;
         }
-
-        if (degrees < 22.5 && degrees >= 337.5)
-            return Direction.SOUTH;
-        if (degrees < 67.5 && degrees >= 22.5)
-            return Direction.SOUTH_WEST;
-        if (degrees < 112.5 && degrees >= 67.5)
-            return Direction.WEST;
-        if (degrees < 157.5 && degrees >= 112.5)
-            return Direction.NORTH_WEST;
-        if (degrees < 202.5 && degrees >= 157.5)
-            return Direction.NORTH;
-        if (degrees < 247.5 && degrees >= 202.5)
-            return Direction.NORTH_EAST;
-        if (degrees < 292.5 && degrees >= 247.5)
-            return Direction.EAST;
-        if (degrees < 337.5 && degrees >= 292.5)
-            return Direction.SOUTH_EAST;
-        else
-            return null;
-
     }
+
+    public String[] getLines() {
+        return lines;
+    }
+
+    public String getLine(int index){
+        return lines[index];
+    }
+
+    public BlockFace getDirection() {
+        return direction;
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    /*
+    lines[0] = ChatColor.YELLOW + "\\ N /" + ChatColor.RESET;
+    lines[1] = ChatColor.YELLOW + "W O E" + ChatColor.RESET;
+    lines[2] = ChatColor.YELLOW + "/ S \\" + ChatColor.RESET;
+ */
+
+
 }

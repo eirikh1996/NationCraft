@@ -1,18 +1,21 @@
 package io.github.eirikh1996.nationcraft.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.NationCraft;
+import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.events.nation.NationCreateEvent;
 import io.github.eirikh1996.nationcraft.messages.Messages;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.nation.Ranks;
+import io.github.eirikh1996.nationcraft.territory.Territory;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 
-public class CreateNationSubCommand extends NationSubCommand {
+public final class CreateNationSubCommand extends NationSubCommand {
     private final String name;
     public CreateNationSubCommand(Player sender, String name){
         super(sender);
@@ -38,16 +41,25 @@ public class CreateNationSubCommand extends NationSubCommand {
             sender.sendMessage(Messages.ERROR + "You must leave your current nation before you can create one!");
             return;
         }
+        Economy eco = NationCraft.getInstance().getEconomy();
+        if (eco != null){
+            if (eco.has(sender, Settings.NationCreateCost)){
+                eco.withdrawPlayer(sender,Settings.NationCreateCost);
+            } else {
+                sender.sendMessage(Messages.NATIONCRAFT_COMMAND_PREFIX + " " + Messages.ERROR + "You do not have enough money");
+                return;
+            }
+
+        }
         String description = "Default description";
-        Set<Chunk> territory = new HashSet<>();
         String capital = "(none)";
         List<String> settlements = new ArrayList<>();
         List<String> allies = new ArrayList<>();
         List<String> enemies = new ArrayList<>();
         Map<UUID, Ranks> players = new HashMap<>();
-        players.put(((Player) sender).getUniqueId(), Ranks.LEADER);
+        players.put(sender.getUniqueId(), Ranks.LEADER);
 
-        Nation newNation = new Nation(name, description, capital, allies, enemies, settlements, territory, players);
+        Nation newNation = new Nation(name, description, capital, allies, enemies, settlements, players);
         //Call event
         NationCreateEvent event = new NationCreateEvent(newNation, sender);
         NationCraft.getInstance().getServer().getPluginManager().callEvent(event);

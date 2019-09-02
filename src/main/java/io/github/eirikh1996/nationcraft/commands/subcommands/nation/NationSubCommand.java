@@ -11,6 +11,5 @@ public abstract class NationSubCommand extends SubCommand {
         this.sender = sender;
     }
 
-    @Override
-    public abstract void execute();
+
 }

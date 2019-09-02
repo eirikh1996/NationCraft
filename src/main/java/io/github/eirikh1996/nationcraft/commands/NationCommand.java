@@ -120,7 +120,7 @@ public class NationCommand implements TabExecutor {
 			try {
 				shape = Shape.getShape(args[1]);
 			} catch (ArrayIndexOutOfBoundsException e) {
-				shape = null;
+				shape = Shape.SINGLE;
 			} catch (InvalidShapeException e){
 				sender.sendMessage(Messages.ERROR + e.getMessage());
 				return true;
@@ -137,7 +137,7 @@ public class NationCommand implements TabExecutor {
 				radius = 0;
 			} catch (NumberFormatException e){
 				sender.sendMessage(Messages.ERROR + args[2] + " is not a number! Proper usage: /nation claim [circle:square:line:single] [radius] [nation:you]");
-				return false;
+				return true;
 			}
 			try {
 				name = args[3];
@@ -147,7 +147,7 @@ public class NationCommand implements TabExecutor {
 			try {
 				shape = Shape.getShape(args[1]);
 			} catch (ArrayIndexOutOfBoundsException e) {
-				shape = null;
+				shape = Shape.SINGLE;
 			} catch (InvalidShapeException e){
 				sender.sendMessage(Messages.ERROR + e.getMessage());
 				return true;
@@ -155,19 +155,21 @@ public class NationCommand implements TabExecutor {
 			subCommand = new UnclaimTerritoryNationSubCommand((Player) sender,shape,radius,name);
 		} else if (args[0].equalsIgnoreCase("help")){
 		    int page;
-		    try {
-		        page = Integer.parseInt(args[1]);
-            } catch (NumberFormatException e){
-		        sender.sendMessage(Messages.ERROR + args[1] + " is not a valid number!");
-		        return true;
-            } catch (ArrayIndexOutOfBoundsException e){
-		        page = 0;
-            }
+		    if (args.length == 1)
+		    	page = 1;
+		    else {
+				try {
+					page = Integer.parseInt(args[1]);
+				} catch (NumberFormatException e) {
+					sender.sendMessage(Messages.NATIONCRAFT_COMMAND_PREFIX + Messages.ERROR + args[1] + " is not a valid page!");
+					return true;
+				}
+			}
 		    subCommand = new HelpNationSubCommand((Player) sender,page);
-        }
-		if (subCommand == null){
-			throw new NoSuchSubCommandException(args[0] + " is not a valid sub command of command /nation");
+        } else if (args[0].equalsIgnoreCase("territory")){
+
 		}
+
 		subCommand.execute();
 		return true;
 	}
@@ -186,9 +188,6 @@ public class NationCommand implements TabExecutor {
 	public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
 		List<String> completions = new ArrayList<>();
 		List<String> returnValues = new ArrayList<>();
-		String[] subCmdArr = new String[]{"invite","claim","unclaim"};
-		List<String> subCmds = Arrays.asList(subCmdArr);
-		NationCraft.getInstance().getLogger().info("Length: " + strings.length);
 		if (strings.length == 1 ) {
 			if (commandSender.hasPermission("nationcraft.nation.create"))
 				completions.add("create");
@@ -206,6 +205,8 @@ public class NationCommand implements TabExecutor {
 				completions.add("claim");
 			if (commandSender.hasPermission("nationcraft.nation.invite"))
 				completions.add("invite");
+			if (commandSender.hasPermission("nationcraft.nation.deinvite"))
+				completions.add("deinvite");
 			if (commandSender.hasPermission("nationcraft.nation.list"))
 				completions.add("list");
 			if (commandSender.hasPermission("nationcraft.nation.unclaim"))
@@ -228,8 +229,9 @@ public class NationCommand implements TabExecutor {
 				}
 			}
 		} else if (strings[0].equalsIgnoreCase("claim") || strings[0].equalsIgnoreCase("unclaim")){
-			for (String str : Shape.getShapeNames()){
-				completions.add(str);
+			completions.addAll(Arrays.asList(Shape.getShapeNames()));
+			if (strings[0].equalsIgnoreCase("claim")){
+				completions.remove("all");
 			}
 		} else {
 			return Collections.emptyList();

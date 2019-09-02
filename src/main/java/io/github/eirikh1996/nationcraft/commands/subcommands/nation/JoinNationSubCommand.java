@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class JoinNationSubCommand extends NationSubCommand {
+public final class JoinNationSubCommand extends NationSubCommand {
     private final String name;
     public JoinNationSubCommand(Player p, String name){
         super(p);

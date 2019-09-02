@@ -3,7 +3,7 @@ package io.github.eirikh1996.nationcraft.commands.subcommands.nation;
 import io.github.eirikh1996.nationcraft.utils.TopicPaginator;
 import org.bukkit.entity.Player;
 
-public class HelpNationSubCommand extends NationSubCommand {
+public final class HelpNationSubCommand extends NationSubCommand {
     private final int page;
     public HelpNationSubCommand(Player sender, int page) {
         super(sender);

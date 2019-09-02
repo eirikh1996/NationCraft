@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.github.eirikh1996.nationcraft.territory.Territory;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -13,19 +14,21 @@ import org.jetbrains.annotations.NotNull;
 import io.github.eirikh1996.nationcraft.NationCraft;
 import org.jetbrains.annotations.Nullable;
 
-public class NationManager implements Iterable<Nation> {
+public class NationManager extends BukkitRunnable implements Iterable<Nation> {
 	private static NationManager ourInstance;
 	private boolean fileCreated;
 	private String nationFilePath = NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations";
-	@NotNull private Set<Nation> nations;
+	@NotNull private final Set<Nation> nations;
 
 	public NationManager(){
 		this.nations = loadNations();
 	}
-	public static void initialize(){ ourInstance = new NationManager();}
+	public static void initialize(){ ourInstance = new NationManager();
+	ourInstance.runTaskTimerAsynchronously(NationCraft.getInstance(),0,1);}
 
 	public void reload(){
-	    this.nations = loadNations();
+		nations.clear();
+	    nations.addAll(loadNations());
     }
 
 	public HashSet<Nation> loadNations(){
@@ -48,7 +51,6 @@ public class NationManager implements Iterable<Nation> {
 			}
 			Nation n = new Nation(file);
 			nations.add(n);
-			NationCraft.getInstance().getLogger().info(n.getName());
 		}
         NationCraft.getInstance().getLogger().info("Nations loaded: ");
 		for (Nation nation : nations){
@@ -59,9 +61,14 @@ public class NationManager implements Iterable<Nation> {
 	public Nation getNationAt(Chunk chunk){
 		Nation returnNation = null;
 		for (Nation nation : nations){
-			if (nation.getTerritory().contains(chunk)){
+			for (Territory terr : nation.getTerritoryManager()){
+				if (!terr.isTerritory(chunk))
+					continue;
 				returnNation = nation;
+				break;
 			}
+			if (returnNation == nation)
+				break;
 		}
 		return returnNation;
 	}
@@ -69,21 +76,39 @@ public class NationManager implements Iterable<Nation> {
 	public Nation getNationAt(Location location){
 		Nation returnNation = null;
 		for (Nation nation : nations){
-			if (nation.getTerritory().contains(location.getChunk()))
+			for (Territory terr : nation.getTerritoryManager()){
+				if (!terr.isTerritory(location.getChunk()))
+					continue;
 				returnNation = nation;
+				break;
+			}
+			if (returnNation == nation)
+				break;
 		}
 		return returnNation;
 	}
 
-	public Nation getNationAt(int x, int z){
+	public Nation getNationAt(Territory territory){
+		Nation returnNation = null;
+		for (Nation nation : this){
+			if (nation.getTerritoryManager().contains(territory)){
+				returnNation = nation;
+				break;
+			}
+		}
+		return returnNation;
+	}
+	public Nation getNationAt(World world, int x, int z){
 		Nation returnNation = null;
 		for (Nation nation : nations){
-			for (World world : Bukkit.getWorlds()) {
-				if (nation.getTerritory().contains(world.getChunkAt(x, z))){
-					returnNation = nation;
-					break;
-				}
+			for (Territory terr : nation.getTerritoryManager()){
+				if (terr.getX() != x||terr.getZ() != z || terr.getWorld() != world)
+					continue;
+				returnNation = nation;
+				break;
 			}
+			if (returnNation == nation)
+				break;
 		}
 		return returnNation;
 	}
@@ -128,85 +153,7 @@ public class NationManager implements Iterable<Nation> {
 		return returnNation;
 	}
 
-	public boolean saveNationToFile(Nation n){
-		String path = NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations";
-		File f = new File(path);
-		if (!f.exists()){
-			f.mkdirs();
-		}
-		path += "/";
-		path += n.getName();
-		path += ".nation";
-		f = new File(path);
-		if (!f.exists()){
-			try {
-				f.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
 
-		try {
-			FileWriter writer = new FileWriter(path);
-			writer.write("name: " + n.getName() + "\n");
-			writer.write("description: " + n.getDescription() + "\n");
-			writer.write("capital: " + n.getCapital() + "\n");
-			writer.write("allies:\n");
-			if (n.getAllies() != null) {
-				if (!n.getAllies().isEmpty()) {
-					for (String ally : n.getAllies()) {
-						writer.write("- " + ally + "\n");
-					}
-				}
-			}
-			writer.write("enemies:\n");
-			if (n.getEnemies() != null) {
-				if (!n.getEnemies().isEmpty()) {
-					for (String enemy : n.getEnemies()) {
-						writer.write("- " + enemy + "\n");
-					}
-				}
-			}
-			writer.write("settlements:\n");
-			if (n.getSettlements() != null) {
-				if (!n.getSettlements().isEmpty()) {
-					for (String settlement : n.getSettlements()) {
-						writer.write("- " + settlement + "\n");
-					}
-				}
-			}
-			writer.write("territory:\n");
-			if (n.getTerritory() != null) {
-				if (!n.getTerritory().isEmpty()) {
-					for (Chunk tc : n.getTerritory()) {
-						writer.write("- [" + tc.getWorld().getUID() + ", " + tc.getX() + ", " + tc.getZ() + "]\n");
-					}
-				}
-			}
-			writer.write("isOpen: " + n.isOpen() + "\n");
-			writer.write("invitedPlayers:\n");
-			if (n.getInvitedPlayers() != null) {
-				if (n.getInvitedPlayers().isEmpty()) {
-
-					for (UUID id : n.getInvitedPlayers()) {
-						writer.write("- " + id + "\n");
-					}
-				}
-			}
-			writer.write("players:\n");
-			for (UUID id : n.getPlayers().keySet()){
-				Ranks r = n.getPlayers().get(id);
-				writer.write("  " + id + ": " + r + "\n");
-			}
-			writer.close();
-			return true;
-		} catch (IOException e){
-			e.printStackTrace();
-			return false;
-		}
-
-	}
 	public boolean deleteNation(Nation n){
 		File nationFile = getNationFile(n.getName());
 		if (nations.remove(n)){
@@ -244,14 +191,14 @@ public class NationManager implements Iterable<Nation> {
 
 	public boolean createSafezone(){
 
-		Nation safezone = new Nation("Safezone","Free from PvP and monsters", "(none)",Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptySet(),Collections.emptyMap());
-		return saveNationToFile(safezone);
+		Nation safezone = new Nation("Safezone","Free from PvP and monsters", "(none)",Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptyMap());
+		return safezone.saveToFile();
 	}
 
 	public boolean createWarzone(){
 
-		Nation safezone = new Nation("Warzone","Not the safest place to be!", "(none)",Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptySet(),Collections.emptyMap());
-		return saveNationToFile(safezone);
+		Nation safezone = new Nation("Warzone","Not the safest place to be!", "(none)",Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptyMap());
+		return safezone.saveToFile();
 	}
 
 	public static NationManager getInstance(){
@@ -264,12 +211,21 @@ public class NationManager implements Iterable<Nation> {
 
 	public void saveAllNations(){
 		for (Nation n : nations){
-			saveNationToFile(n);
+			n.saveToFile();
 		}
 	}
 	@NotNull
 	@Override
 	public Iterator<Nation> iterator() {
 		return Collections.unmodifiableSet(this.nations).iterator();
+	}
+
+	@Override
+	public void run() {
+        for (Nation nation : this){
+            if (nation.equalsFile())
+                continue;
+            nation.saveToFile();
+        }
 	}
 }

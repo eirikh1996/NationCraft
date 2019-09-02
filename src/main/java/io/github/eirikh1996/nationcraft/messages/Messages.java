@@ -3,7 +3,9 @@ package io.github.eirikh1996.nationcraft.messages;
 import java.util.*;
 
 import io.github.eirikh1996.nationcraft.NationCraft;
+import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
+import io.github.eirikh1996.nationcraft.territory.Territory;
 import io.github.eirikh1996.nationcraft.utils.Compass;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -16,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 public class Messages {
 	public static String ERROR = ChatColor.DARK_RED + "Error: ";
 	public static String WARNING = ChatColor.YELLOW + "Warning: ";
+	public static String NATIONCRAFT_COMMAND_PREFIX = ChatColor.YELLOW + "[" + ChatColor.AQUA + "NationCraft" + ChatColor.YELLOW + "]"+ ChatColor.RESET;
 	public static String CLAIMED_TERRITORY = "%s claimed %d pieces of territory from %s";
 	public static String WILDERNESS = ChatColor.DARK_GREEN + "Wilderness";
 	public static String MUST_BE_PLAYER = "You must be player to execute this command!";
@@ -86,8 +89,8 @@ public class Messages {
 				}
 			p.sendMessage(ChatColor.YELLOW + "------------------{ Nation:" + color + " " + name + ChatColor.YELLOW +  " }-----------------");
 			p.sendMessage(ChatColor.YELLOW + "Description: " + color + description);
-			p.sendMessage(ChatColor.YELLOW + "Territory: " + n.getTerritory().size());
-			p.sendMessage(ChatColor.YELLOW + "Strength: " + (n.getStrength() >= n.getTerritory().size() ? ChatColor.GREEN : ChatColor.RED) + n.getStrength());
+			p.sendMessage(ChatColor.YELLOW + "Territory: " + n.getTerritoryManager().size());
+			p.sendMessage(ChatColor.YELLOW + "Strength: " + (n.getStrength() >= n.getTerritoryManager().size() ? ChatColor.GREEN : ChatColor.RED) + n.getStrength());
 			p.sendMessage(ChatColor.YELLOW + "Maximum strength: " + n.getMaxStrength());
 			p.sendMessage(ChatColor.YELLOW + "Allies: " + ChatColor.DARK_PURPLE + (allyList != null ? allyList.toString() : ""));
 			p.sendMessage(ChatColor.YELLOW + "Enemies: " + ChatColor.RED + (enemyList != null ? enemyList.toString() : ""));
@@ -95,6 +98,10 @@ public class Messages {
 			p.sendMessage(ChatColor.YELLOW + "Players offline: " + color + offlinePlayers);
 		}
 	public static void generateTerritoryMap(Player p){
+		if (Settings.Debug){
+			Bukkit.broadcastMessage("Player is facing " + p.getFacing().name().toLowerCase().replace("_", " "));
+		}
+		Compass compass = new Compass(p.getFacing());
 		Chunk chunk = p.getLocation().getChunk();
 		NationManager nManager = NationManager.getInstance();
 		Nation locN = nManager.getNationAt(chunk);
@@ -103,25 +110,24 @@ public class Messages {
 		int minZ = chunk.getZ() - 10;
 		int maxZ = chunk.getZ() + 10;
 		@NotNull final Map<Nation, String> nationMarkers = nationMarkers(20, p);
-		p.sendMessage(ChatColor.YELLOW + "======{" + (locN != null ? nManager.getColor(p,locN) + locN.getName() : ChatColor.DARK_GREEN + "Wilderness") + ChatColor.YELLOW + "}======");
+		p.sendMessage(ChatColor.YELLOW + "============={" + (locN != null ? nManager.getColor(p,locN) + locN.getName() : ChatColor.DARK_GREEN + "Wilderness") + ChatColor.YELLOW + "}===========");
 		for (int z = minZ ; z <= maxZ ; z++){
 			String mapLine = "";
-			String compass = "";
+			String compassLine = "";
 			int line = z - minZ;
 			if (line <= 2) {
-				compass = generateCompass(line, p.getLocation().getYaw()) + " ";
+				compassLine = compass.getLine(line);
 			}
 			for (int x = minX ; x <= maxX ; x++){
 				int column = x - minX;
-				Chunk testChunk = p.getWorld().getChunkAt(x,z);
+				Territory territory = new Territory(p.getWorld(), x, z);
 				if (line <= 2 && column <= 4){
 					continue;
 				}
-				mapLine += getTerritoryMarker(nationMarkers, testChunk, p);
+				mapLine += getTerritoryMarker(nationMarkers, territory, p);
 
 			}
-			NationCraft.getInstance().getLogger().info(String.valueOf(compass.length()));
-			p.sendMessage(compass + mapLine);
+			p.sendMessage(compassLine + mapLine);
 		}
 		if (!nationMarkers.isEmpty()){
 			String nations = "";
@@ -157,59 +163,17 @@ public class Messages {
 		}
 		return returnMap;
 	}
-	private static String getTerritoryMarker(Map<Nation, String> nationMarkers , Chunk territory, Player player){
+	private static String getTerritoryMarker(Map<Nation, String> nationMarkers , Territory territory, Player player){
         Chunk pChunk = player.getLocation().getChunk();
 		String marker = "-";
 		Nation n = NationManager.getInstance().getNationAt(territory);
 		if (n != null ){
 			marker = NationManager.getInstance().getColor(player,n) + nationMarkers.get(n) + ChatColor.RESET;
 		}
-		if (territory == pChunk){
+		if (territory.equals(Territory.fromChunk(pChunk))){
 			marker = ChatColor.BLUE + "+" + ChatColor.RESET;
 		}
 		return marker;
-	}
-	private static String generateCompass(int line, float yaw){
-		// \ N /
-		// W O E
-		// / S \
-
-		Compass.Direction compDir = Compass.getDirection(yaw);
-
-		String compassLine = "";
-		if (line == 0){
-			if (compDir == Compass.Direction.NORTH_WEST){
-				compassLine = ChatColor.RED + "\\ " + ChatColor.RESET + "N /";
-			} else if (compDir == Compass.Direction.NORTH){
-				compassLine = "\\ " + ChatColor.RED + "N" + ChatColor.RESET + " /";
-			} else if (compDir == Compass.Direction.NORTH_EAST){
-				compassLine = "\\ N " + ChatColor.RED + "/" + ChatColor.RESET;
-			} else {
-				compassLine = "\\ N /";
-			}
-
-		} else if (line == 1){
-			if (compDir == Compass.Direction.WEST){
-				compassLine = ChatColor.RED + "W " + ChatColor.RESET + "O E";
-			} else if (compDir == Compass.Direction.EAST){
-				compassLine = "W O " + ChatColor.RED + "E" + ChatColor.RESET;
-			} else {
-				compassLine = "W O E";
-			}
-		} else if (line == 2){
-			if (compDir == Compass.Direction.SOUTH_WEST){
-				compassLine = ChatColor.RED + "/ " + ChatColor.RESET + "S \\";
-			} else if (compDir == Compass.Direction.SOUTH){
-				compassLine = "/ " + ChatColor.RED + "S" + ChatColor.RESET + " \\";
-			} else if (compDir == Compass.Direction.SOUTH_EAST){
-				compassLine = "/ S " + ChatColor.RED + "\\" + ChatColor.RESET;
-			} else {
-				compassLine = "/ S \\";
-			}
-		} else {
-			throw new IndexOutOfBoundsException("Index is out of range: " + line);
-		}
-		return compassLine;
 	}
 
 }

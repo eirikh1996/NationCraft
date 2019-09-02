@@ -9,8 +9,8 @@ import io.github.eirikh1996.nationcraft.events.nation.NationPlayerInviteEvent;
 import io.github.eirikh1996.nationcraft.events.nation.NationPlayerJoinEvent;
 import io.github.eirikh1996.nationcraft.exception.NationNotFoundException;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
+import io.github.eirikh1996.nationcraft.territory.Territory;
+import io.github.eirikh1996.nationcraft.territory.TerritoryManager;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -18,25 +18,25 @@ import org.yaml.snakeyaml.Yaml;
 
 
 
-final public class Nation {
+final public class Nation implements Comparable<Nation>, Cloneable {
 	@NotNull private String name, description, capital;
 	@NotNull private final List<String> allies, enemies, settlements;
-	@NotNull private final Set<Chunk> territory;
+	@NotNull private final TerritoryManager territoryManager;
 	@NotNull private final Map<UUID, Ranks> players;
 	@NotNull private final Set<UUID> invitedPlayers;
 	private final boolean isOpen;
 	
-	public Nation(@NotNull String name, @NotNull String description, @NotNull String capital, @NotNull List<String> allies, @NotNull List<String> enemies, @NotNull List<String> settlements, @NotNull Set<Chunk> territory, @NotNull Map<UUID,Ranks> players) {
+	public Nation(@NotNull String name, @NotNull String description, @NotNull String capital, @NotNull List<String> allies, @NotNull List<String> enemies, @NotNull List<String> settlements, @NotNull Map<UUID,Ranks> players) {
 		this.name = name;
 		this.description = description;
 		this.capital = capital;
 		this.allies = allies;
 		this.enemies = enemies;
 		this.settlements = settlements;
-		this.territory = territory;
 		this.players = players;
 		isOpen = false;
 		invitedPlayers = new HashSet<>();
+		territoryManager = new TerritoryManager(this);
 	}
 	/**
 	 * Constructs a nation from the data stored in each nation file
@@ -58,10 +58,11 @@ final public class Nation {
 		allies = stringListFromObject("allies");
 		enemies = stringListFromObject("enemies");
 		settlements = stringListFromObject("settlements");
-		territory = chunkListFromObject(data.get("territory"));
 		invitedPlayers = playerIDListFromObject(data.get("invitedPlayers"));
 		isOpen = (boolean) data.get("isOpen");
 		players = getPlayersAndRanksFromObject(data.get("players"));
+		territoryManager = new TerritoryManager(this);
+		territoryManager.addAll(chunkListFromObject(data.get("territory")));
 	}
 	private List<String> stringListFromObject(Object obj){
 		ArrayList<String> returnList = new ArrayList<>();
@@ -126,9 +127,9 @@ final public class Nation {
 		return returnMap;
 	}
 
-	private Set<Chunk> chunkListFromObject(Object obj){
-		HashSet<Chunk> returnList = new HashSet<>();
-		List<Object> objList = (List<Object>) obj;
+	private Set<Territory> chunkListFromObject(Object obj){
+		HashSet<Territory> returnList = new HashSet<>();
+		ArrayList objList = (ArrayList) obj;
 		if (objList == null){
 			return returnList;
 		}
@@ -139,17 +140,14 @@ final public class Nation {
 				int x = (Integer) objects.get(1);
 				int z = (Integer) objects.get(2);
 				World world = NationCraft.getInstance().getServer().getWorld(wID);
-				Chunk c = world.getChunkAt(x, z);
-				if (!c.isLoaded()){
-					c.load();
-				}
-				returnList.add(c);
+				returnList.add(new Territory(world,x,z));
 			} else if (o instanceof String){
 
 			}
 		}
 		return returnList;
 	}
+
 	public Relation getRelationTo(String nationName){
 		return getRelationTo(NationManager.getInstance().getNationByName(nationName));
 	}
@@ -232,11 +230,12 @@ final public class Nation {
 	}
 
 	@NotNull public List<String> getSettlements() { return settlements; }
-	
-	@NotNull public Set<Chunk> getTerritory(){
-		return territory;
+
+	@NotNull
+	public TerritoryManager getTerritoryManager() {
+		return territoryManager;
 	}
-	
+
 	@NotNull public Map<UUID, Ranks> getPlayers(){
 		return players;
 	}
@@ -309,7 +308,7 @@ final public class Nation {
 		return players.containsKey(p);
 	}
 	public boolean isStrongEnough(){
-		return getStrength() >= territory.size();
+		return getStrength() >= getTerritoryManager().size();
 	}
 
 	public int getStrength(){
@@ -353,13 +352,6 @@ final public class Nation {
 		}
 		
 	}
-	public boolean isNationTerritory(Chunk territory) {
-		if (this.territory.contains(territory)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
 
 	public Ranks getRankByPlayer(Player p){
 		return players.get(p.getUniqueId());
@@ -369,6 +361,7 @@ final public class Nation {
 		return isOpen;
 	}
 
+	@NotNull
 	public Set<UUID> getInvitedPlayers() {
 		return invitedPlayers;
 	}
@@ -385,5 +378,123 @@ final public class Nation {
 	}
 	public boolean deinvite(UUID id){
 		return invitedPlayers.remove(id);
+	}
+    public boolean equalsFile(){
+	    File file = new File(NationCraft.getInstance().getDataFolder(),getName() + ".nation");
+	    if (!file.exists()){
+	        return false;
+        }
+	    Nation toCompare = new Nation(file);
+	    return toCompare.getName() == getName() &&
+                toCompare.getDescription() == getDescription() &&
+                toCompare.getCapital() == getCapital() &&
+                toCompare.getAllies() == getAllies() &&
+                toCompare.getEnemies() == getEnemies() &&
+                toCompare.getSettlements() == getSettlements() &&
+                toCompare.getTerritoryManager() == getTerritoryManager() &&
+                toCompare.isOpen() == isOpen() &&
+                toCompare.getPlayers() == getPlayers();
+	}
+
+	public boolean saveToFile(){
+        String path = NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations";
+        File f = new File(path);
+        if (!f.exists()){
+            f.mkdirs();
+        }
+        path += "/";
+        path += getName();
+        path += ".nation";
+        f = new File(path);
+        if (!f.exists()){
+            try {
+                f.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        try {
+            FileWriter writer = new FileWriter(path);
+            writer.write("name: " + getName() + "\n");
+            writer.write("description: " + getDescription() + "\n");
+            writer.write("capital: " + getCapital() + "\n");
+            writer.write("allies:\n");
+            if (!getAllies().isEmpty()) {
+            	for (String ally : getAllies()) {
+            		writer.write("- " + ally + "\n");
+            	}
+            }
+            writer.write("enemies:\n");
+            if (!getEnemies().isEmpty()) {
+            	for (String enemy : getEnemies()) {
+            		writer.write("- " + enemy + "\n");
+            	}
+            }
+            writer.write("settlements:\n");
+            if (!getSettlements().isEmpty()) {
+            	for (String settlement : getSettlements()) {
+            		writer.write("- " + settlement + "\n");
+            	}
+            }
+            writer.write("territory:\n");
+            if (!getTerritoryManager().isEmpty()) {
+                for (Territory t : getTerritoryManager()) {
+                    writer.write("- [" + t.getWorld().getUID() + ", " + t.getX() + ", " + t.getZ() + "]\n");
+                }
+            }
+            writer.write("isOpen: " + isOpen() + "\n");
+            writer.write("invitedPlayers:\n");
+            if (getInvitedPlayers().isEmpty()) {
+            	for (UUID id : getInvitedPlayers()) {
+            		writer.write("- " + id + "\n");
+            	}
+            }
+            writer.write("players:\n");
+            for (UUID id : getPlayers().keySet()){
+                Ranks r = getPlayers().get(id);
+                writer.write("  " + id + ": " + r + "\n");
+            }
+            writer.close();
+            return true;
+        } catch (IOException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+    @Override
+    public int compareTo(@NotNull Nation o) {
+        int i = 0;
+        i += getName().compareToIgnoreCase(o.getName());
+        i += getDescription().compareToIgnoreCase(o.getDescription());
+        i += getCapital().compareToIgnoreCase(o.getCapital());
+		return i;
+    }
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, description, capital, allies, enemies, settlements, territoryManager, players, invitedPlayers);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Nation)){
+			return false;
+		}
+		Nation n = (Nation) obj;
+		return super.equals(obj);
+	}
+
+	@Override
+	public String toString() {
+		String str = "Nation: \n";
+		str += String.format("name: %s \n",name);
+		str += String.format("description: %s \n",description);
+		str += String.format("capital: %s \n",capital);
+		str += String.format("allies: %s \n",allies.toString());
+		str += String.format("enemies: %s \n",enemies.toString());
+		str += String.format("settlements: %s \n",settlements.toString());
+		return str;
 	}
 }

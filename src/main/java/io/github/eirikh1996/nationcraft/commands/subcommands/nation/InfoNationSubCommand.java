@@ -6,7 +6,7 @@ import io.github.eirikh1996.nationcraft.nation.NationManager;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-public class InfoNationSubCommand extends NationSubCommand {
+public final class InfoNationSubCommand extends NationSubCommand {
     private final String name;
     public InfoNationSubCommand(Player sender, String name){
         super(sender);
