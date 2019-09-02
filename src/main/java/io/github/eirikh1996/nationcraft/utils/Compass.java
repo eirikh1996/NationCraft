@@ -6,10 +6,10 @@ import org.bukkit.block.BlockFace;
 import java.util.UUID;
 
 public class Compass {
-    private final BlockFace direction;
+    private final Direction direction;
     private final UUID id;
     private final String[] lines;
-    public Compass(BlockFace direction) {
+    public Compass(Direction direction) {
         id = UUID.randomUUID();
         this.direction = direction;
         lines = new String[3];
@@ -65,7 +65,7 @@ public class Compass {
         return lines[index];
     }
 
-    public BlockFace getDirection() {
+    public Direction getDirection() {
         return direction;
     }
 

@@ -17,5 +17,5 @@ public class Settings {
 	public static List<String> forbiddenCommandsInEnemyTerritory = new ArrayList<>();
 
 
-    public static boolean Debug;
+	public static boolean Debug;
 }

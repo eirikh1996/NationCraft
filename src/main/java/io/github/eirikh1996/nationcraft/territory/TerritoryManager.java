@@ -22,23 +22,30 @@ public class TerritoryManager implements Iterable<Territory> {
     }
 
     public void claimCircularTerritory(Player player, int radius){
+        Bukkit.broadcastMessage("test");
         ArrayList<Territory> claimed = new ArrayList<>();
         Chunk pChunk = player.getLocation().getChunk();
-        Vector distance = new Vector(pChunk.getX(), 0 , pChunk.getZ());
+
         for (int x = pChunk.getX() - radius; x <= pChunk.getX() + radius; x++){
             for (int z = pChunk.getZ() - radius; z <= pChunk.getZ() + radius; z++){
-                if (distance.length() > radius){
+                Vector distance = new Vector(pChunk.getX() - x, 0 , pChunk.getZ() - z);
+                Bukkit.broadcastMessage(String.valueOf(distance.length()));
+                if ((int) distance.length() > radius){
                     continue;
                 }
                 claimed.add(new Territory(player.getWorld(), x, z));
             }
         }
+        ArrayList<Territory> alreadyClaimed = new ArrayList<>();
         HashMap<Nation, ArrayList<Territory>> strongEnoughNations = new HashMap<>();
         HashMap<Nation, ArrayList<Territory>> overclaimedTerritories = new HashMap<>();
         for (Territory territory : claimed){
             Nation nation = NationManager.getInstance().getNationAt(territory);
             if (nation == null){
                 continue;
+            }
+            else if (nation.equals(this.nation)){
+                alreadyClaimed.add(territory);
             }
             else if (nation.isStrongEnough()){
                 if (strongEnoughNations.containsKey(nation)){
@@ -59,6 +66,10 @@ public class TerritoryManager implements Iterable<Territory> {
             }
         }
         ArrayList<Territory> filter = new ArrayList<>();
+        if (!alreadyClaimed.isEmpty()){
+            player.sendMessage("Your nation already owns this land");
+            filter.addAll(alreadyClaimed);
+        }
         if (!overclaimedTerritories.isEmpty()){
             for (Nation overclaimed : overclaimedTerritories.keySet()){
                 filter.addAll(overclaimedTerritories.get(overclaimed));

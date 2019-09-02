@@ -1,9 +1,11 @@
 package io.github.eirikh1996.nationcraft.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.claiming.Shape;
+import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.messages.Messages;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public final class ClaimTerritoryNationSubCommand extends NationSubCommand {
@@ -18,6 +20,9 @@ public final class ClaimTerritoryNationSubCommand extends NationSubCommand {
     }
     @Override
     public void execute() {
+        if (Settings.Debug){
+            Bukkit.broadcastMessage(String.format("Claim territory %s, %d", shape.name(), radius));
+        }
         final Nation nation;
         if (nationName.length() > 0) {
             if (!sender.hasPermission("nationcraft.nation.claim.other")) {

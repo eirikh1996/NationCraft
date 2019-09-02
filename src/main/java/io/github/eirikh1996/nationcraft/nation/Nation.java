@@ -19,6 +19,7 @@ import org.yaml.snakeyaml.Yaml;
 
 
 final public class Nation implements Comparable<Nation>, Cloneable {
+	@NotNull private final UUID uuid;
 	@NotNull private String name, description, capital;
 	@NotNull private final List<String> allies, enemies, settlements;
 	@NotNull private final TerritoryManager territoryManager;
@@ -27,6 +28,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	private final boolean isOpen;
 	
 	public Nation(@NotNull String name, @NotNull String description, @NotNull String capital, @NotNull List<String> allies, @NotNull List<String> enemies, @NotNull List<String> settlements, @NotNull Map<UUID,Ranks> players) {
+		this.uuid = UUID.randomUUID();
 		this.name = name;
 		this.description = description;
 		this.capital = capital;
@@ -34,6 +36,21 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		this.enemies = enemies;
 		this.settlements = settlements;
 		this.players = players;
+		isOpen = false;
+		invitedPlayers = new HashSet<>();
+		territoryManager = new TerritoryManager(this);
+	}
+
+	public Nation(@NotNull String name, Player leader){
+		this.uuid = UUID.randomUUID();
+		this.name = name;
+		this.description = "Default description";
+		this.capital = "(none)";
+		this.allies = new ArrayList<>();
+		this.enemies = new ArrayList<>();
+		this.settlements = new ArrayList<>();
+		this.players = new HashMap<>();
+		players.put(leader.getUniqueId(), Ranks.LEADER);
 		isOpen = false;
 		invitedPlayers = new HashSet<>();
 		territoryManager = new TerritoryManager(this);
@@ -52,6 +69,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		} catch (IOException e) {
 			throw new NationNotFoundException("File at " + nationFile.getAbsolutePath() + " was fot found!");
 		}
+		uuid = UUID.fromString((String) data.get("uuid"));
 		name = (String) data.get("name");
 		description = (String) data.get("description");
 		capital = (String) data.get("capital");
@@ -353,6 +371,10 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		
 	}
 
+	@NotNull
+	public UUID getUuid(){
+		return uuid;
+	}
 	public Ranks getRankByPlayer(Player p){
 		return players.get(p.getUniqueId());
 	}
@@ -380,7 +402,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return invitedPlayers.remove(id);
 	}
     public boolean equalsFile(){
-	    File file = new File(NationCraft.getInstance().getDataFolder(),getName() + ".nation");
+	    File file = new File(NationCraft.getInstance().getDataFolder(),getUuid().toString() + ".nation");
 	    if (!file.exists()){
 	        return false;
         }
@@ -403,7 +425,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
             f.mkdirs();
         }
         path += "/";
-        path += getName();
+        path += getUuid().toString();
         path += ".nation";
         f = new File(path);
         if (!f.exists()){
@@ -417,6 +439,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 
         try {
             FileWriter writer = new FileWriter(path);
+            writer.write("uuid: " + getUuid().toString() + "\n");
             writer.write("name: " + getName() + "\n");
             writer.write("description: " + getDescription() + "\n");
             writer.write("capital: " + getCapital() + "\n");

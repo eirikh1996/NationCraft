@@ -7,6 +7,7 @@ import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.territory.Territory;
 import io.github.eirikh1996.nationcraft.utils.Compass;
+import io.github.eirikh1996.nationcraft.utils.Direction;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -101,7 +102,7 @@ public class Messages {
 		if (Settings.Debug){
 			Bukkit.broadcastMessage("Player is facing " + p.getFacing().name().toLowerCase().replace("_", " "));
 		}
-		Compass compass = new Compass(p.getFacing());
+		Compass compass = new Compass(Direction.fromYaw(p.getLocation().getYaw()));
 		Chunk chunk = p.getLocation().getChunk();
 		NationManager nManager = NationManager.getInstance();
 		Nation locN = nManager.getNationAt(chunk);
@@ -116,7 +117,7 @@ public class Messages {
 			String compassLine = "";
 			int line = z - minZ;
 			if (line <= 2) {
-				compassLine = compass.getLine(line);
+				compassLine = compass.getLine(line) + " ";
 			}
 			for (int x = minX ; x <= maxX ; x++){
 				int column = x - minX;

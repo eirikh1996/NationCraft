@@ -51,15 +51,7 @@ public final class CreateNationSubCommand extends NationSubCommand {
             }
 
         }
-        String description = "Default description";
-        String capital = "(none)";
-        List<String> settlements = new ArrayList<>();
-        List<String> allies = new ArrayList<>();
-        List<String> enemies = new ArrayList<>();
-        Map<UUID, Ranks> players = new HashMap<>();
-        players.put(sender.getUniqueId(), Ranks.LEADER);
-
-        Nation newNation = new Nation(name, description, capital, allies, enemies, settlements, players);
+        Nation newNation = new Nation(name, sender);
         //Call event
         NationCreateEvent event = new NationCreateEvent(newNation, sender);
         NationCraft.getInstance().getServer().getPluginManager().callEvent(event);

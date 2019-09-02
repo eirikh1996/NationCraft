@@ -209,11 +209,6 @@ public class NationManager extends BukkitRunnable implements Iterable<Nation> {
 		return nationFilePath;
 	}
 
-	public void saveAllNations(){
-		for (Nation n : nations){
-			n.saveToFile();
-		}
-	}
 	@NotNull
 	@Override
 	public Iterator<Nation> iterator() {
