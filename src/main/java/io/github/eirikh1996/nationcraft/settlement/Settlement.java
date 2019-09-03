@@ -2,16 +2,16 @@ package io.github.eirikh1996.nationcraft.settlement;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.util.*;
 
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
+import io.github.eirikh1996.nationcraft.territory.SettlementTerritoryManager;
+import io.github.eirikh1996.nationcraft.territory.Territory;
+import io.github.eirikh1996.nationcraft.territory.TerritoryManager;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.yaml.snakeyaml.Yaml;
@@ -20,8 +20,8 @@ final public class Settlement {
 	private String name;
 	private final World world;
 	private Nation nation;
-	private Chunk townCenter;
-	private final Set<Chunk> territory;
+	private Territory townCenter;
+	private final TerritoryManager territory;
 	private final List<UUID> players;
 	
 	public Settlement(File settlementFile) {
@@ -38,18 +38,18 @@ final public class Settlement {
 			name = (String) data.get("name");
 			nation = NationManager.getInstance().getNationByName((String) data.get("nation"));
 			world = worldFromObject(data.get("world"));
-			townCenter = (Chunk) data.get("townCenter"); 
-			territory = chunkListFromObject(data.get("territory"));
+			townCenter = (Territory) data.get("townCenter");
+			territory = new SettlementTerritoryManager(this);
 			players = (List<UUID>) data.get("players");
 		
 	}
-	public Settlement(String name, Nation nation, World world, Chunk townCenter, Set<Chunk> territory, List<UUID> players) {
+	public Settlement(String name, Nation nation, World world, Territory townCenter, List<UUID> players) {
 		this.name = name;
 		this.nation = nation;
 		this.world = world;
 		this.townCenter = townCenter;
-		this.territory = territory;
 		this.players = players;
+		this.territory = new SettlementTerritoryManager(this);
 	}
 	private World worldFromObject(Object obj){
 		World  returnWorld = null;
@@ -65,8 +65,8 @@ final public class Settlement {
 		}
 		return returnWorld;
 	}
-	private Set<Chunk> chunkListFromObject(Object obj){
-		Set<Chunk> returnList = new HashSet<>();
+	private Set<Territory> chunkListFromObject(Object obj){
+		Set<Territory> returnList = new HashSet<>();
 		List<Object> objList = (List<Object>) obj;
 		if (objList == null){
 			return Collections.emptySet();
@@ -78,7 +78,7 @@ final public class Settlement {
 				int x = (Integer) objects.get(1);
 				int z = (Integer) objects.get(2);
 				World world = Bukkit.getWorld(wName);
-				returnList.add(world.getChunkAt(x, z));
+				returnList.add(new Territory(world, x, z));
 			} else if (o instanceof String){
 
 			}
@@ -100,18 +100,10 @@ final public class Settlement {
 	}
 	
 	@SuppressWarnings("static-access")
-	public void setTownCenter(Chunk townCenter) {
+	public void setTownCenter(Territory townCenter) {
 		this.townCenter = townCenter;
 	}
-	
-	@SuppressWarnings("static-access")
-	public void addTerritory(Chunk territory) {
-		this.territory.add(territory);
-	}
-	
-	public void removeTerritory(Chunk territory) {
-		this.territory.remove(territory);
-	}
+
 	
 	public boolean hasTownCenter() {
 		if (townCenter == null) {
@@ -119,6 +111,10 @@ final public class Settlement {
 		} else {
 			return true;
 		}
+	}
+
+	public void siege(){
+
 	}
 	public String getName() {
 		return name;
@@ -128,11 +124,11 @@ final public class Settlement {
 		return players;
 	}
 	
-	public Set<Chunk> getTerritory() {
+	public TerritoryManager getTerritory() {
 		return territory;
 	}
 	
-	public Chunk getTownCenter() {
+	public Territory getTownCenter() {
 		return townCenter;
 	}
 

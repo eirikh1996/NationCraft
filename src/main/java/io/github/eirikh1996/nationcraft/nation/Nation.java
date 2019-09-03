@@ -9,6 +9,7 @@ import io.github.eirikh1996.nationcraft.events.nation.NationPlayerInviteEvent;
 import io.github.eirikh1996.nationcraft.events.nation.NationPlayerJoinEvent;
 import io.github.eirikh1996.nationcraft.exception.NationNotFoundException;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
+import io.github.eirikh1996.nationcraft.territory.NationTerritoryManager;
 import io.github.eirikh1996.nationcraft.territory.Territory;
 import io.github.eirikh1996.nationcraft.territory.TerritoryManager;
 import org.bukkit.World;
@@ -40,7 +41,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		this.players = players;
 		isOpen = false;
 		invitedPlayers = new HashSet<>();
-		territoryManager = new TerritoryManager(this);
+		territoryManager = new NationTerritoryManager(this);
 	}
 
 	public Nation(@NotNull String name, Player leader){
@@ -56,7 +57,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		players.put(leader.getUniqueId(), Ranks.LEADER);
 		isOpen = false;
 		invitedPlayers = new HashSet<>();
-		territoryManager = new TerritoryManager(this);
+		territoryManager = new NationTerritoryManager(this);
 	}
 	/**
 	 * Constructs a nation from the data stored in each nation file
@@ -83,7 +84,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		invitedPlayers = playerIDListFromObject(data.get("invitedPlayers"));
 		isOpen = (boolean) data.get("isOpen");
 		players = getPlayersAndRanksFromObject(data.get("players"));
-		territoryManager = new TerritoryManager(this);
+		territoryManager = new NationTerritoryManager(this);
 		territoryManager.addAll(chunkListFromObject(data.get("territory")));
 	}
 	private List<String> stringListFromObject(Object obj){

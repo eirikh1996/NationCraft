@@ -28,6 +28,7 @@ public class NationCraft extends JavaPlugin {
 
 	
 	public void onEnable() {
+		long start = System.currentTimeMillis();
 		PlayerManager.initialize();
 		NationManager.initialize();
 		NationManager nManager = NationManager.getInstance();
@@ -118,6 +119,8 @@ public class NationCraft extends JavaPlugin {
 		this.getCommand("nation").setExecutor(new NationCommand());
 		this.getCommand("map").setExecutor(new MapCommand());
 		this.getCommand("chatmode").setExecutor(new ChatModeCommand());
+		long end = System.currentTimeMillis();
+		getLogger().info(String.format("Took %d to enable", end - start));
 	}
 
 	@Override

@@ -139,9 +139,7 @@ public class Messages {
 		final int maxX = chunk.getX() + 25;
 		final int minZ = chunk.getZ() - 8;
 		final int maxZ = chunk.getZ() + 8;
-		new BukkitRunnable() {
-			@Override
-			public void run() {
+
 				@NotNull final Map<Nation, String> nationMarkers = nationMarkers(20, p);
 				String header = (locN != null ? nManager.getColor(p,locN) + locN.getName() : ChatColor.DARK_GREEN + "Wilderness");
 				int clauseLength = 25 - (ChatColor.stripColor(header).length() / 2);
@@ -191,8 +189,7 @@ public class Messages {
 					p.sendMessage(nations);
 				}
 				p.sendMessage(ChatColor.YELLOW + "===================================================");
-			}
-		}.runTaskAsynchronously(NationCraft.getInstance());
+
 
 	}
 
@@ -209,7 +206,7 @@ public class Messages {
 				Territory territory = new Territory(p.getWorld(), x, z);
 				Nation foundNation = NationManager.getInstance().getNationAt(territory);
 				if (!returnMap.containsKey(foundNation)){
-					returnMap.put(foundNation, MARKERS.get(0));
+					returnMap.put(foundNation, MARKERS.get(index));
 					index++;
 				}
 			}

@@ -1,5 +1,6 @@
 package io.github.eirikh1996.nationcraft.territory;
 
+import io.github.eirikh1996.nationcraft.utils.Direction;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.World;
@@ -49,6 +50,35 @@ public final class Territory implements Comparable<Territory> {
 
     public boolean matches(@NotNull Territory territory){
         return territory == this;
+    }
+
+    public Territory getRelative(int dx, int dz){
+        return new Territory(world, x + dx, z + dz);
+    }
+
+    public Territory getRelative(Direction direction){
+        if (direction == null){
+            throw new IllegalArgumentException("Direction parameter cannot be null!");
+        }
+        switch (direction){
+            case NORTH:
+                return new Territory(world, x, z - 1);
+            case NORTH_WEST:
+                return new Territory(world, x - 1, z - 1);
+            case WEST:
+                return new Territory(world, x - 1, z);
+            case SOUTH_WEST:
+                return new Territory(world, x - 1, z + 1);
+            case SOUTH:
+                return new Territory(world, x, z + 1);
+            case SOUTH_EAST:
+                return new Territory(world, x + 1, z + 1);
+            case EAST:
+                return new Territory(world, x + 1, z);
+            case NORTH_EAST:
+                return new Territory(world, x + 1, z - 1);
+        }
+        return null;
     }
 
     @Override
