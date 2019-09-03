@@ -1,5 +1,8 @@
 package io.github.eirikh1996.nationcraft.listener;
 
+import io.github.eirikh1996.nationcraft.nation.Nation;
+import io.github.eirikh1996.nationcraft.nation.NationManager;
+import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Monster;
 import org.bukkit.event.EventHandler;
@@ -7,23 +10,21 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class EntityListener implements Listener {
-    EntityType[] types = new EntityType[]{EntityType.ZOMBIE,
-            EntityType.BLAZE,
-            EntityType.SKELETON,
-            EntityType.WITHER_SKELETON,
-            EntityType.STRAY,
-            EntityType.HUSK,
-            EntityType.VINDICATOR,
-            EntityType.EVOKER,
-            EntityType.DROWNED,
-            EntityType.PHANTOM};
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onMonsterSpawn(EntitySpawnEvent event){
-        if (Arrays.binarySearch(types, event.getEntityType()) < 0){
+        if (!(event.getEntity() instanceof Monster)){
             return;
+        }
+        Nation n = NationManager.getInstance().getNationAt(event.getLocation());
+        if (n == null){
+            return;
+        } else if (n.isSafezone()){
+            event.setCancelled(true);
         }
     }
 }

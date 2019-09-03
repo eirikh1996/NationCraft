@@ -1,15 +1,18 @@
 package io.github.eirikh1996.nationcraft;
 
 import com.earth2me.essentials.Essentials;
+import io.github.eirikh1996.nationcraft.commands.ChatModeCommand;
 import io.github.eirikh1996.nationcraft.commands.MapCommand;
 import io.github.eirikh1996.nationcraft.commands.NationCommand;
 import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.listener.BlockListener;
 import io.github.eirikh1996.nationcraft.listener.ChatListener;
+import io.github.eirikh1996.nationcraft.listener.EntityListener;
 import io.github.eirikh1996.nationcraft.listener.PlayerListener;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,7 +28,6 @@ public class NationCraft extends JavaPlugin {
 
 	
 	public void onEnable() {
-
 		PlayerManager.initialize();
 		NationManager.initialize();
 		NationManager nManager = NationManager.getInstance();
@@ -110,15 +112,17 @@ public class NationCraft extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		getServer().getPluginManager().registerEvents(new BlockListener(), this);
 		getServer().getPluginManager().registerEvents(new ChatListener(), this);
+		getServer().getPluginManager().registerEvents(new EntityListener(), this);
 
 		//Now register commands
 		this.getCommand("nation").setExecutor(new NationCommand());
 		this.getCommand("map").setExecutor(new MapCommand());
+		this.getCommand("chatmode").setExecutor(new ChatModeCommand());
 	}
 
 	@Override
 	public void onDisable() {
-
+		NationManager.getInstance().saveAllNationsToFile();
 
 	}
 

@@ -20,6 +20,7 @@ import org.yaml.snakeyaml.Yaml;
 
 final public class Nation implements Comparable<Nation>, Cloneable {
 	@NotNull private final UUID uuid;
+	@NotNull private final String originalName;
 	@NotNull private String name, description, capital;
 	@NotNull private final List<String> allies, enemies, settlements;
 	@NotNull private final TerritoryManager territoryManager;
@@ -30,6 +31,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	public Nation(@NotNull String name, @NotNull String description, @NotNull String capital, @NotNull List<String> allies, @NotNull List<String> enemies, @NotNull List<String> settlements, @NotNull Map<UUID,Ranks> players) {
 		this.uuid = UUID.randomUUID();
 		this.name = name;
+		originalName = name;
 		this.description = description;
 		this.capital = capital;
 		this.allies = allies;
@@ -44,6 +46,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	public Nation(@NotNull String name, Player leader){
 		this.uuid = UUID.randomUUID();
 		this.name = name;
+		originalName = name;
 		this.description = "Default description";
 		this.capital = "(none)";
 		this.allies = new ArrayList<>();
@@ -71,6 +74,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		}
 		uuid = UUID.fromString((String) data.get("uuid"));
 		name = (String) data.get("name");
+		originalName = (String) data.get("originalName");
 		description = (String) data.get("description");
 		capital = (String) data.get("capital");
 		allies = stringListFromObject("allies");
@@ -181,7 +185,12 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		}
 		else if (enemies.contains(otherNation.getName()) || otherNation.getEnemies().contains(name)){
 			return Relation.ENEMY;
-		} else {
+		} else if (otherNation.getName().equalsIgnoreCase("Warzone")){
+			return Relation.WARZONE;
+		} else if (otherNation.getName().equalsIgnoreCase("Safezone")){
+			return Relation.SAFEZONE;
+		}
+		else {
 			return Relation.NEUTRAL;
 		}
 	}
@@ -207,6 +216,14 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	 */
 	@NotNull public String getDescription() {
 		return description;
+	}
+
+	public boolean isWarzone(){
+		return originalName.equalsIgnoreCase("warzone");
+	}
+
+	public boolean isSafezone(){
+		return originalName.equalsIgnoreCase("safezone");
 	}
 
 	public void setDescription(@NotNull String description){ this.description = description; }
@@ -256,6 +273,10 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 
 	@NotNull public Map<UUID, Ranks> getPlayers(){
 		return players;
+	}
+
+	@NotNull public String getOriginalName(){
+		return originalName;
 	}
 
 	public boolean addPlayer(Player player){
@@ -425,7 +446,8 @@ final public class Nation implements Comparable<Nation>, Cloneable {
             f.mkdirs();
         }
         path += "/";
-        path += getUuid().toString();
+
+        path += getOriginalName();
         path += ".nation";
         f = new File(path);
         if (!f.exists()){
@@ -441,6 +463,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
             FileWriter writer = new FileWriter(path);
             writer.write("uuid: " + getUuid().toString() + "\n");
             writer.write("name: " + getName() + "\n");
+			writer.write("originalName: " + originalName + "\n");
             writer.write("description: " + getDescription() + "\n");
             writer.write("capital: " + getCapital() + "\n");
             writer.write("allies:\n");

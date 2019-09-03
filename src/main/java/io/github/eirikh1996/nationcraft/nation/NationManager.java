@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import io.github.eirikh1996.nationcraft.NationCraft;
 import org.jetbrains.annotations.Nullable;
 
-public class NationManager extends BukkitRunnable implements Iterable<Nation> {
+public class NationManager implements Iterable<Nation> {
 	private static NationManager ourInstance;
 	private boolean fileCreated;
 	private String nationFilePath = NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations";
@@ -23,8 +23,7 @@ public class NationManager extends BukkitRunnable implements Iterable<Nation> {
 	public NationManager(){
 		this.nations = loadNations();
 	}
-	public static void initialize(){ ourInstance = new NationManager();
-	ourInstance.runTaskTimerAsynchronously(NationCraft.getInstance(),0,1);}
+	public static void initialize(){ ourInstance = new NationManager(); }
 
 	public void reload(){
 		nations.clear();
@@ -162,11 +161,11 @@ public class NationManager extends BukkitRunnable implements Iterable<Nation> {
 		return false;
 	}
 
-	public ChatColor getColor(@NotNull Player p,@NotNull Nation n){
+	public ChatColor getColor(@NotNull Player p, @NotNull Nation n){
 		ChatColor returnColor = ChatColor.RESET;
 		Nation pNation = NationManager.getInstance().getNationByPlayer(p);
 		if (pNation == null){
-		    return ChatColor.WHITE;
+		    returnColor = ChatColor.WHITE;
         }
 		else if (pNation == n){
 			returnColor = ChatColor.GREEN;
@@ -178,14 +177,13 @@ public class NationManager extends BukkitRunnable implements Iterable<Nation> {
 			returnColor = ChatColor.DARK_PURPLE;
 		}
 		else if (pNation.getRelationTo(n) == Relation.NEUTRAL){
-			if (n.getName().equalsIgnoreCase("safezone")){
-				returnColor = ChatColor.GOLD;
-			} else if (n.getName().equalsIgnoreCase("warzone")){
-				returnColor = ChatColor.DARK_RED;
-			} else {
-				returnColor = ChatColor.WHITE;
-			}
+		    returnColor = ChatColor.WHITE;
 		}
+		if (n.getOriginalName().equalsIgnoreCase("Warzone")){
+		    returnColor = ChatColor.DARK_RED;
+        } else if (n.getOriginalName().equalsIgnoreCase("Safezone")){
+		    returnColor = ChatColor.GOLD;
+        }
 		return returnColor;
 	}
 
@@ -205,6 +203,11 @@ public class NationManager extends BukkitRunnable implements Iterable<Nation> {
 		return ourInstance;
 	}
 
+	public void saveAllNationsToFile(){
+		for (Nation n : this){
+			n.saveToFile();
+		}
+	}
 	public String getNationFilePath(){
 		return nationFilePath;
 	}
@@ -215,12 +218,4 @@ public class NationManager extends BukkitRunnable implements Iterable<Nation> {
 		return Collections.unmodifiableSet(this.nations).iterator();
 	}
 
-	@Override
-	public void run() {
-        for (Nation nation : this){
-            if (nation.equalsFile())
-                continue;
-            nation.saveToFile();
-        }
-	}
 }

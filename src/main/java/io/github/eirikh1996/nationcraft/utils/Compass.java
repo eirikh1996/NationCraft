@@ -42,11 +42,11 @@ public class Compass {
             case SOUTH_WEST:
                 lines[0] = ChatColor.YELLOW + "\\ N /" + ChatColor.RESET;
                 lines[1] = ChatColor.YELLOW + "W O E" + ChatColor.RESET;
-                lines[2] = ChatColor.DARK_RED + "/ " + ChatColor.YELLOW + " S \\" + ChatColor.RESET;
+                lines[2] = ChatColor.DARK_RED + "/" + ChatColor.YELLOW + " S \\" + ChatColor.RESET;
                 break;
             case WEST:
                 lines[0] = ChatColor.YELLOW + "\\ N /" + ChatColor.RESET;
-                lines[1] = ChatColor.DARK_RED + "W " + ChatColor.YELLOW + " O E" + ChatColor.RESET;
+                lines[1] = ChatColor.DARK_RED + "W" + ChatColor.YELLOW + " O E" + ChatColor.RESET;
                 lines[2] = ChatColor.YELLOW + "/ S \\" + ChatColor.RESET;
                 break;
             case NORTH_WEST:

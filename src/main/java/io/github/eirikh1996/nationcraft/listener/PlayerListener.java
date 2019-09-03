@@ -54,6 +54,13 @@ public class PlayerListener implements Listener {
         //if player enters nation territory
         @Nullable Nation fromN = NationManager.getInstance().getNationAt(event.getFrom());
         @Nullable Nation toN = NationManager.getInstance().getNationAt(event.getTo());
+        if (PlayerManager.getInstance().autoUpdateTerritoryMapOnMove(event.getPlayer())) {
+            Chunk fromChunk = event.getFrom().getChunk();
+            Chunk toChunk = event.getTo().getChunk();
+            if (fromChunk != toChunk) {
+                Messages.generateTerritoryMap(event.getPlayer());
+            }
+        }
         if (fromN == toN){
             return;
         }
@@ -62,19 +69,8 @@ public class PlayerListener implements Listener {
         event.getPlayer().sendTitle(toNationName, toN == null ? "" : toN.getDescription(),10,70,20);
         event.getPlayer().sendMessage(String.format("Leaving %s, entering %s", fromNationName, toNationName));
         //auto update map if player is moving
-        Chunk fromChunk = event.getFrom().getChunk();
-        Chunk toChunk = event.getTo().getChunk();
-        if (PlayerManager.getInstance().getPlayerAutoMapUpdateEnabled() != null) {
-            if (PlayerManager.getInstance().getPlayerAutoMapUpdateEnabled().get(event.getPlayer().getUniqueId()) == null) {
-                return;
-            }
-            if (!PlayerManager.getInstance().getPlayerAutoMapUpdateEnabled().get(event.getPlayer().getUniqueId())) {
-                return;
-            }
-            if (fromChunk != toChunk) {
-                Messages.generateTerritoryMap(event.getPlayer());
-            }
-        }
+
+
     }
 
     @EventHandler
@@ -105,4 +101,6 @@ public class PlayerListener implements Listener {
             p.sendMessage(Messages.ERROR + String.format("You are not allowed to use command /%s in enemy territory!", command));
         }
     }
+
+
 }

@@ -50,7 +50,7 @@ public final class UnclaimTerritoryNationSubCommand extends NationSubCommand {
         } else if (shape == Shape.CIRCLE){
             nation.getTerritoryManager().unclaimCircularTerritory(sender, radius);
         } else if (shape == Shape.SQUARE){
-            nation.getTerritoryManager().unclaimCircularTerritory(sender, radius);
+            nation.getTerritoryManager().unclaimSquareTerritory(sender, radius);
         } else if (shape == Shape.LINE){
             nation.getTerritoryManager().unclaimLineTerritory(sender, radius);
         } else if (shape == Shape.ALL){

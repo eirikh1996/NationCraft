@@ -29,7 +29,6 @@ public class TerritoryManager implements Iterable<Territory> {
         for (int x = pChunk.getX() - radius; x <= pChunk.getX() + radius; x++){
             for (int z = pChunk.getZ() - radius; z <= pChunk.getZ() + radius; z++){
                 Vector distance = new Vector(pChunk.getX() - x, 0 , pChunk.getZ() - z);
-                Bukkit.broadcastMessage(String.valueOf(distance.length()));
                 if ((int) distance.length() > radius){
                     continue;
                 }
@@ -206,16 +205,16 @@ public class TerritoryManager implements Iterable<Territory> {
     }
 
     public void unclaimSquareTerritory(Player player, int radius){
-        ArrayList<Territory> claimed = new ArrayList<>();
+        ArrayList<Territory> unclaimed = new ArrayList<>();
         Chunk pChunk = player.getLocation().getChunk();
         for (int x = pChunk.getX() - radius; x <= pChunk.getX() + radius; x++){
             for (int z = pChunk.getZ() - radius; z <= pChunk.getZ() + radius; z++){
-                claimed.add(new Territory(player.getWorld(), x, z));
+                unclaimed.add(new Territory(player.getWorld(), x, z));
             }
         }
         HashMap<Nation, ArrayList<Territory>> strongEnoughNations = new HashMap<>();
         HashMap<Nation, ArrayList<Territory>> overclaimedTerritories = new HashMap<>();
-        for (Territory territory : claimed){
+        for (Territory territory : unclaimed){
             Nation nation = NationManager.getInstance().getNationAt(territory);
             if (!this.nation.equals(nation) && nation == null){
                 continue;
@@ -228,7 +227,7 @@ public class TerritoryManager implements Iterable<Territory> {
                     canHold.add(territory);
                     strongEnoughNations.put(nation, canHold);
                 }
-            } else {
+            } else if (!this.nation.equals(nation)) {
                 if (overclaimedTerritories.containsKey(nation)){
                     overclaimedTerritories.get(nation).add(territory);
                 } else {
@@ -251,7 +250,7 @@ public class TerritoryManager implements Iterable<Territory> {
                 player.sendMessage(String.format("%s owns this land and is strong enough to hold it", strongEnough.getName()));
             }
         }
-        ArrayList<Territory> toWilderness = CollectionUtils.filter(claimed, filter);
+        ArrayList<Territory> toWilderness = CollectionUtils.filter(unclaimed, filter);
         if (toWilderness.isEmpty()){
             return;
         }

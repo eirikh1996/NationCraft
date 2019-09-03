@@ -15,7 +15,8 @@ public enum ChatMode {
 
     static {
         for (ChatMode mode : ChatMode.values()){
-            BY_NAME.put(mode.name(),mode);
+            BY_NAME.put(mode.name(), mode);
+            BY_NAME.put(String.valueOf(mode.name().charAt(0)), mode);
         }
     }
     public static ChatMode getChatMode(String name){

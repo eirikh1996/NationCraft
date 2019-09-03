@@ -23,6 +23,9 @@ import org.bukkit.entity.Player;
 
 import io.github.eirikh1996.nationcraft.NationCraft;
 
+import static io.github.eirikh1996.nationcraft.messages.Messages.ERROR;
+import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
+
 public class NationCommand implements TabExecutor {
 
 	@Override
@@ -127,23 +130,13 @@ public class NationCommand implements TabExecutor {
 			}
 			subCommand = new ClaimTerritoryNationSubCommand((Player) sender, shape, radius, name);
 		} else if (args[0].equalsIgnoreCase("unclaim")) {
-			int radius;
+			int radius = 0;
 			String name;
 			Shape shape;
-			try {
 
-				radius = Integer.parseInt(args[2]);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				radius = 0;
-			} catch (NumberFormatException e){
-				sender.sendMessage(Messages.ERROR + args[2] + " is not a number! Proper usage: /nation claim [circle:square:line:single] [radius] [nation:you]");
-				return true;
-			}
-			try {
-				name = args[3];
-			} catch (ArrayIndexOutOfBoundsException e) {
-				name = "";
-			}
+
+
+
 			try {
 				shape = Shape.getShape(args[1]);
 			} catch (ArrayIndexOutOfBoundsException e) {
@@ -152,6 +145,29 @@ public class NationCommand implements TabExecutor {
 				sender.sendMessage(Messages.ERROR + e.getMessage());
 				return true;
 			}
+			if (!shape.equals(Shape.ALL)){
+				try {
+
+					radius = Integer.parseInt(args[2]);
+				} catch (ArrayIndexOutOfBoundsException e) {
+					radius = 0;
+				} catch (NumberFormatException e){
+					sender.sendMessage(Messages.ERROR + args[2] + " is not a number! Proper usage: /nation claim [circle:square:line:single] [radius] [nation:you]");
+					return true;
+				}
+				try {
+					name = args[3];
+				} catch (ArrayIndexOutOfBoundsException e) {
+					name = "";
+				}
+			} else {
+				try {
+					name = args[2];
+				} catch (ArrayIndexOutOfBoundsException e) {
+					name = "";
+				}
+			}
+
 			subCommand = new UnclaimTerritoryNationSubCommand((Player) sender,shape,radius,name);
 		} else if (args[0].equalsIgnoreCase("help")){
 		    int page;
@@ -161,7 +177,7 @@ public class NationCommand implements TabExecutor {
 				try {
 					page = Integer.parseInt(args[1]);
 				} catch (NumberFormatException e) {
-					sender.sendMessage(Messages.NATIONCRAFT_COMMAND_PREFIX + Messages.ERROR + args[1] + " is not a valid page!");
+					sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + Messages.ERROR + args[1] + " is not a valid page!");
 					return true;
 				}
 			}
@@ -169,7 +185,10 @@ public class NationCommand implements TabExecutor {
         } else if (args[0].equalsIgnoreCase("territory")){
 
 		}
-
+		if (subCommand == null){
+			sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + args[0] + " is not a valid subcommand");
+			return true;
+		}
 		subCommand.execute();
 		return true;
 	}

@@ -28,16 +28,14 @@ public class MapCommand implements TabExecutor {
         if (strings.length == 0){
             Messages.generateTerritoryMap(p);
         } else if (strings[0].equalsIgnoreCase("auto")){
-            @NotNull String status = "";
-            @NotNull Map<UUID, Boolean> autoUpdateEnabled = PlayerManager.getInstance().getPlayerAutoMapUpdateEnabled();
-            if (autoUpdateEnabled.get(p.getUniqueId()) == null || !autoUpdateEnabled.get(p.getUniqueId())){
-                autoUpdateEnabled.put(p.getUniqueId(), true);
+            @NotNull String status = "";;
+            if (!PlayerManager.getInstance().autoUpdateTerritoryMapOnMove(p)){
+                PlayerManager.getInstance().setAutoUpdateTerritoryMapOnMove(p, true);
                 status = "enabled";
             } else {
-                autoUpdateEnabled.put(p.getUniqueId(), false);
+                PlayerManager.getInstance().setAutoUpdateTerritoryMapOnMove(p, false);
                 status = "disabled";
             }
-            PlayerManager.getInstance().setPlayerAutoMapUpdateEnabled(autoUpdateEnabled);
             p.sendMessage("Automatic map updates " + status);
         }
         long endTime = System.currentTimeMillis();

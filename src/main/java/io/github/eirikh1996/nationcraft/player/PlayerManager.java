@@ -13,6 +13,8 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.*;
 import java.util.*;
 
+import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
+
 public class PlayerManager implements Iterable<NCPlayer> {
     private static Map<UUID, Map<String, Object>> players;
     private static PlayerManager instance;
@@ -122,10 +124,14 @@ public class PlayerManager implements Iterable<NCPlayer> {
 
     }
     public ChatMode getChatModeByPlayer(Player p){
-        Map<String, Object> valueMap = players.get(p.getUniqueId().toString());
+        Map<String, Object> valueMap = players.get(p.getUniqueId());
         return (ChatMode) valueMap.get("chatMode");
     }
 
+    public void setChatMode(Player player, ChatMode chatMode){
+        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "Chat mode set: " + chatMode.name().toLowerCase());
+        players.get(player.getUniqueId()).put("chatMode", chatMode);
+    }
     public static PlayerManager getInstance() {
         return instance;
     }
@@ -149,12 +155,12 @@ public class PlayerManager implements Iterable<NCPlayer> {
         return (int) players.get(id).get("strength");
     }
 
-    public Map<UUID, Boolean> getPlayerAutoMapUpdateEnabled() {
-        return playerAutoMapUpdateEnabled;
+    public boolean autoUpdateTerritoryMapOnMove(Player player){
+        return playerAutoMapUpdateEnabled.get(player.getUniqueId()) != null ? playerAutoMapUpdateEnabled.get(player.getUniqueId()) : false;
     }
 
-    public void setPlayerAutoMapUpdateEnabled(Map<UUID, Boolean> playerAutoMapUpdateEnabled) {
-        this.playerAutoMapUpdateEnabled = playerAutoMapUpdateEnabled;
+    public void setAutoUpdateTerritoryMapOnMove(Player player, boolean autoUpdate){
+        playerAutoMapUpdateEnabled.put(player.getUniqueId(), autoUpdate);
     }
 
     @NotNull

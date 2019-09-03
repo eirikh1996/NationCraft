@@ -15,6 +15,10 @@ commands:
     usage: /settlement <name>
     description: Creates a new settlement
     aliases: [s, sm]
+  chatmode:
+    usage: /chatmode <chatmode>
+    aliases:
+      - cm
 permissions:
   nationcraft.nation.*:
     default: true

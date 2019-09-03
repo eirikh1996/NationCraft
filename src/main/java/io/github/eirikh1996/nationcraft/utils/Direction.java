@@ -1,26 +1,35 @@
 package io.github.eirikh1996.nationcraft.utils;
 
+import org.bukkit.Bukkit;
+
+import java.text.DecimalFormat;
+
 public enum Direction {
     NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST;
 
     public static Direction fromYaw(float yaw){
-        if (yaw < -157.4f){
-            return NORTH;
-        } else if (yaw < -112.4f){
-            return NORTH_EAST;
-        } else if (yaw < -67.4f){
-            return EAST;
-        } else if (yaw < -22.4f){
-            return SOUTH_EAST;
-        } else if (yaw < 22.4f){
-            return SOUTH;
-        } else if (yaw < 67.4f){
-            return SOUTH_WEST;
-        } else if (yaw < 112.4f){
-            return WEST;
-        } else if (yaw < 157.4f){
-            return NORTH_WEST;
+        float rotation;
+        if (yaw < 0){
+            rotation = 360f + yaw;
+        } else {
+            rotation = yaw;
         }
-        return NORTH;
+        if (rotation > 337.5 || rotation <= 22.5){
+            return SOUTH;
+        } else if (rotation <= 67.5){
+            return SOUTH_WEST;
+        } else if (rotation <= 112.5){
+            return WEST;
+        } else if (rotation <= 157.5){
+            return NORTH_WEST;
+        } else if (rotation <= 202.5){
+            return NORTH;
+        } else if (rotation <= 247.5){
+            return NORTH_EAST;
+        } else if (rotation <= 292.5){
+            return EAST;
+        } else {
+            return SOUTH_EAST;
+        }
     }
 }
