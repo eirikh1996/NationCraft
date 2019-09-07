@@ -56,5 +56,6 @@ public final class UnclaimTerritoryNationSubCommand extends NationSubCommand {
         } else if (shape == Shape.ALL){
             nation.getTerritoryManager().unclaimAll(sender);
         }
+        nation.saveToFile();
     }
 }

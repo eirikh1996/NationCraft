@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import java.util.UUID;
 
 public class NCPlayer {
-    private UUID playerID;
+    private final UUID playerID;
     private ChatMode chatMode;
     private int strength;
     public NCPlayer(UUID playerID){

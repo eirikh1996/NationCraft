@@ -11,6 +11,7 @@ import io.github.eirikh1996.nationcraft.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.settlement.SettlementManager;
+import io.github.eirikh1996.nationcraft.territory.Territory;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -54,12 +55,49 @@ public class PlayerListener implements Listener {
         //if player enters nation territory
         @Nullable Nation fromN = NationManager.getInstance().getNationAt(event.getFrom());
         @Nullable Nation toN = NationManager.getInstance().getNationAt(event.getTo());
+        Chunk fromChunk = event.getFrom().getChunk();
+        Chunk toChunk = event.getTo().getChunk();
         if (PlayerManager.getInstance().autoUpdateTerritoryMapOnMove(event.getPlayer())) {
-            Chunk fromChunk = event.getFrom().getChunk();
-            Chunk toChunk = event.getTo().getChunk();
+
             if (fromChunk != toChunk) {
                 Messages.generateTerritoryMap(event.getPlayer());
             }
+        }
+        Settlement fromS = null;
+        Settlement toS = null;
+        if (fromN != null){
+            for (Settlement testS : fromN.getSettlements()){
+                if (testS == null || !testS.getTerritory().contains(Territory.fromChunk(toChunk)) || testS.getTownCenter().equals(Territory.fromChunk(toChunk))){
+                    continue;
+                }
+                fromS = testS;
+            }
+            if (fromN.getCapital() != null && fromN.getCapital().getTerritory().contains(Territory.fromChunk(toChunk))){
+                fromS = fromN.getCapital();
+            }
+        }
+        if (toN != null){
+            for (Settlement testS : toN.getSettlements()){
+                if (testS == null || !testS.getTerritory().contains(Territory.fromChunk(toChunk)) || testS.getTownCenter().equals(Territory.fromChunk(toChunk))){
+                    continue;
+                }
+                toS = testS;
+            }
+            if (toN.getCapital() != null && toN.getCapital().getTerritory().contains(Territory.fromChunk(toChunk))){
+                toS = toN.getCapital();
+            }
+        }
+        if (toS != fromS){
+            if (toS != null){
+                event.getPlayer().sendTitle(toS.getName(), "");
+                event.getPlayer().sendMessage("Now entering the settlement of " + toS.getName());
+            } else {
+                event.getPlayer().sendMessage("Now entering the settlement of " + fromS.getName());
+            }
+        } else if (toS != null && toS.getTownCenter().equals(Territory.fromChunk(toChunk))){
+            event.getPlayer().sendMessage("Now entering the town center of " + toS.getName());
+        } else if (fromS != null && fromS.getTownCenter().equals(Territory.fromChunk(toChunk))){
+            event.getPlayer().sendMessage("Now leaving the town center of " + toS.getName());
         }
         if (fromN == toN){
             return;
@@ -76,16 +114,15 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event){
         Player player = event.getPlayer();
-        for (Settlement s : SettlementManager.getInstance().getSettlements()){
+        Settlement ps = SettlementManager.getInstance().getSettlementByPlayer(player);
             //Does the player have an active bed spawn location, send him there
             if (player.getBedSpawnLocation() != null){
                 return;
-            }
-            
-            if (s.getPlayers().contains(player.getUniqueId())){
+            } else if (ps != null){
 
             }
-        }
+
+
     }
     @EventHandler
     public void onPlayerCommandSend(PlayerCommandPreprocessEvent event){

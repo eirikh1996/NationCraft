@@ -21,13 +21,13 @@ public final class AllyNationSubCommand extends NationSubCommand {
         }
         NationManager nMgr = new NationManager();
 
-        Nation ownNation = nMgr.getNationByPlayer((Player) sender); //sender's own nation
+        Nation ownNation = nMgr.getNationByPlayer(sender); //sender's own nation
         Nation allyNation = nMgr.getNationByName(name); //nation to ally
         if (allyNation == null) {
             sender.sendMessage("The given nation does not exist");
             return;
         }
-        if (ownNation.isAlliedWith(allyNation.getName())) {
+        if (ownNation.isAlliedWith(allyNation)) {
             sender.sendMessage("You have already set this relation wish with " + allyNation.getName());
             return;
         }
@@ -42,6 +42,8 @@ public final class AllyNationSubCommand extends NationSubCommand {
                 p.sendMessage(ownNation.getName() + " wishes to be an allied nation. Use command /nation ally " + ownNation.getName() + " to confirm an alliance.");
             }
         }
-        ownNation.addAlly(allyNation.getName());
+        ownNation.addAlly(allyNation);
+        ownNation.saveToFile();
     }
+
 }

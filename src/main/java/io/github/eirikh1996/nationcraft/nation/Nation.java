@@ -9,12 +9,16 @@ import io.github.eirikh1996.nationcraft.events.nation.NationPlayerInviteEvent;
 import io.github.eirikh1996.nationcraft.events.nation.NationPlayerJoinEvent;
 import io.github.eirikh1996.nationcraft.exception.NationNotFoundException;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
+import io.github.eirikh1996.nationcraft.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.territory.NationTerritoryManager;
 import io.github.eirikh1996.nationcraft.territory.Territory;
 import io.github.eirikh1996.nationcraft.territory.TerritoryManager;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
 
@@ -22,14 +26,16 @@ import org.yaml.snakeyaml.Yaml;
 final public class Nation implements Comparable<Nation>, Cloneable {
 	@NotNull private final UUID uuid;
 	@NotNull private final String originalName;
-	@NotNull private String name, description, capital;
-	@NotNull private final List<String> allies, enemies, settlements;
+	@NotNull private String name, description;
+	@Nullable private Settlement capital;
+	@NotNull private final List<Nation> allies, enemies;
+	@NotNull private final List<Settlement> settlements;
 	@NotNull private final TerritoryManager territoryManager;
 	@NotNull private final Map<UUID, Ranks> players;
 	@NotNull private final Set<UUID> invitedPlayers;
 	private final boolean isOpen;
 	
-	public Nation(@NotNull String name, @NotNull String description, @NotNull String capital, @NotNull List<String> allies, @NotNull List<String> enemies, @NotNull List<String> settlements, @NotNull Map<UUID,Ranks> players) {
+	public Nation(@NotNull String name, @NotNull String description, @Nullable Settlement capital, @NotNull List<Nation> allies, @NotNull List<Nation> enemies, @NotNull List<Settlement> settlements, @NotNull Map<UUID,Ranks> players) {
 		this.uuid = UUID.randomUUID();
 		this.name = name;
 		originalName = name;
@@ -49,7 +55,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		this.name = name;
 		originalName = name;
 		this.description = "Default description";
-		this.capital = "(none)";
+		this.capital = null;
 		this.allies = new ArrayList<>();
 		this.enemies = new ArrayList<>();
 		this.settlements = new ArrayList<>();
@@ -77,37 +83,63 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		name = (String) data.get("name");
 		originalName = (String) data.get("originalName");
 		description = (String) data.get("description");
-		capital = (String) data.get("capital");
-		allies = stringListFromObject("allies");
-		enemies = stringListFromObject("enemies");
-		settlements = stringListFromObject("settlements");
+		capital = Settlement.loadFromFile((String) data.get("capital"));
+		allies = nationListFromObject("allies");
+		enemies = nationListFromObject("enemies");
+		settlements = settlementListFromObject("settlements");
 		invitedPlayers = playerIDListFromObject(data.get("invitedPlayers"));
 		isOpen = (boolean) data.get("isOpen");
 		players = getPlayersAndRanksFromObject(data.get("players"));
 		territoryManager = new NationTerritoryManager(this);
 		territoryManager.addAll(chunkListFromObject(data.get("territory")));
 	}
-	private List<String> stringListFromObject(Object obj){
-		ArrayList<String> returnList = new ArrayList<>();
+	private ArrayList<Nation> nationListFromObject(Object obj){
+		ArrayList<Nation> returnList = new ArrayList<>();
 		if (obj == null){
-			return Collections.emptyList();
+			return returnList;
 		} else if (obj instanceof ArrayList) {
 			List<Object> objList = (List<Object>) obj;
 			for (Object o : objList) {
 				if (o instanceof String) {
 					String str = (String) o;
-					returnList.add(str);
+					Nation ally = NationManager.getInstance().getNationByName(str);
+					if (ally == null){
+						return returnList;
+					}
+					returnList.add(ally);
 				}
 			}
 		} else if (obj instanceof String){
 			String string = (String) obj;
-			if (string == null || string.length() == 0){
-				return Collections.emptyList();
+			if (string.length() == 0){
+				return returnList;
 			}
-			returnList.add(string);
+			Nation ally = NationManager.getInstance().getNationByName(string);
+			if (ally == null){
+				return returnList;
+			}
+			returnList.add(ally);
 		}
 		return returnList;
 	}
+
+	private ArrayList<Settlement> settlementListFromObject(Object obj){
+	    ArrayList<Settlement> returnList = new ArrayList<>();
+	    if (obj instanceof String){
+	        String string = (String) obj;
+	        returnList.add(Settlement.loadFromFile(string));
+        } else if (obj instanceof ArrayList){
+	        ArrayList objList = (ArrayList) obj;
+	        for (Object o : objList){
+	            if (!(o instanceof String)){
+	                continue;
+                }
+	            String string = (String) o;
+	            returnList.add(Settlement.loadFromFile(string));
+            }
+        }
+	    return returnList;
+    }
 	private Set<UUID> playerIDListFromObject(Object obj){
 		Set<UUID> returnList = new HashSet<>();
 		List<Object> objList = (List<Object>) obj;
@@ -181,10 +213,10 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		if (otherNation == this){
 			return Relation.OWN;
 		}
-		else if (allies.contains(otherNation.getName()) && otherNation.getAllies().contains(name)){
+		else if (allies.contains(otherNation) && otherNation.getAllies().contains(name)){
 			return Relation.ALLY;
 		}
-		else if (enemies.contains(otherNation.getName()) || otherNation.getEnemies().contains(name)){
+		else if (enemies.contains(otherNation) || otherNation.getEnemies().contains(name)){
 			return Relation.ENEMY;
 		} else if (otherNation.getName().equalsIgnoreCase("Warzone")){
 			return Relation.WARZONE;
@@ -203,6 +235,31 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	 */
 	@NotNull public String getName() {
 		return name;
+	}
+
+	public String getName(Nation other){
+		String ret = "" + ChatColor.WHITE;
+		if (other == null){
+			ret += ChatColor.WHITE;
+		}
+		else if (this.equals(other)){
+			ret += ChatColor.GREEN;
+		}
+		else if (isAlliedWith(other)){
+			ret += ChatColor.DARK_PURPLE;
+		}
+		else if (isAtWarWith(other)){
+			ret += ChatColor.RED;
+		}
+		else if (isSafezone()){
+			ret += ChatColor.GOLD;
+		}
+		else if (isWarzone()){
+			ret += ChatColor.DARK_RED;
+		}
+		ret += getName();
+		ret += ChatColor.RESET;
+		return ret;
 	}
 
 	/**
@@ -233,39 +290,39 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	 * Get the capital of the nation
 	 * @return Nation's capital
 	 */
-	@NotNull public String getCapital(){ return capital; }
+	@Nullable public Settlement getCapital(){ return capital; }
 
 	/**
 	 * Set a settlement as a nation's capital
 	 * @param capital
 	 */
-	public void setCapital(@NotNull String capital) { this.capital = capital; }
+	public void setCapital(@Nullable Settlement capital) { this.capital = capital; }
 
-	@NotNull public List<String> getAllies(){
+	@NotNull public List<Nation> getAllies(){
 		return allies;
 	}
 
-	public boolean addAlly(String ally){
+	public boolean addAlly(Nation ally){
 		return allies.add(ally);
 	}
 
-	public boolean removeAlly(String ally){
+	public boolean removeAlly(Nation ally){
 		return allies.remove(ally);
 	}
 
-	@NotNull public List<String> getEnemies(){
+	@NotNull public List<Nation> getEnemies(){
 		return enemies;
 	}
 
-	public boolean addEnemy(String enemy){
+	public boolean addEnemy(Nation enemy){
 		return enemies.add(enemy);
 	}
 
-	public boolean removeEnemy(String enemy){
+	public boolean removeEnemy(Nation enemy){
 		return enemies.remove(enemy);
 	}
 
-	@NotNull public List<String> getSettlements() { return settlements; }
+	@NotNull public List<Settlement> getSettlements() { return settlements; }
 
 	@NotNull
 	public TerritoryManager getTerritoryManager() {
@@ -345,7 +402,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	 * @return true if given player is part of a nation
 	 */
 	public boolean hasPlayer(Player p) {
-		return players.containsKey(p);
+		return players.containsKey(p.getUniqueId());
 	}
 	public boolean isStrongEnough(){
 		return getStrength() >= getTerritoryManager().size();
@@ -366,31 +423,12 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		}
 		return maxStrength;
 	}
-	public boolean isAlliedWith(String alliedNation) {
-		List<String> alliedNations = allies;
-		if (alliedNations.contains(alliedNation)) {
-			return true;
-		} else {
-			return false;
-		}
+	public boolean isAlliedWith(Nation alliedNation) {
+		return allies.contains(alliedNation) && alliedNation.getAllies().contains(this);
 	}
 	
-	public boolean isAtWarWith(String enemyNation) {
-		List<String> enemyNations = enemies;
-		if (enemyNations.contains(enemyNation)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	public boolean isOwnNation(Player p) {
-		if (players.containsKey(p)) {
-			return true;
-		} else {
-			return false;
-		}
-		
+	public boolean isAtWarWith(Nation enemyNation) {
+		return enemies.contains(enemyNation) || enemyNation.getEnemies().contains(this);
 	}
 
 	@NotNull
@@ -448,7 +486,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
         }
         path += "/";
 
-        path += getOriginalName();
+        path += getName().toLowerCase();
         path += ".nation";
         f = new File(path);
         if (!f.exists()){
@@ -466,28 +504,40 @@ final public class Nation implements Comparable<Nation>, Cloneable {
             writer.write("name: " + getName() + "\n");
 			writer.write("originalName: " + originalName + "\n");
             writer.write("description: " + getDescription() + "\n");
-            writer.write("capital: " + getCapital() + "\n");
+            writer.write("capital: " + (getCapital() != null ? getCapital().getName().toLowerCase() : "" ) + "\n");
             writer.write("allies:\n");
             if (!getAllies().isEmpty()) {
-            	for (String ally : getAllies()) {
-            		writer.write("- " + ally + "\n");
+            	for (Nation ally : getAllies()) {
+            		if (ally == null){
+            			continue;
+					}
+            		writer.write("- " + ally.getName() + "\n");
             	}
             }
             writer.write("enemies:\n");
             if (!getEnemies().isEmpty()) {
-            	for (String enemy : getEnemies()) {
-            		writer.write("- " + enemy + "\n");
+            	for (Nation enemy : getEnemies()) {
+            		if (enemy == null){
+            			continue;
+					}
+            		writer.write("- " + enemy.getName() + "\n");
             	}
             }
             writer.write("settlements:\n");
             if (!getSettlements().isEmpty()) {
-            	for (String settlement : getSettlements()) {
-            		writer.write("- " + settlement + "\n");
+            	for (Settlement settlement : getSettlements()) {
+            		if (settlement == null){
+            			continue;
+					}
+            		writer.write("- " + settlement.getName() + "\n");
             	}
             }
             writer.write("territory:\n");
             if (!getTerritoryManager().isEmpty()) {
                 for (Territory t : getTerritoryManager()) {
+                	if (t == null){
+                		continue;
+					}
                     writer.write("- [" + t.getWorld().getUID() + ", " + t.getX() + ", " + t.getZ() + "]\n");
                 }
             }
@@ -515,7 +565,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
         int i = 0;
         i += getName().compareToIgnoreCase(o.getName());
         i += getDescription().compareToIgnoreCase(o.getDescription());
-        i += getCapital().compareToIgnoreCase(o.getCapital());
+        i += getCapital().getName().compareToIgnoreCase(o.getCapital().getName());
 		return i;
     }
 
@@ -538,7 +588,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		String str = "Nation: \n";
 		str += String.format("name: %s \n",name);
 		str += String.format("description: %s \n",description);
-		str += String.format("capital: %s \n",capital);
+		str += String.format("capital: %s \n",capital != null ? capital.getName() : "null");
 		str += String.format("allies: %s \n",allies.toString());
 		str += String.format("enemies: %s \n",enemies.toString());
 		str += String.format("settlements: %s \n",settlements.toString());

@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.commands.subcommands.SubCommand;
+import io.github.eirikh1996.nationcraft.nation.Nation;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -10,6 +11,7 @@ public abstract class NationSubCommand extends SubCommand {
         super(sender);
         this.sender = sender;
     }
+
 
 
 }

@@ -4,6 +4,7 @@ import com.earth2me.essentials.Essentials;
 import io.github.eirikh1996.nationcraft.commands.ChatModeCommand;
 import io.github.eirikh1996.nationcraft.commands.MapCommand;
 import io.github.eirikh1996.nationcraft.commands.NationCommand;
+import io.github.eirikh1996.nationcraft.commands.SettlementCommand;
 import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.listener.BlockListener;
 import io.github.eirikh1996.nationcraft.listener.ChatListener;
@@ -11,6 +12,8 @@ import io.github.eirikh1996.nationcraft.listener.EntityListener;
 import io.github.eirikh1996.nationcraft.listener.PlayerListener;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
+import io.github.eirikh1996.nationcraft.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.settlement.SettlementManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
@@ -29,9 +32,14 @@ public class NationCraft extends JavaPlugin {
 	
 	public void onEnable() {
 		long start = System.currentTimeMillis();
+
+		SettlementManager.initialize();
 		PlayerManager.initialize();
 		NationManager.initialize();
+
+		SettlementManager.getInstance();
 		NationManager nManager = NationManager.getInstance();
+		nManager.loadNations();
 		if (nManager.getNations().isEmpty()){
 			getLogger().info("No nation files loaded");
 		}
@@ -119,6 +127,7 @@ public class NationCraft extends JavaPlugin {
 		this.getCommand("nation").setExecutor(new NationCommand());
 		this.getCommand("map").setExecutor(new MapCommand());
 		this.getCommand("chatmode").setExecutor(new ChatModeCommand());
+		this.getCommand("settlement").setExecutor(new SettlementCommand());
 		long end = System.currentTimeMillis();
 		getLogger().info(String.format("Took %d to enable", end - start));
 	}

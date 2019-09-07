@@ -20,7 +20,7 @@ public final class NeutralNationSubCommand extends NationSubCommand {
         Nation ownNation = nMgr.getNationByPlayer(sender); //sender's own nation
         Nation neutralNation = nMgr.getNationByName(name); //nation to ally
         if (ownNation.getAllies().contains(neutralNation.getName())) {
-            ownNation.removeAlly(neutralNation.getName());
+            ownNation.removeAlly(neutralNation);
             //if the sender's nation is on the neutral nations enemy list
             if (neutralNation.getEnemies().contains(ownNation.getName())) {
                 for (UUID id : neutralNation.getPlayers().keySet()) {
@@ -30,17 +30,18 @@ public final class NeutralNationSubCommand extends NationSubCommand {
                     }
                     p.sendMessage(ownNation.getName() + " wishes to be a neutral nation. Type /nation neutral " + ownNation.getName() + " to confirm neutrality.");
                 }
-                ownNation.removeEnemy(neutralNation.getName());
+                ownNation.removeEnemy(neutralNation);
             } else {
                 sender.sendMessage(neutralNation.getName() + " is now a neutral nation");
             }
             //&& !neutralNation.getAllies().contains(ownNation.getName())
         } else if (ownNation.getEnemies().contains(neutralNation.getName())) {
-            ownNation.removeEnemy(neutralNation.getName());
+            ownNation.removeEnemy(neutralNation);
 
         } else {
             sender.sendMessage(neutralNation.getName() + " is already neutral");
             return;
         }
+        ownNation.saveToFile();
     }
 }

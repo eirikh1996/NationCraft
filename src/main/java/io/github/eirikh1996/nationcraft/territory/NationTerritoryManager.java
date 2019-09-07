@@ -4,7 +4,9 @@ import io.github.eirikh1996.nationcraft.messages.Messages;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.utils.CollectionUtils;
+import io.github.eirikh1996.nationcraft.utils.Direction;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -12,6 +14,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static io.github.eirikh1996.nationcraft.messages.Messages.ERROR;
+import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
 public final class NationTerritoryManager implements TerritoryManager {
     private Collection<Territory> territoryCollection = new CopyOnWriteArrayList<>();
@@ -21,8 +26,8 @@ public final class NationTerritoryManager implements TerritoryManager {
         this.nation = nation;
     }
 
+    @Override
     public void claimCircularTerritory(Player player, int radius){
-        Bukkit.broadcastMessage("test");
         ArrayList<Territory> claimed = new ArrayList<>();
         Chunk pChunk = player.getLocation().getChunk();
 
@@ -64,29 +69,34 @@ public final class NationTerritoryManager implements TerritoryManager {
                 }
             }
         }
+        int size = size() + CollectionUtils.filter(claimed, territoryCollection).size();
+        if (size > nation.getStrength() && !player.hasPermission("nationcraft.nation.claim.bypassstrength")){
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot claim more land. You need more power");
+            return;
+        }
         ArrayList<Territory> filter = new ArrayList<>();
         if (!alreadyClaimed.isEmpty()){
-            player.sendMessage("Your nation already owns this land");
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "Your nation already owns this land");
             filter.addAll(alreadyClaimed);
         }
         if (!overclaimedTerritories.isEmpty()){
             for (Nation overclaimed : overclaimedTerritories.keySet()){
                 filter.addAll(overclaimedTerritories.get(overclaimed));
-                player.sendMessage(String.format("Claimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName()));
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName()));
                 territoryCollection.addAll(overclaimedTerritories.get(overclaimed));
             }
         }
         if (!strongEnoughNations.isEmpty()){
             for (Nation strongEnough : strongEnoughNations.keySet()){
                 filter.addAll(overclaimedTerritories.get(strongEnough));
-                player.sendMessage(String.format("%s owns this land and is strong enough to hold it", strongEnough.getName()));
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("%s owns this land and is strong enough to hold it", strongEnough.getName()));
             }
         }
         ArrayList<Territory> fromWilderness = CollectionUtils.filter(claimed, filter);
         if (fromWilderness.isEmpty()){
             return;
         }
-        player.sendMessage(String.format("Claimed %d chunks of land from Wilderness", fromWilderness.size()));
+        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %d chunks of land from Wilderness", fromWilderness.size()));
         territoryCollection.addAll(fromWilderness);
     }
 
@@ -131,21 +141,21 @@ public final class NationTerritoryManager implements TerritoryManager {
         if (!overclaimedTerritories.isEmpty()){
             for (Nation overclaimed : overclaimedTerritories.keySet()){
                 filter.addAll(overclaimedTerritories.get(overclaimed));
-                player.sendMessage(String.format("Unclaimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName()));
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Unclaimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName()));
                 territoryCollection.removeAll(overclaimedTerritories.get(overclaimed));
             }
         }
         if (!strongEnoughNations.isEmpty()){
             for (Nation strongEnough : strongEnoughNations.keySet()){
                 filter.addAll(overclaimedTerritories.get(strongEnough));
-                player.sendMessage(String.format("%s owns this land and is strong enough to hold it", strongEnough.getName()));
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("%s owns this land and is strong enough to hold it", strongEnough.getName()));
             }
         }
         ArrayList<Territory> toWilderness = CollectionUtils.filter(unclaimed, filter);
         if (toWilderness.isEmpty()){
             return;
         }
-        player.sendMessage(String.format("Unclaimed %d chunks of land from %s", toWilderness.size(), nation.getName()));
+        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Unclaimed %d chunks of land from %s", toWilderness.size(), nation.getName()));
         territoryCollection.removeAll(toWilderness);
     }
     public void claimSquareTerritory(Player player, int radius){
@@ -182,25 +192,30 @@ public final class NationTerritoryManager implements TerritoryManager {
                 }
             }
         }
+        int size = size() + CollectionUtils.filter(claimed, territoryCollection).size();
+        if (size > nation.getStrength() && !player.hasPermission("nationcraft.nation.claim.bypassstrength")){
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot claim more land. You need more power");
+            return;
+        }
         ArrayList<Territory> filter = new ArrayList<>();
         if (!overclaimedTerritories.isEmpty()){
             for (Nation overclaimed : overclaimedTerritories.keySet()){
                 filter.addAll(overclaimedTerritories.get(overclaimed));
-                player.sendMessage(String.format("Claimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName()));
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName()));
                 territoryCollection.addAll(overclaimedTerritories.get(overclaimed));
             }
         }
         if (!strongEnoughNations.isEmpty()){
             for (Nation strongEnough : strongEnoughNations.keySet()){
                 filter.addAll(overclaimedTerritories.get(strongEnough));
-                player.sendMessage(String.format("%s owns this land and is strong enough to hold it", strongEnough.getName()));
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("%s owns this land and is strong enough to hold it", strongEnough.getName()));
             }
         }
         ArrayList<Territory> fromWilderness = CollectionUtils.filter(claimed, filter);
         if (fromWilderness.isEmpty()){
             return;
         }
-        player.sendMessage(String.format("Claimed %d chunks of land from Wilderness", fromWilderness.size()));
+        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %d chunks of land from Wilderness", fromWilderness.size()));
         territoryCollection.addAll(fromWilderness);
     }
 
@@ -214,12 +229,16 @@ public final class NationTerritoryManager implements TerritoryManager {
         }
         HashMap<Nation, ArrayList<Territory>> strongEnoughNations = new HashMap<>();
         HashMap<Nation, ArrayList<Territory>> overclaimedTerritories = new HashMap<>();
+        HashMap<Nation, ArrayList<Territory>> safeWarzoneTerritories = new HashMap<>();
         for (Territory territory : unclaimed){
             Nation nation = NationManager.getInstance().getNationAt(territory);
             if (!this.nation.equals(nation) && nation == null){
                 continue;
             }
             else if (!this.nation.equals(nation) && nation.isStrongEnough()){
+                if (player.hasPermission("nationcraft.nation.claim.bypassstrength") || player.hasPermission("nationcraft.admin")){
+                    continue;
+                }
                 if (strongEnoughNations.containsKey(nation)){
                     strongEnoughNations.get(nation).add(territory);
                 } else {
@@ -228,91 +247,75 @@ public final class NationTerritoryManager implements TerritoryManager {
                     strongEnoughNations.put(nation, canHold);
                 }
             } else if (!this.nation.equals(nation)) {
-                if (overclaimedTerritories.containsKey(nation)){
-                    overclaimedTerritories.get(nation).add(territory);
+                if (nation.isSafezone()|| nation.isWarzone()){
+                    if (safeWarzoneTerritories.containsKey(nation)){
+                        safeWarzoneTerritories.get(nation).add(territory);
+                    } else {
+                        safeWarzoneTerritories.put(nation, new ArrayList<>());
+                        safeWarzoneTerritories.get(nation).add(territory);
+                    }
                 } else {
-                    ArrayList<Territory> lost = new ArrayList<>();
-                    lost.add(territory);
-                    overclaimedTerritories.put(nation, lost);
+                    if (overclaimedTerritories.containsKey(nation)) {
+                        overclaimedTerritories.get(nation).add(territory);
+                    } else {
+                        ArrayList<Territory> lost = new ArrayList<>();
+                        lost.add(territory);
+                        overclaimedTerritories.put(nation, lost);
+                    }
                 }
             }
         }
         ArrayList<Territory> filter = new ArrayList<>();
         if (!overclaimedTerritories.isEmpty()){
             for (Nation overclaimed : overclaimedTerritories.keySet()){
-                player.sendMessage(String.format("Claimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName()));
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName()));
                 territoryCollection.removeAll(overclaimedTerritories.get(overclaimed));
             }
         }
         if (!strongEnoughNations.isEmpty()){
             for (Nation strongEnough : strongEnoughNations.keySet()){
                 filter.addAll(overclaimedTerritories.get(strongEnough));
-                player.sendMessage(String.format("%s owns this land and is strong enough to hold it", strongEnough.getName()));
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("%s owns this land and is strong enough to hold it", strongEnough.getName()));
             }
         }
         ArrayList<Territory> toWilderness = CollectionUtils.filter(unclaimed, filter);
         if (toWilderness.isEmpty()){
             return;
         }
-        player.sendMessage(String.format("Unclaimed %d chunks of land from %s", toWilderness.size(), nation.getName()));
+        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Unclaimed %d chunks of land from %s", toWilderness.size(), nation.getName()));
         territoryCollection.removeAll(toWilderness);
     }
     public void claimLineTerritory(Player player, int distance){
         ArrayList<Territory> claimed = new ArrayList<>();
         int count = 0;
-        switch (player.getFacing()){
-            case UP:
-            case DOWN:
-                player.sendMessage(String.format(Messages.ERROR + "Invalid direction: %s", player.getFacing().name().toLowerCase()));
-                return;
-            case WEST:
-                while (count <= distance){
+        while (count <= distance) {
+            switch (Direction.fromYaw(player.getLocation().getYaw())) {
+                case WEST:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX() - count, player.getLocation().getChunk().getZ()));
-                    count++;
-                }
-                break;
-            case EAST:
-                while (count <= distance){
+                    break;
+                case EAST:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX() + count, player.getLocation().getChunk().getZ()));
-                    count++;
-                }
-                break;
-            case NORTH:
-                while (count <= distance){
+                    break;
+                case NORTH:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ() - count));
-                    count++;
-                }
-                break;
-            case SOUTH:
-                while (count <= distance){
+                    break;
+                case SOUTH:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ() + count));
-                    count++;
-                }
-                break;
-            case SOUTH_EAST:
-                while (count <= distance){
+                    break;
+                case SOUTH_EAST:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX() + count, player.getLocation().getChunk().getZ() + count));
-                    count++;
-                }
-                break;
-            case NORTH_EAST:
-                while (count <= distance){
+                    break;
+                case NORTH_EAST:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX() + count, player.getLocation().getChunk().getZ() - count));
-                    count++;
-                }
-                break;
-            case NORTH_WEST:
-                while (count <= distance){
+                    break;
+                case NORTH_WEST:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX() - count, player.getLocation().getChunk().getZ() - count));
-                    count++;
-                }
-                break;
-            case SOUTH_WEST:
-                while (count <= distance){
+                    break;
+                case SOUTH_WEST:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX() - count, player.getLocation().getChunk().getZ() + count));
-                    count++;
-                }
-                break;
+                    break;
+            }
+            count++;
         }
         Bukkit.broadcastMessage(player.getFacing().name());
         HashMap<Nation, ArrayList<Territory>> strongEnoughNations = new HashMap<>();
@@ -340,25 +343,30 @@ public final class NationTerritoryManager implements TerritoryManager {
                 }
             }
         }
+        int size = size() + CollectionUtils.filter(claimed, territoryCollection).size();
+        if (size > nation.getStrength()){
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot claim more land. You need more power");
+            return;
+        }
         ArrayList<Territory> filter = new ArrayList<>();
         if (!overclaimedTerritories.isEmpty()){
             for (Nation overclaimed : overclaimedTerritories.keySet()){
                 filter.addAll(overclaimedTerritories.get(overclaimed));
-                player.sendMessage(String.format("Claimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName()));
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName()));
                 territoryCollection.addAll(overclaimedTerritories.get(overclaimed));
             }
         }
         if (!strongEnoughNations.isEmpty()){
             for (Nation strongEnough : strongEnoughNations.keySet()){
                 filter.addAll(overclaimedTerritories.get(strongEnough));
-                player.sendMessage(String.format("%s owns this land and is strong enough to hold it", strongEnough.getName()));
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("%s owns this land and is strong enough to hold it", strongEnough.getName()));
             }
         }
         ArrayList<Territory> fromWilderness = CollectionUtils.filter(claimed, filter);
         if (fromWilderness.isEmpty()){
             return;
         }
-        player.sendMessage(String.format("Claimed %d chunks of land from Wilderness", fromWilderness.size()));
+        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %d chunks of land from Wilderness", fromWilderness.size()));
         territoryCollection.addAll(fromWilderness);
 
     }
@@ -366,59 +374,34 @@ public final class NationTerritoryManager implements TerritoryManager {
     public void unclaimLineTerritory(Player player, int distance){
         ArrayList<Territory> claimed = new ArrayList<>();
         int count = 0;
-        switch (player.getFacing()){
-            case UP:
-            case DOWN:
-                player.sendMessage(String.format(Messages.ERROR + "Invalid direction: %s", player.getFacing().name().toLowerCase()));
-                return;
-            case WEST:
-                while (count <= distance){
+        while (count <= distance) {
+            switch (Direction.fromYaw(player.getLocation().getYaw())) {
+                case WEST:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX() - count, player.getLocation().getChunk().getZ()));
-                    count++;
-                }
-                break;
-            case EAST:
-                while (count <= distance){
+                    break;
+                case EAST:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX() + count, player.getLocation().getChunk().getZ()));
-                    count++;
-                }
-                break;
-            case NORTH:
-                while (count <= distance){
+                    break;
+                case NORTH:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ() - count));
-                    count++;
-                }
-                break;
-            case SOUTH:
-                while (count <= distance){
+                    break;
+                case SOUTH:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX(), player.getLocation().getChunk().getZ() + count));
-                    count++;
-                }
-                break;
-            case SOUTH_EAST:
-                while (count <= distance){
+                    break;
+                case SOUTH_EAST:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX() + count, player.getLocation().getChunk().getZ() + count));
-                    count++;
-                }
-                break;
-            case NORTH_EAST:
-                while (count <= distance){
+                    break;
+                case NORTH_EAST:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX() + count, player.getLocation().getChunk().getZ() - count));
-                    count++;
-                }
-                break;
-            case NORTH_WEST:
-                while (count <= distance){
+                    break;
+                case NORTH_WEST:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX() - count, player.getLocation().getChunk().getZ() - count));
-                    count++;
-                }
-                break;
-            case SOUTH_WEST:
-                while (count <= distance){
+                    break;
+                case SOUTH_WEST:
                     claimed.add(new Territory(player.getWorld(), player.getLocation().getChunk().getX() - count, player.getLocation().getChunk().getZ() + count));
-                    count++;
-                }
-                break;
+                    break;
+            }
+            count++;
         }
         Bukkit.broadcastMessage(player.getFacing().name());
         HashMap<Nation, ArrayList<Territory>> strongEnoughNations = new HashMap<>();
@@ -449,22 +432,38 @@ public final class NationTerritoryManager implements TerritoryManager {
         ArrayList<Territory> filter = new ArrayList<>();
         if (!overclaimedTerritories.isEmpty()){
             for (Nation overclaimed : overclaimedTerritories.keySet()){
-                player.sendMessage(String.format("Claimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName()));
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName()));
                 territoryCollection.removeAll(overclaimedTerritories.get(overclaimed));
             }
         }
         if (!strongEnoughNations.isEmpty()){
             for (Nation strongEnough : strongEnoughNations.keySet()){
                 filter.addAll(overclaimedTerritories.get(strongEnough));
-                player.sendMessage(String.format("%s owns this land and is strong enough to hold it", strongEnough.getName()));
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("%s owns this land and is strong enough to hold it", strongEnough.getName()));
             }
         }
         ArrayList<Territory> toWilderness = CollectionUtils.filter(claimed, filter);
         if (toWilderness.isEmpty()){
             return;
         }
-        player.sendMessage(String.format("Unclaimed %d chunks of land from %s", toWilderness.size(), nation.getName()));
+        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Unclaimed %d chunks of land from %s", toWilderness.size(), nation.getName()));
         territoryCollection.removeAll(toWilderness);
+
+    }
+
+    @Override
+    public void claimSignleTerritory(Player player) {
+        Territory territory = Territory.fromChunk(player.getLocation().getChunk());
+        Nation nation = NationManager.getInstance().getNationAt(territory);
+        if (nation != null){
+            if (nation.isStrongEnough() && !player.hasPermission("nationcraft.nation.claim.bypassstrength") && !player.hasPermission("nationcraft.admin")){
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("%s owns this land and is strong enough to hold it", NationManager.getInstance().getColor(player, nation) + nation.getName() + ChatColor.RESET));
+            }
+        }
+    }
+
+    @Override
+    public void unclaimSignleTerritory(Player player) {
 
     }
 
@@ -472,6 +471,12 @@ public final class NationTerritoryManager implements TerritoryManager {
         player.sendMessage(String.format("Unclaimed all of %s's territory", nation.getName()));
         territoryCollection.clear();
     }
+
+    @Override
+    public boolean add(Territory territory) {
+        return territoryCollection.add(territory);
+    }
+
     public boolean addAll(Collection<? extends Territory> territories){
         return territoryCollection.addAll(territories);
     }

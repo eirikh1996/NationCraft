@@ -1,28 +1,31 @@
 package io.github.eirikh1996.nationcraft.settlement;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 
+import io.github.eirikh1996.nationcraft.NationCraft;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.territory.SettlementTerritoryManager;
 import io.github.eirikh1996.nationcraft.territory.Territory;
 import io.github.eirikh1996.nationcraft.territory.TerritoryManager;
+import io.github.eirikh1996.nationcraft.territory.TownCenter;
+import io.github.eirikh1996.nationcraft.utils.Direction;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
 final public class Settlement {
 	private String name;
 	private final World world;
-	private Nation nation;
-	private Territory townCenter;
+	private String nation;
+	private TownCenter townCenter;
 	private final TerritoryManager territory;
-	private final List<UUID> players;
+	private final HashMap<UUID, Ranks> players;
 	
 	public Settlement(File settlementFile) {
 		final Map data;
@@ -36,20 +39,56 @@ final public class Settlement {
 			throw new SettlementNotFoundException("Settlement file at " + settlementFile.getAbsolutePath() + " was not found");
 		}
 			name = (String) data.get("name");
-			nation = NationManager.getInstance().getNationByName((String) data.get("nation"));
+		nation = (String) data.get("nation");
 			world = worldFromObject(data.get("world"));
-			townCenter = (Territory) data.get("townCenter");
+			Map<String, Object> tcData = (Map<String, Object>) data.get("townCenter");
+			final int tcX = (int) tcData.get("x");
+			final int tcZ = (int) tcData.get("z");
+			final ArrayList<Integer> tpCoords = (ArrayList<Integer>) tcData.get("teleportationPoint");
+			tpCoords.size();
+			final Location teleportLoc = new Location(world, tpCoords.get(0), tpCoords.get(1), tpCoords.get(2));
+			townCenter = new TownCenter(tcX, tcZ, world, teleportLoc);
 			territory = new SettlementTerritoryManager(this);
-			players = (List<UUID>) data.get("players");
+			players = new HashMap<>();
+			Map playerData = (Map) data.get("players");
+			for (Object obj : playerData.keySet()){
+				UUID id = UUID.fromString((String) obj);
+				Ranks rank;
+				Object val = playerData.get(obj);
+				if (val instanceof String){
+					rank = Ranks.valueOf((String) val);
+				} else {
+					rank = (Ranks) val;
+				}
+				players.put(id, rank);
+			}
 		
 	}
-	public Settlement(String name, Nation nation, World world, Territory townCenter, List<UUID> players) {
+	public Settlement(String name, String nation, World world, TownCenter townCenter, HashMap<UUID, Ranks> players) {
 		this.name = name;
 		this.nation = nation;
 		this.world = world;
 		this.townCenter = townCenter;
 		this.players = players;
 		this.territory = new SettlementTerritoryManager(this);
+	}
+	public Settlement(String name, Player creator){
+		this.name = name;
+		nation = NationManager.getInstance().getNationByPlayer(creator).getName();
+		world = creator.getWorld();
+		townCenter = new TownCenter(creator.getLocation().getChunk().getX(), creator.getLocation().getChunk().getZ(), world, creator.getLocation());
+		players = new HashMap<>();
+		players.put(creator.getUniqueId(), Ranks.MAYOR);
+		territory = new SettlementTerritoryManager(this);
+		territory.add(Territory.fromChunk(creator.getLocation().getChunk()));
+	}
+	@Nullable
+	public static Settlement loadFromFile(@Nullable String name){
+		if (name == null){
+			return null;
+		}
+		File settlementFile = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/settlements/" + name.toLowerCase() + ".settlement");
+		return settlementFile.exists() ? new Settlement(settlementFile) : null;
 	}
 	private World worldFromObject(Object obj){
 		World  returnWorld = null;
@@ -88,7 +127,7 @@ final public class Settlement {
 
 	
 	public void addPlayer(Player p) {
-		players.add(p.getUniqueId());
+		players.put(p.getUniqueId(), Ranks.CITIZEN);
 	}
 	
 	public void removePlayer(Player p) {
@@ -100,7 +139,7 @@ final public class Settlement {
 	}
 	
 	@SuppressWarnings("static-access")
-	public void setTownCenter(Territory townCenter) {
+	public void setTownCenter(TownCenter townCenter) {
 		this.townCenter = townCenter;
 	}
 
@@ -112,15 +151,75 @@ final public class Settlement {
 			return true;
 		}
 	}
+	public float getExposurePercent(){
+		ArrayList<Territory> surrounding = new ArrayList<>();
+		for (Territory territory : getTerritory()){
+			if (!getTerritory().contains(territory.getRelative(Direction.NORTH))){
+				surrounding.add(territory.getRelative(Direction.NORTH));
+			} else if (!getTerritory().contains(territory.getRelative(Direction.SOUTH))){
+				surrounding.add(territory.getRelative(Direction.SOUTH));
+			} else if (!getTerritory().contains(territory.getRelative(Direction.EAST))){
+				surrounding.add(territory.getRelative(Direction.EAST));
+			} else if (!getTerritory().contains(territory.getRelative(Direction.WEST))){
+				surrounding.add(territory.getRelative(Direction.WEST));
+			}
+		}
+		int territoriesNotOwnedByNation = 0;
+		for (Territory territory : surrounding){
+			if (NationManager.getInstance().getNationAt(territory).getName() == nation)
+				continue;
+			territoriesNotOwnedByNation++;
+		}
+		return ((float) territoriesNotOwnedByNation / (float) surrounding.size()) * 100f;
+	}
 
 	public void siege(){
 
+	}
+
+	public void saveToFile() {
+		File settlementFile = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/settlements/" + getName() + ".settlement");
+		if (!settlementFile.exists()) {
+			try {
+				settlementFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+			try {
+
+				PrintWriter writer = new PrintWriter(settlementFile);
+				writer.println("name: " + getName());
+				writer.println("townCenter:");
+				writer.println("  x: " + getTownCenter().getX());
+				writer.println("  z: " + getTownCenter().getZ());
+				writer.println("  world: " + getTownCenter().getWorld().getUID());
+				writer.println("  teleportationPoint: [" + getTownCenter().getTeleportationPoint().getBlockX() + ", " + getTownCenter().getTeleportationPoint().getBlockY() + ", " + getTownCenter().getTeleportationPoint().getBlockZ() + "]");
+				writer.println("territory:");
+				if (!getTerritory().isEmpty()){
+					for (Territory territory : getTerritory()) {
+						if (territory == null){
+							continue;
+						}
+						writer.println("- [" + territory.getWorld().getUID().toString() + "," + territory.getX() + "," + territory.getZ() + "]");
+					}
+				}
+
+				writer.println("players:");
+				for (UUID id : getPlayers().keySet()){
+					writer.write("  " + id.toString() + ": " + getPlayers().get(id).name());
+				}
+				writer.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 	public String getName() {
 		return name;
 	}
 	
-	public List<UUID> getPlayers() {
+	public HashMap<UUID, Ranks> getPlayers() {
 		return players;
 	}
 	
@@ -128,16 +227,12 @@ final public class Settlement {
 		return territory;
 	}
 	
-	public Territory getTownCenter() {
+	public TownCenter getTownCenter() {
 		return townCenter;
 	}
 
 	public World getWorld(){
 		return world;
-	}
-
-	public Nation getNation(){
-		return nation;
 	}
 
 	private class SettlementNotFoundException extends RuntimeException{

@@ -42,5 +42,6 @@ public final class InvitePlayerNationSubCommand extends NationSubCommand {
             return;
         }
         n.invite(id);
+        n.saveToFile();
     }
 }

@@ -36,5 +36,6 @@ public final class LeaveNationSubCommand extends NationSubCommand {
                 Bukkit.broadcastMessage(String.format("Nation %s has been disbanded", nName));
             }
         }
+        nation.saveToFile();
     }
 }

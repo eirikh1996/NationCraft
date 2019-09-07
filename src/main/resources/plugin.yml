@@ -1,7 +1,10 @@
 name: NationCraft
 main: io.github.eirikh1996.nationcraft.NationCraft
-version: ${project.version}
+version: 1.0.0
 author: eirikh1996
+softdepend:
+  - Essentials
+  - Vault
 commands:
   nation:
     usage: /nation <name>
@@ -21,16 +24,17 @@ commands:
       - cm
 permissions:
   nationcraft.nation.*:
-    default: true
+    default: false
     children:
       create: true
       join: true
       leave: true
       disband: true
+      claim: true
       war: true
   nationcraft.settlement.*:
      default: true
      children:
        create: true
-  nationcraft.admin.*:
+  nationcraft.admin:
     default: op

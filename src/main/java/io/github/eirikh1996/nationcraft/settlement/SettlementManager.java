@@ -3,65 +3,74 @@ package io.github.eirikh1996.nationcraft.settlement;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import io.github.eirikh1996.nationcraft.NationCraft;
 import io.github.eirikh1996.nationcraft.nation.Nation;
+import io.github.eirikh1996.nationcraft.nation.NationManager;
+import io.github.eirikh1996.nationcraft.territory.Territory;
 import org.bukkit.Chunk;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class SettlementManager implements Iterable<Settlement> {
-	private static List<Settlement> settlements;
+public class SettlementManager {
 	private static SettlementManager instance;
-	public SettlementManager(){
-
+	//This is a singleton object, so don't instantiate it
+	private SettlementManager(){
 	}
 	public static void initialize(){
 		instance = new SettlementManager();
 	}
-	public List<Settlement> getSettlements(){
-		return settlements;
-	}
 
-	public static SettlementManager getInstance(){
+	public static SettlementManager getInstance() {
 		return instance;
 	}
-	public boolean isOwnNationTerritory(Chunk territory) {
-		return false;
-	}
-	public void saveToFile(Settlement s) {
-		File settlementFile = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + s.getName() + ".settlement");
-		if (!settlementFile.exists()) {
-			try {
-				settlementFile.createNewFile();
-				PrintWriter writer = new PrintWriter(settlementFile);
-				writer.println("name: " + s.getName());
-				writer.println("townCenter: " + s.getTownCenter());
-				writer.println("territory:");
-				for (Chunk tChunk : s.getTerritory()) {
-					writer.println("- [" + tChunk.getWorld().getName() + "," + tChunk.getX() + "," + tChunk.getZ() + "]");
+
+	@Nullable
+	public Settlement getSettlementByName(String name){
+		for (Nation n : NationManager.getInstance()){
+			if (!n.getSettlements().isEmpty()){
+				for (Settlement ret : n.getSettlements()){
+					if (ret != null && ret.getName().equalsIgnoreCase(name)){
+						return ret;
+					}
 				}
-				writer.println("players:");
-				for (int i = 0 ; i <= s.getPlayers().size() ; i++) {
-					writer.println("- " + s.getPlayers().get(i));
-				}
-				writer.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-
-		} else {
-
+			if (n.getCapital() != null && n.getCapital().getName().equalsIgnoreCase(name)){
+				return n.getCapital();
+			}
 		}
+		return null;
 	}
 
+	public Settlement getSettlementByPlayer(Player player){
+		Nation n = NationManager.getInstance().getNationByPlayer(player);
+		if (n != null){
+			for (Settlement s : n.getSettlements()){
+				if (s == null || !s.getPlayers().containsKey(player.getUniqueId())){
+					continue;
+				}
+				return s;
+			}
+			if (n.getCapital() != null && n.getCapital().getPlayers().containsKey(player.getUniqueId())){
+				return n.getCapital();
+			}
+		}
+		return null;
+	}
 
-	@NotNull
-	@Override
-	public Iterator<Settlement> iterator() {
-		return settlements.iterator();
+	public ArrayList<Settlement> getAllSettlements(){
+		ArrayList<Settlement> returnList = new ArrayList<>();
+		for (Nation n : NationManager.getInstance()){
+			if (!n.getSettlements().isEmpty())
+				returnList.addAll(n.getSettlements());
+			if (n.getCapital() != null)
+				returnList.add(n.getCapital());
+		}
+		return returnList;
 	}
 }

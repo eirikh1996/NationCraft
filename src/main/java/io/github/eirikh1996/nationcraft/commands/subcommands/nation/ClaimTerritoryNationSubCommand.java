@@ -47,5 +47,6 @@ public final class ClaimTerritoryNationSubCommand extends NationSubCommand {
         } else if (shape.equals(Shape.LINE)) {
             nation.getTerritoryManager().claimLineTerritory(sender, radius);
         }
+        nation.saveToFile();
     }
 }

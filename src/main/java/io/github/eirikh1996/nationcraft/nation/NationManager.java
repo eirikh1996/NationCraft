@@ -21,16 +21,19 @@ public class NationManager implements Iterable<Nation> {
 	@NotNull private final Set<Nation> nations;
 
 	public NationManager(){
-		this.nations = loadNations();
+		nations = new HashSet<>();
 	}
 	public static void initialize(){ ourInstance = new NationManager(); }
 
+	public void loadNations(){
+		nations.addAll(getNationsFromFile());
+	}
 	public void reload(){
 		nations.clear();
-	    nations.addAll(loadNations());
+	    nations.addAll(getNationsFromFile());
     }
 
-	public HashSet<Nation> loadNations(){
+	public HashSet<Nation> getNationsFromFile(){
 		File nationFiles = new File(nationFilePath);
 		if (!nationFiles.exists()){
 			nationFiles.mkdirs();
@@ -189,13 +192,13 @@ public class NationManager implements Iterable<Nation> {
 
 	public boolean createSafezone(){
 
-		Nation safezone = new Nation("Safezone","Free from PvP and monsters", "(none)",Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptyMap());
+		Nation safezone = new Nation("Safezone","Free from PvP and monsters", null,Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptyMap());
 		return safezone.saveToFile();
 	}
 
 	public boolean createWarzone(){
 
-		Nation safezone = new Nation("Warzone","Not the safest place to be!", "(none)",Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptyMap());
+		Nation safezone = new Nation("Warzone","Not the safest place to be!", null,Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptyMap());
 		return safezone.saveToFile();
 	}
 
@@ -205,6 +208,9 @@ public class NationManager implements Iterable<Nation> {
 
 	public void saveAllNationsToFile(){
 		for (Nation n : this){
+			if (n == null){
+				continue;
+			}
 			n.saveToFile();
 		}
 	}

@@ -2,10 +2,14 @@ package io.github.eirikh1996.nationcraft.player;
 
 import io.github.eirikh1996.nationcraft.NationCraft;
 import io.github.eirikh1996.nationcraft.chat.ChatMode;
+import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.nation.Ranks;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
@@ -13,6 +17,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.*;
 import java.util.*;
 
+import static io.github.eirikh1996.nationcraft.messages.Messages.ERROR;
 import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
 public class PlayerManager implements Iterable<NCPlayer> {
@@ -20,6 +25,9 @@ public class PlayerManager implements Iterable<NCPlayer> {
     private static PlayerManager instance;
     private String FILE_PATH = NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/players.yml";
     private Map<UUID, Boolean> playerAutoMapUpdateEnabled = new HashMap<>();
+    private Map<UUID, Location> playerTeleportationMap = new HashMap<>();
+    private Map<UUID, TeleportCancellationReason> teleportCancellations = new HashMap<>();
+    private Map<UUID, Long> lastTeleportMap = new HashMap<>();
     public static void initialize(){
         instance = new PlayerManager();
     }
@@ -74,6 +82,35 @@ public class PlayerManager implements Iterable<NCPlayer> {
             }
         }
         return returnSet;
+    }
+    public void scheduleTeleportation(final Player player, final Location tpLoc){
+        if (lastTeleportMap.containsKey(player.getUniqueId()) && (System.currentTimeMillis() - lastTeleportMap.get(player.getUniqueId())) / 1000 < Settings.teleportationCooldownTime){
+            int timePassed = (int) (System.currentTimeMillis() - lastTeleportMap.get(player.getUniqueId())) / 1000;
+            int timeLeft = Settings.teleportationCooldownTime - timePassed;
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Time before the next teleport: " + (timeLeft > 0 ? (ChatColor.AQUA + "" + timeLeft + ChatColor.DARK_RED + " seconds") : "now"));
+            return;
+        }
+        new BukkitRunnable() {
+            private int timePassed = 0;
+            @Override
+            public void run() {
+                timePassed++;
+                if (teleportCancellations.containsKey(player.getUniqueId())){
+                    player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Teleportation cancelled due to " + teleportCancellations.get(player.getUniqueId()));
+                    teleportCancellations.remove(player.getUniqueId());
+                    cancel();
+                }
+                if (timePassed >= Settings.teleportationWarmupTime){
+                    player.teleport(tpLoc);
+                    lastTeleportMap.put(player.getUniqueId(), System.currentTimeMillis());
+                    cancel();
+                }
+            }
+        }.runTaskTimer(NationCraft.getInstance(), 0 , 20);
+    }
+
+    public void cancelTeleport(Player player, TeleportCancellationReason reason){
+        teleportCancellations.put(player.getUniqueId(), reason);
     }
 
     public boolean playerIsAtLeast(Player p, Ranks r){
@@ -167,5 +204,9 @@ public class PlayerManager implements Iterable<NCPlayer> {
     @Override
     public Iterator<NCPlayer> iterator() {
         return null;
+    }
+
+    public enum TeleportCancellationReason{
+        TAKING_DAMAGE, MOTION
     }
 }

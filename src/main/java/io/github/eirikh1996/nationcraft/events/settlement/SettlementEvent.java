@@ -1,4 +1,4 @@
-package io.github.eirikh1996.nationcraft.events;
+package io.github.eirikh1996.nationcraft.events.settlement;
 
 
 import io.github.eirikh1996.nationcraft.settlement.Settlement;

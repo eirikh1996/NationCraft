@@ -61,5 +61,6 @@ public final class CreateNationSubCommand extends NationSubCommand {
         }
         sender.sendMessage("You successfully created a new nation named " + ChatColor.GREEN + name);
         NationManager.getInstance().getNations().add(newNation);
+        newNation.saveToFile();
     }
 }
