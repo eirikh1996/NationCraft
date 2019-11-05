@@ -22,18 +22,36 @@ public final class Territory implements Comparable<Territory> {
         this.x = x;
         this.z = z;
     }
+
+    /**
+     * Returns a territory representation of a chunk
+     * @param chunk The chunk the territory will be generated from
+     * @return a territory representation of the chunk
+     */
     public static Territory fromChunk(Chunk chunk){
         return new Territory(chunk.getWorld(), chunk.getX(), chunk.getZ());
     }
 
+    /**
+     * Gets the x value of the territory chunk
+     * @return x chunk coordinate
+     */
     public int getX() {
         return x;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getZ() {
         return z;
     }
 
+    /**
+     * Gets the world this territory chunk is located in
+     * @return the world this territory chunk is located in
+     */
     @NotNull
     public World getWorld() {
         return world;
@@ -52,6 +70,12 @@ public final class Territory implements Comparable<Territory> {
         return territory == this;
     }
 
+    /**
+     * Returns a territory chunk at the relative offset of this territory chunk
+     * @param dx distance in x direction
+     * @param dz distance in z direction
+     * @return territory chunk at given relative offset
+     */
     public Territory getRelative(int dx, int dz){
         return new Territory(world, x + dx, z + dz);
     }

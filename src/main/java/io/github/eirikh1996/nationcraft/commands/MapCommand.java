@@ -2,6 +2,7 @@ package io.github.eirikh1996.nationcraft.commands;
 
 import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.messages.Messages;
+import io.github.eirikh1996.nationcraft.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -29,11 +30,12 @@ public class MapCommand implements TabExecutor {
             Messages.generateTerritoryMap(p);
         } else if (strings[0].equalsIgnoreCase("auto")){
             @NotNull String status = "";;
-            if (!PlayerManager.getInstance().autoUpdateTerritoryMapOnMove(p)){
-                PlayerManager.getInstance().setAutoUpdateTerritoryMapOnMove(p, true);
+            final NCPlayer player = PlayerManager.getInstance().getPlayer(p.getUniqueId());
+            if (!player.isAutoUpdateTerritoryMap()){
+                player.setAutoUpdateTerritoryMap(true);
                 status = "enabled";
             } else {
-                PlayerManager.getInstance().setAutoUpdateTerritoryMapOnMove(p, false);
+                player.setAutoUpdateTerritoryMap(false);
                 status = "disabled";
             }
             p.sendMessage("Automatic map updates " + status);

@@ -35,9 +35,9 @@ public final class InvitePlayerNationSubCommand extends NationSubCommand {
             id = target.getUniqueId();
             target.sendMessage("You have been invited to join " + NationManager.getInstance().getColor(target, n) + n.getName());
         } else {
-            id = PlayerManager.getInstance().getPlayerIDFromName(playerName);
+            id = Bukkit.getOfflinePlayer(playerName).getUniqueId();
         }
-        if (id == null) {
+        if (!PlayerManager.getInstance().hasJoinedBefore(id)) {
             sender.sendMessage(Messages.ERROR + "Player " + playerName + " has never joined the server!");
             return;
         }

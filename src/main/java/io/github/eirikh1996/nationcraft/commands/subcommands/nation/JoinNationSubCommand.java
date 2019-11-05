@@ -4,6 +4,8 @@ import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.messages.Messages;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
+import io.github.eirikh1996.nationcraft.player.NCPlayer;
+import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -28,8 +30,8 @@ public final class JoinNationSubCommand extends NationSubCommand {
         }
         if (!nation.isOpen() && !nation.getInvitedPlayers().contains(sender.getUniqueId())) {
             sender.sendMessage("This nation requires invitation");
-            for (UUID id : nation.getPlayers().keySet()) {
-                Player player = Bukkit.getPlayer(id);
+            for (NCPlayer np : nation.getPlayers().keySet()) {
+                Player player = Bukkit.getPlayer(np.getPlayerID());
                 if (player == null) {
                     continue;
                 }
@@ -41,7 +43,7 @@ public final class JoinNationSubCommand extends NationSubCommand {
             sender.sendMessage(Messages.ERROR + "Nation " + nation.getName() + " is full! Join another nation, or create your own.");
             return;
         }
-        if (nation.addPlayer(sender)) {
+        if (nation.addPlayer(PlayerManager.getInstance().getPlayer(sender.getUniqueId()))) {
             nation.getInvitedPlayers().remove(sender.getUniqueId());
             sender.sendMessage(String.format("You successfully joined %s", nation.getName()));
         } else {

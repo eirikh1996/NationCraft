@@ -3,6 +3,7 @@ package io.github.eirikh1996.nationcraft.listener;
 import io.github.eirikh1996.nationcraft.chat.ChatMode;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
+import io.github.eirikh1996.nationcraft.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.settlement.SettlementManager;
@@ -18,16 +19,17 @@ public class ChatListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerChat(AsyncPlayerChatEvent event){
-        ChatMode mode = PlayerManager.getInstance().getChatModeByPlayer(event.getPlayer());
+        final NCPlayer ncPlayer = PlayerManager.getInstance().getPlayer(event.getPlayer().getUniqueId());
+        ChatMode mode = ncPlayer.getChatMode();
         Nation nation = NationManager.getInstance().getNationByPlayer(event.getPlayer());
         for (Player p : event.getRecipients()) {
             if (mode == ChatMode.SETTLEMENT) {
-                Settlement settlement = SettlementManager.getInstance().getSettlementByPlayer(p);
+                Settlement settlement = SettlementManager.getInstance().getSettlementByPlayer(p.getUniqueId());
                 if (!settlement.getPlayers().containsKey(p.getUniqueId())){
                     event.getRecipients().remove(p);
                 }
             } else if (mode == ChatMode.NATION) {
-                if (!nation.getPlayers().containsKey(p.getUniqueId())){
+                if (!nation.getPlayers().containsKey(PlayerManager.getInstance().getPlayer(p.getUniqueId()))){
                     event.getRecipients().remove(p);
                 }
             } else if (mode == ChatMode.ALLY){

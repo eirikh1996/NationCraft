@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 
 public abstract class SubCommand {
     protected final Player sender;
-    public SubCommand(Player sender){
+    protected SubCommand(Player sender){
         this.sender = sender;
     }
     public abstract void execute();

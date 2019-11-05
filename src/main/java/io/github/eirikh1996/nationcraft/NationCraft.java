@@ -33,7 +33,6 @@ public class NationCraft extends JavaPlugin {
 	public void onEnable() {
 		long start = System.currentTimeMillis();
 
-		SettlementManager.initialize();
 		PlayerManager.initialize();
 		NationManager.initialize();
 
@@ -74,6 +73,7 @@ public class NationCraft extends JavaPlugin {
 		//Read config file
 		Settings.maxPlayersPerNation = getConfig().getInt("MaxPlayersPerNation", 50);
 		Settings.NationCreateCost = getConfig().getInt("NationCreateCost",1000);
+		Settings.MinimumSettlementExposurePercent = (float) getConfig().getDouble("MinimumSettlementExposurePercent", 50.0);
 		List<String> forbiddenCommandsInEnemyTerritory = getConfig().getStringList("forbiddenCommandsInEnemyTerritory");
 		if (forbiddenCommandsInEnemyTerritory == null){
 			Settings.forbiddenCommandsInEnemyTerritory = Collections.emptyList();

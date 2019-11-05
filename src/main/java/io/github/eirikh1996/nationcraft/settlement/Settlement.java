@@ -13,6 +13,7 @@ import io.github.eirikh1996.nationcraft.territory.TownCenter;
 import io.github.eirikh1996.nationcraft.utils.Direction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -39,16 +40,21 @@ final public class Settlement {
 			throw new SettlementNotFoundException("Settlement file at " + settlementFile.getAbsolutePath() + " was not found");
 		}
 			name = (String) data.get("name");
-		nation = (String) data.get("nation");
+			nation = (String) data.get("nation");
 			world = worldFromObject(data.get("world"));
 			Map<String, Object> tcData = (Map<String, Object>) data.get("townCenter");
 			final int tcX = (int) tcData.get("x");
 			final int tcZ = (int) tcData.get("z");
 			final ArrayList<Integer> tpCoords = (ArrayList<Integer>) tcData.get("teleportationPoint");
 			tpCoords.size();
+			World world = Bukkit.getWorld(UUID.fromString((String) tcData.get("world")));
 			final Location teleportLoc = new Location(world, tpCoords.get(0), tpCoords.get(1), tpCoords.get(2));
 			townCenter = new TownCenter(tcX, tcZ, world, teleportLoc);
 			territory = new SettlementTerritoryManager(this);
+			ArrayList<ArrayList> terrList = (ArrayList<ArrayList>) data.get("territory");
+			for (ArrayList list : terrList){
+				territory.add(new Territory(Bukkit.getWorld(UUID.fromString((String) list.get(0))), (int) list.get(1), (int) list.get(2)));
+			}
 			players = new HashMap<>();
 			Map playerData = (Map) data.get("players");
 			for (Object obj : playerData.keySet()){
@@ -125,13 +131,22 @@ final public class Settlement {
 		return returnList;
 	}
 
+	public OfflinePlayer getMayor(){
+		for (Map.Entry<UUID, Ranks> entry : players.entrySet()){
+			if (!entry.getValue().equals(Ranks.MAYOR))
+				continue;
+			return Bukkit.getOfflinePlayer(entry.getKey());
+		}
+		return null;
+	}
+
 	
 	public void addPlayer(Player p) {
 		players.put(p.getUniqueId(), Ranks.CITIZEN);
 	}
 	
-	public void removePlayer(Player p) {
-		players.remove(p.getUniqueId());
+	public void removePlayer(UUID id) {
+		players.remove(id);
 	}
 	
 	public void setName(String name) {
@@ -166,7 +181,7 @@ final public class Settlement {
 		}
 		int territoriesNotOwnedByNation = 0;
 		for (Territory territory : surrounding){
-			if (NationManager.getInstance().getNationAt(territory).getName() == nation)
+			if (NationManager.getInstance().getNationAt(territory) != null && NationManager.getInstance().getNationAt(territory).getName().equalsIgnoreCase(nation))
 				continue;
 			territoriesNotOwnedByNation++;
 		}
@@ -190,6 +205,7 @@ final public class Settlement {
 
 				PrintWriter writer = new PrintWriter(settlementFile);
 				writer.println("name: " + getName());
+				writer.println("nation: " + nation);
 				writer.println("townCenter:");
 				writer.println("  x: " + getTownCenter().getX());
 				writer.println("  z: " + getTownCenter().getZ());
@@ -214,6 +230,10 @@ final public class Settlement {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+	}
+
+	public Nation getNation() {
+		return NationManager.getInstance().getNationByName(nation);
 	}
 	public String getName() {
 		return name;

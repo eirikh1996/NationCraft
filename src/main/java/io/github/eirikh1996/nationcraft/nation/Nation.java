@@ -8,12 +8,13 @@ import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.events.nation.NationPlayerInviteEvent;
 import io.github.eirikh1996.nationcraft.events.nation.NationPlayerJoinEvent;
 import io.github.eirikh1996.nationcraft.exception.NationNotFoundException;
+import io.github.eirikh1996.nationcraft.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.settlement.Settlement;
-import io.github.eirikh1996.nationcraft.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.territory.NationTerritoryManager;
 import io.github.eirikh1996.nationcraft.territory.Territory;
 import io.github.eirikh1996.nationcraft.territory.TerritoryManager;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -21,9 +22,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
+import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
 
 final public class Nation implements Comparable<Nation>, Cloneable {
+	@NotNull private final long creationTimeMS;
 	@NotNull private final UUID uuid;
 	@NotNull private final String originalName;
 	@NotNull private String name, description;
@@ -31,11 +34,11 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	@NotNull private final List<Nation> allies, enemies;
 	@NotNull private final List<Settlement> settlements;
 	@NotNull private final TerritoryManager territoryManager;
-	@NotNull private final Map<UUID, Ranks> players;
+	@NotNull private final Map<NCPlayer, Ranks> players;
 	@NotNull private final Set<UUID> invitedPlayers;
 	private final boolean isOpen;
-	
-	public Nation(@NotNull String name, @NotNull String description, @Nullable Settlement capital, @NotNull List<Nation> allies, @NotNull List<Nation> enemies, @NotNull List<Settlement> settlements, @NotNull Map<UUID,Ranks> players) {
+
+	public Nation(@NotNull String name, @NotNull String description, @Nullable Settlement capital, @NotNull List<Nation> allies, @NotNull List<Nation> enemies, @NotNull List<Settlement> settlements, @NotNull Map<NCPlayer, Ranks> players) {
 		this.uuid = UUID.randomUUID();
 		this.name = name;
 		originalName = name;
@@ -48,6 +51,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		isOpen = false;
 		invitedPlayers = new HashSet<>();
 		territoryManager = new NationTerritoryManager(this);
+		creationTimeMS = System.currentTimeMillis();
 	}
 
 	public Nation(@NotNull String name, Player leader){
@@ -60,10 +64,11 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		this.enemies = new ArrayList<>();
 		this.settlements = new ArrayList<>();
 		this.players = new HashMap<>();
-		players.put(leader.getUniqueId(), Ranks.LEADER);
+		players.put(PlayerManager.getInstance().getPlayer(leader.getUniqueId()), Ranks.LEADER);
 		isOpen = false;
 		invitedPlayers = new HashSet<>();
 		territoryManager = new NationTerritoryManager(this);
+		creationTimeMS = System.currentTimeMillis();
 	}
 	/**
 	 * Constructs a nation from the data stored in each nation file
@@ -92,6 +97,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		players = getPlayersAndRanksFromObject(data.get("players"));
 		territoryManager = new NationTerritoryManager(this);
 		territoryManager.addAll(chunkListFromObject(data.get("territory")));
+		creationTimeMS = (long) data.get("creationTimeMS");
 	}
 	private ArrayList<Nation> nationListFromObject(Object obj){
 		ArrayList<Nation> returnList = new ArrayList<>();
@@ -153,8 +159,8 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		}
 		return returnList;
 	}
-	private Map<UUID, Ranks> getPlayersAndRanksFromObject(Object obj){
-		HashMap<UUID, Ranks> returnMap = new HashMap<>();
+	private Map<NCPlayer, Ranks> getPlayersAndRanksFromObject(Object obj){
+		HashMap<NCPlayer, Ranks> returnMap = new HashMap<>();
 		HashMap<Object, Object> objMap = (HashMap<Object, Object>) obj;
 		if (objMap == null){
 			return Collections.emptyMap();
@@ -167,14 +173,15 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 				String str = (String) o;
 				id = UUID.fromString(str);
 			}
+			final NCPlayer player = PlayerManager.getInstance().getPlayer(id);
 			Object i = objMap.get(o);
 			if (i instanceof Ranks) {
 				Ranks r = (Ranks) i;
-				returnMap.put(id, r);
+				returnMap.put(player, r);
 			} else if (i instanceof String){
 				String str = (String) i;
 				Ranks r = Ranks.valueOf(str);
-				returnMap.put(id, r);
+				returnMap.put(player, r);
 
 			}
 
@@ -202,6 +209,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		}
 		return returnList;
 	}
+
 
 	public Relation getRelationTo(String nationName){
 		return getRelationTo(NationManager.getInstance().getNationByName(nationName));
@@ -276,6 +284,10 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return description;
 	}
 
+	public boolean hasPlayer(UUID id){
+		return players.containsKey(id);
+	}
+
 	public boolean isWarzone(){
 		return originalName.equalsIgnoreCase("warzone");
 	}
@@ -310,6 +322,29 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return allies.remove(ally);
 	}
 
+	public void removePlayer(UUID uuid){
+		final NCPlayer p = PlayerManager.getInstance().getPlayer(uuid);
+		players.remove(p);
+		for (NCPlayer player : players.keySet()){
+			Player np = Bukkit.getPlayer(player.getPlayerID());
+			if (np == null){
+				continue;
+			}
+			np.sendMessage(NATIONCRAFT_COMMAND_PREFIX + p.getName() + " left your nation");
+		}
+	}
+
+	public void kickPlayer(Player kicked, Player kicker){
+		players.remove(kicked.getUniqueId());
+		for (NCPlayer player : players.keySet()){
+			Player np = Bukkit.getPlayer(player.getPlayerID());
+			if (np == null){
+				continue;
+			}
+			np.sendMessage(NATIONCRAFT_COMMAND_PREFIX + kicker.getName() + " kicked " + kicked.getName() + " from the nation");
+		}
+	}
+
 	@NotNull public List<Nation> getEnemies(){
 		return enemies;
 	}
@@ -329,7 +364,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return territoryManager;
 	}
 
-	@NotNull public Map<UUID, Ranks> getPlayers(){
+	@NotNull public Map<NCPlayer, Ranks> getPlayers(){
 		return players;
 	}
 
@@ -337,25 +372,24 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return originalName;
 	}
 
-	public boolean addPlayer(Player player){
-		if (players.containsKey(player.getUniqueId())){
+	public boolean addPlayer(NCPlayer player){
+		if (players.containsKey(player)){
 			return false;
 		}
 		//call event
         NationPlayerJoinEvent event = new NationPlayerJoinEvent(player, this);
-
+		Bukkit.getServer().getPluginManager().callEvent(event);
 		//check if event was cancelled
 		if (event.isCancelled()){
 		    return false;
         }
 		//if not, add the player and assign recruit rank
-		players.put(player.getUniqueId(), Ranks.RECRUIT);
-		NationCraft.getInstance().getServer().getPluginManager().callEvent(event);
+		players.put(player, Ranks.RECRUIT);
 		return true;
 	}
 
-	public boolean promotePlayer(Player p){
-	    final Ranks origRank = players.get(p.getUniqueId());
+	public boolean promotePlayer(NCPlayer p){
+	    final Ranks origRank = players.get(p);
 	    Ranks newRank = origRank;
 	    switch (origRank){
             case RECRUIT:
@@ -368,15 +402,15 @@ final public class Nation implements Comparable<Nation>, Cloneable {
                 newRank = Ranks.OFFICIAL;
                 break;
         }
-        if (!players.containsKey(p.getUniqueId())){
+        if (!players.containsKey(p)){
             return false;
         }
-        players.put(p.getUniqueId(), newRank);
+        players.put(p, newRank);
         return true;
     }
 
-    public boolean demotePlayer(Player p){
-        final Ranks origRank = players.get(p.getUniqueId());
+    public boolean demotePlayer(NCPlayer p){
+        final Ranks origRank = players.get(p);
         Ranks newRank = origRank;
         switch (origRank){
             case MEMBER:
@@ -389,10 +423,10 @@ final public class Nation implements Comparable<Nation>, Cloneable {
                 newRank = Ranks.OFFICER;
                 break;
         }
-        if (!players.containsKey(p.getUniqueId())){
+        if (!players.containsKey(p)){
             return false;
         }
-        players.put(p.getUniqueId(), newRank);
+        players.put(p, newRank);
         return true;
     }
 
@@ -410,23 +444,23 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 
 	public int getStrength(){
 		int strength = 0;
-		for (UUID id : players.keySet()){
-			strength += PlayerManager.getInstance().getPlayerStrength(id);
+		for (NCPlayer player : players.keySet()){
+			strength += player.getStrength();
 		}
 		return strength;
 	}
 
+	public long getCreationTimeMS() {
+		return creationTimeMS;
+	}
+
 	public int getMaxStrength(){
-		int maxStrength = 0;
-		for (UUID id : players.keySet()){
-			maxStrength += Settings.maxStrengthPerPlayer;
-		}
-		return maxStrength;
+		return Settings.maxStrengthPerPlayer * players.size();
 	}
 	public boolean isAlliedWith(Nation alliedNation) {
 		return allies.contains(alliedNation) && alliedNation.getAllies().contains(this);
 	}
-	
+
 	public boolean isAtWarWith(Nation enemyNation) {
 		return enemies.contains(enemyNation) || enemyNation.getEnemies().contains(this);
 	}
@@ -461,22 +495,6 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	public boolean deinvite(UUID id){
 		return invitedPlayers.remove(id);
 	}
-    public boolean equalsFile(){
-	    File file = new File(NationCraft.getInstance().getDataFolder(),getUuid().toString() + ".nation");
-	    if (!file.exists()){
-	        return false;
-        }
-	    Nation toCompare = new Nation(file);
-	    return toCompare.getName() == getName() &&
-                toCompare.getDescription() == getDescription() &&
-                toCompare.getCapital() == getCapital() &&
-                toCompare.getAllies() == getAllies() &&
-                toCompare.getEnemies() == getEnemies() &&
-                toCompare.getSettlements() == getSettlements() &&
-                toCompare.getTerritoryManager() == getTerritoryManager() &&
-                toCompare.isOpen() == isOpen() &&
-                toCompare.getPlayers() == getPlayers();
-	}
 
 	public boolean saveToFile(){
         String path = NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations";
@@ -502,6 +520,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
             FileWriter writer = new FileWriter(path);
             writer.write("uuid: " + getUuid().toString() + "\n");
             writer.write("name: " + getName() + "\n");
+            writer.write("creationTimeMS: " + getCreationTimeMS() + "\n");
 			writer.write("originalName: " + originalName + "\n");
             writer.write("description: " + getDescription() + "\n");
             writer.write("capital: " + (getCapital() != null ? getCapital().getName().toLowerCase() : "" ) + "\n");
@@ -549,9 +568,9 @@ final public class Nation implements Comparable<Nation>, Cloneable {
             	}
             }
             writer.write("players:\n");
-            for (UUID id : getPlayers().keySet()){
-                Ranks r = getPlayers().get(id);
-                writer.write("  " + id + ": " + r + "\n");
+            for (NCPlayer player : getPlayers().keySet()){
+                Ranks r = getPlayers().get(player);
+                writer.write("  " + player.getPlayerID() + ": " + r + "\n");
             }
             writer.close();
             return true;

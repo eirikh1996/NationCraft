@@ -4,11 +4,13 @@ package io.github.eirikh1996.nationcraft.messages;
 import io.github.eirikh1996.nationcraft.NationCraft;
 import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
+import io.github.eirikh1996.nationcraft.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.territory.Territory;
 import io.github.eirikh1996.nationcraft.utils.Compass;
 import io.github.eirikh1996.nationcraft.utils.Direction;
+import io.github.eirikh1996.nationcraft.utils.TopicPaginator;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -94,15 +96,15 @@ public class Messages {
 		}
 		List<String> truceList = new ArrayList<>();
 
-		Map<UUID, Ranks> playerList = n.getPlayers();
+		Map<NCPlayer, Ranks> playerList = n.getPlayers();
 		String onlinePlayers = "";
 		String offlinePlayers = "";
 
-			for (UUID id : playerList.keySet()) {
-				if (Bukkit.getPlayer(id) != null) {
-					Player player = Bukkit.getPlayer(id);
+			for (NCPlayer np : playerList.keySet()) {
+				if (Bukkit.getPlayer(np.getPlayerID()) != null) {
+					Player player = Bukkit.getPlayer(np.getPlayerID());
 					String playerName = player.getName();
-					Ranks r = playerList.get(id);
+					Ranks r = playerList.get(np);
 					String rankMarker = "";
 					if (r == Ranks.RECRUIT) {
 						rankMarker = "-";
@@ -125,7 +127,7 @@ public class Messages {
 						onlinePlayers += ", ";
 					}
 				} else {
-					OfflinePlayer player = Bukkit.getOfflinePlayer(id);
+					OfflinePlayer player = Bukkit.getOfflinePlayer(np.getPlayerID());
 					String playerName = player.getName();
 					Ranks r = playerList.get(player.getUniqueId());
 					String rankMarker = "";
@@ -232,6 +234,7 @@ public class Messages {
 
 
 	}
+
 	public static void nearestSettlements(Player player){
 		HashMap<Settlement, Integer> nearestSettlement = new HashMap<>();
 		for (Settlement s : SettlementManager.getInstance().getAllSettlements()){
@@ -250,16 +253,16 @@ public class Messages {
 				.sorted(Map.Entry.comparingByValue())
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 
-		player.sendMessage(ChatColor.YELLOW + "===================={" + ChatColor.RESET + "Nearest settlements" + ChatColor.YELLOW + "}====================");
+		player.sendMessage(ChatColor.YELLOW + "================{" + ChatColor.RESET + "Nearest settlements" + ChatColor.YELLOW + "}================");
 		int count = 0;
 		for (Settlement s : sorted.keySet()){
 			player.sendMessage(s.getName() + String.format(" [%d, %d]", s.getTownCenter().getCenterPoint().getBlockX(), s.getTownCenter().getCenterPoint().getBlockZ()) + String.format(" %d blocks away", sorted.get(s)));
 			if (count >= 9){
-				player.sendMessage(ChatColor.YELLOW + "=========================================================");
 				break;
 			}
 			count++;
 		}
+		player.sendMessage(ChatColor.YELLOW + "=====================================================");
 	}
 
 	private static Map< Nation, String> nationMarkers( int scanRange, @NotNull Player p){
@@ -303,7 +306,10 @@ public class Messages {
 		if (settlement != null){
 			if (settlement.getTownCenter().equalsTerritory(territory)){
 				marker = ChatColor.DARK_BLUE + "T" + ChatColor.RESET;
-			} else {
+			} else if (n.getCapital().equals(settlement)){
+                marker = ChatColor.GRAY + "C" + ChatColor.RESET;
+            }
+			else {
 				marker = ChatColor.GRAY + "S" + ChatColor.RESET;
 			}
 

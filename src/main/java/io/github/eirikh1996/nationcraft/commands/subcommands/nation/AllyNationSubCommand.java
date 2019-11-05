@@ -2,6 +2,7 @@ package io.github.eirikh1996.nationcraft.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
+import io.github.eirikh1996.nationcraft.player.NCPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -34,8 +35,8 @@ public final class AllyNationSubCommand extends NationSubCommand {
         if (allyNation.getAllies().contains(ownNation.getName())) {
             sender.sendMessage(allyNation.getName() + "is now an allied nation");
         } else {
-            for (UUID id : allyNation.getPlayers().keySet()) {
-                Player p = Bukkit.getPlayer(id);
+            for (NCPlayer player : allyNation.getPlayers().keySet()) {
+                Player p = Bukkit.getPlayer(player.getPlayerID());
                 if (p == null) {
                     continue;
                 }

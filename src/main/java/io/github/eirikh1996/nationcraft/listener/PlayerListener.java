@@ -1,5 +1,6 @@
 package io.github.eirikh1996.nationcraft.listener;
 
+import com.earth2me.essentials.Essentials;
 import io.github.eirikh1996.nationcraft.NationCraft;
 import io.github.eirikh1996.nationcraft.chat.ChatMode;
 import io.github.eirikh1996.nationcraft.config.Settings;
@@ -12,6 +13,7 @@ import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.territory.Territory;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -26,18 +28,25 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.github.eirikh1996.nationcraft.messages.Messages.ERROR;
+import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
+
 public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(PlayerLoginEvent event){
         PlayerManager mgr = PlayerManager.getInstance();
-        if (!mgr.getPlayers().containsKey(event.getPlayer().getUniqueId()) || mgr.getPlayers().get(event.getPlayer().getUniqueId()).get("name") != event.getPlayer().getName()){
-            Map<String, Object> valueMap = new HashMap<>();
-            valueMap.put("name", event.getPlayer().getName());
-            valueMap.put("chatMode", ChatMode.GLOBAL);
-            valueMap.put("strength", Settings.maxStrengthPerPlayer);
-            mgr.getPlayers().put(event.getPlayer().getUniqueId(), valueMap);
-            mgr.savePlayerDataToFile();
+        if (!mgr.hasJoinedBefore(event.getPlayer().getUniqueId())){
+            mgr.addPlayer(event.getPlayer().getUniqueId(), event.getPlayer().getName());
+            return;
         }
+        final NCPlayer player = mgr.getPlayer(event.getPlayer().getUniqueId());
+        if (player == null){
+            mgr.addPlayer(event.getPlayer().getUniqueId(), event.getPlayer().getName());
+            return;
+        } else if (player.getName() == event.getPlayer().getName()){
+            return;
+        }
+        player.updateName(event.getPlayer().getName());
     }
 
 
@@ -57,79 +66,100 @@ public class PlayerListener implements Listener {
         @Nullable Nation toN = NationManager.getInstance().getNationAt(event.getTo());
         Chunk fromChunk = event.getFrom().getChunk();
         Chunk toChunk = event.getTo().getChunk();
-        if (PlayerManager.getInstance().autoUpdateTerritoryMapOnMove(event.getPlayer())) {
+        final NCPlayer player = PlayerManager.getInstance().getPlayer(event.getPlayer().getUniqueId());
+        if (player.isAutoUpdateTerritoryMap()) {
 
             if (fromChunk != toChunk) {
                 Messages.generateTerritoryMap(event.getPlayer());
             }
         }
-        Settlement fromS = null;
-        Settlement toS = null;
-        if (fromN != null){
-            for (Settlement testS : fromN.getSettlements()){
-                if (testS == null || !testS.getTerritory().contains(Territory.fromChunk(toChunk)) || testS.getTownCenter().equals(Territory.fromChunk(toChunk))){
-                    continue;
-                }
-                fromS = testS;
-            }
-            if (fromN.getCapital() != null && fromN.getCapital().getTerritory().contains(Territory.fromChunk(toChunk))){
-                fromS = fromN.getCapital();
-            }
-        }
-        if (toN != null){
-            for (Settlement testS : toN.getSettlements()){
-                if (testS == null || !testS.getTerritory().contains(Territory.fromChunk(toChunk)) || testS.getTownCenter().equals(Territory.fromChunk(toChunk))){
-                    continue;
-                }
-                toS = testS;
-            }
-            if (toN.getCapital() != null && toN.getCapital().getTerritory().contains(Territory.fromChunk(toChunk))){
-                toS = toN.getCapital();
+        Settlement fromS = SettlementManager.getInstance().getSettlementAt(event.getFrom());
+        Settlement toS = SettlementManager.getInstance().getSettlementAt(event.getTo());
+        if (toS != null || fromS != null){
+            if (toS == null){
+                event.getPlayer().sendMessage("Leaving the settlement of " + fromS.getName());
+            } else if (fromS == null){
+                event.getPlayer().sendMessage("Entering the settlement of " + toS.getName());
+            } else if (toS.getTownCenter().equalsTerritory(Territory.fromChunk(toChunk)) && !toS.getTownCenter().equalsTerritory(Territory.fromChunk(fromChunk))){
+                event.getPlayer().sendMessage("Entering the town center of " + toS.getName());
+            } else if (fromS.getTownCenter().equalsTerritory(Territory.fromChunk(fromChunk)) && !fromS.getTownCenter().equalsTerritory(Territory.fromChunk(toChunk))){
+                event.getPlayer().sendMessage("Leaving the town center of " + fromS.getName());
             }
         }
-        if (toS != fromS){
-            if (toS != null){
-                event.getPlayer().sendTitle(toS.getName(), "");
-                event.getPlayer().sendMessage("Now entering the settlement of " + toS.getName());
-            } else {
-                event.getPlayer().sendMessage("Now entering the settlement of " + fromS.getName());
-            }
-        } else if (toS != null && toS.getTownCenter().equals(Territory.fromChunk(toChunk))){
-            event.getPlayer().sendMessage("Now entering the town center of " + toS.getName());
-        } else if (fromS != null && fromS.getTownCenter().equals(Territory.fromChunk(toChunk))){
-            event.getPlayer().sendMessage("Now leaving the town center of " + toS.getName());
+        if (fromN != toN){
+            String fromNationName = (fromN != null ? NationManager.getInstance().getColor(event.getPlayer(), fromN) + fromN.getName() : ChatColor.DARK_GREEN + "Wilderness") + ChatColor.RESET;
+            String toNationName = (toN != null ? NationManager.getInstance().getColor(event.getPlayer(), toN) + toN.getName() : ChatColor.DARK_GREEN + "Wilderness") + ChatColor.RESET;
+            event.getPlayer().sendTitle(toNationName, toN == null ? "" : toN.getDescription(),10,70,20);
+            event.getPlayer().sendMessage(String.format("Leaving %s, entering %s", fromNationName, toNationName));
         }
-        if (fromN == toN){
-            return;
-        }
-        String fromNationName = (fromN != null ? NationManager.getInstance().getColor(event.getPlayer(), fromN) + fromN.getName() : ChatColor.DARK_GREEN + "Wilderness") + ChatColor.RESET;
-        String toNationName = (toN != null ? NationManager.getInstance().getColor(event.getPlayer(), toN) + toN.getName() : ChatColor.DARK_GREEN + "Wilderness") + ChatColor.RESET;
-        event.getPlayer().sendTitle(toNationName, toN == null ? "" : toN.getDescription(),10,70,20);
-        event.getPlayer().sendMessage(String.format("Leaving %s, entering %s", fromNationName, toNationName));
+
         //auto update map if player is moving
 
 
     }
 
-    @EventHandler
-    public void onPlayerRespawn(PlayerRespawnEvent event){
-        Player player = event.getPlayer();
-        Settlement ps = SettlementManager.getInstance().getSettlementByPlayer(player);
-            //Does the player have an active bed spawn location, send him there
-            if (player.getBedSpawnLocation() != null){
-                return;
-            } else if (ps != null){
-
+    public void onPlayerQuit(PlayerQuitEvent event){
+        Player p = event.getPlayer();
+        if (p.isBanned()){
+            //Remove banned players from their nation
+            Nation pn = NationManager.getInstance().getNationByPlayer(p);
+            if (pn != null) {
+                pn.removePlayer(p.getUniqueId());
             }
 
+        }
+        PlayerManager.getInstance().getPlayer(p.getUniqueId()).setLastActivityTime(System.currentTimeMillis());
+
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerRespawn(PlayerRespawnEvent event){
+        Player player = event.getPlayer();
+        Nation pn = NationManager.getInstance().getNationByPlayer(player);
+        Settlement ps = SettlementManager.getInstance().getSettlementByPlayer(player.getUniqueId());
+            //Does the player have an active bed spawn location, send him there
+        Bukkit.broadcastMessage(String.valueOf(player.getBedSpawnLocation()));
+
+            if (player.getBedSpawnLocation() == null) {
+                Bukkit.broadcastMessage(String.valueOf(pn));
+
+                if (ps != null) { //Else if the player is member of a settlement, send him to its town center
+                    Bukkit.broadcastMessage(String.valueOf(ps));
+                    event.setRespawnLocation(ps.getTownCenter().getTeleportationPoint());
+                } else if (pn != null && pn.getCapital() != null) {//If not member of a settlement, but member of a nation, send him to the capital's towncenter
+                    event.setRespawnLocation(pn.getCapital().getTownCenter().getTeleportationPoint());
+                }
+            }
 
     }
     @EventHandler
     public void onPlayerCommandSend(PlayerCommandPreprocessEvent event){
         Player p = event.getPlayer();
-        String command = event.getMessage().substring(1);
+        String command = event.getMessage().substring(1).toLowerCase();
         Nation pNation = NationManager.getInstance().getNationByPlayer(p);
         Nation nationAtTerritory = NationManager.getInstance().getNationAt(p.getLocation());
+        if (command.startsWith("home") && NationCraft.getInstance().getEssentialsPlugin() != null){
+            String[] parts = command.split(" ");
+            String homeName;
+            try {
+                homeName = parts[1];
+            } catch (ArrayIndexOutOfBoundsException e){
+                homeName = "home";
+            }
+            Essentials ess = NationCraft.getInstance().getEssentialsPlugin();
+            Location home = null;
+            try {
+                ess.getUser(p.getUniqueId()).getHome(homeName);
+            } catch (Exception e) {
+                return;
+            }
+
+            Nation tp = NationManager.getInstance().getNationAt(home);
+            if (tp != null && !tp.equals(pNation)){
+                ess.getUser(p.getUniqueId()).getHomes().remove(homeName);
+                p.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + String.format("Your home %s was removed as it was set in the territory of %s", homeName, tp.getName(pNation)));
+            }
+        }
         boolean isInEnemyTerritory = false;
         if (pNation != null)
                 isInEnemyTerritory = pNation.getRelationTo(nationAtTerritory) == Relation.ENEMY;

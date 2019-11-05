@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.commands;
 
 import io.github.eirikh1996.nationcraft.chat.ChatMode;
+import io.github.eirikh1996.nationcraft.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,8 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.github.eirikh1996.nationcraft.messages.Messages.ERROR;
-import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
+import static io.github.eirikh1996.nationcraft.messages.Messages.*;
 
 public class ChatModeCommand implements TabExecutor {
     @Override
@@ -21,8 +21,13 @@ public class ChatModeCommand implements TabExecutor {
         if (!command.getName().equalsIgnoreCase("ChatMode")){
             return false;
         }
+        if (!(commandSender instanceof Player)){
+            commandSender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+            return true;
+        }
+        final NCPlayer player = PlayerManager.getInstance().getPlayer(((Player) commandSender).getUniqueId());
         if (strings.length == 0){
-            commandSender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "Usage: /chatmode <global|g|ally|a|truce|t|nation|n|settlement|s>. Current chat mode: " + PlayerManager.getInstance().getChatModeByPlayer((Player) commandSender).name().toLowerCase());
+            commandSender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "Usage: /chatmode <global|g|ally|a|truce|t|nation|n|settlement|s>. Current chat mode: " + player.getChatMode().name().toLowerCase());
             return true;
         }
         ChatMode cMode = ChatMode.getChatMode(strings[0].toUpperCase());
@@ -30,7 +35,7 @@ public class ChatModeCommand implements TabExecutor {
             commandSender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + strings[0] + " is not a chat mode!");
             return true;
         }
-        PlayerManager.getInstance().setChatMode((Player) commandSender, cMode);
+        player.setChatMode(cMode);
         return true;
     }
 

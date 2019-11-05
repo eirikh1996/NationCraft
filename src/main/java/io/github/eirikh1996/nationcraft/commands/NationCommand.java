@@ -11,6 +11,7 @@ import io.github.eirikh1996.nationcraft.messages.Messages;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.nation.Ranks;
+import io.github.eirikh1996.nationcraft.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.utils.TopicPaginator;
 import org.bukkit.Bukkit;
@@ -239,13 +240,9 @@ public class NationCommand implements TabExecutor {
 				completions.add(p.getName());
 			}
 			//then add the names of players that have joined in the past
-			for (Map<String, Object> dataMap : PlayerManager.getInstance().getPlayers().values()) {
-				for (String key : dataMap.keySet()) {
-					String name = (String) dataMap.get("name");
-					if (!completions.contains(name)) {
-						completions.add(name);
-					}
-				}
+			for (NCPlayer player : PlayerManager.getInstance()) {
+				completions.add(player.getName());
+
 			}
 		} else if (strings[0].equalsIgnoreCase("claim") || strings[0].equalsIgnoreCase("unclaim")){
 			completions.addAll(Arrays.asList(Shape.getShapeNames()));

@@ -58,15 +58,15 @@ public class SettlementCommand implements TabExecutor {
                 shape = Shape.SINGLE;
             }
             try {
-                radius = Integer.parseInt(strings[1]);
+                radius = Integer.parseInt(strings[2]);
             } catch (ArrayIndexOutOfBoundsException e){
                 radius = 0;
             } catch (NumberFormatException e){
-                commandSender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + strings[1] + " is not a number");
+                commandSender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + strings[2] + " is not a number");
                 return true;
             }
             try {
-                settlementName = strings[2];
+                settlementName = strings[3];
             } catch (ArrayIndexOutOfBoundsException e){
                 settlementName = "";
             }
@@ -96,6 +96,32 @@ public class SettlementCommand implements TabExecutor {
             subCommand = new UnclaimSettlementSubCommand((Player) commandSender, shape, radius, settlementName);
         } else if (strings[0].equalsIgnoreCase("nearest")){
             subCommand = new NearestSettlementSubCommand((Player) commandSender);
+        } else if (strings[0].equalsIgnoreCase("settowncenter")){
+            String settlementName;
+            try {
+                settlementName = strings[1];
+            } catch (ArrayIndexOutOfBoundsException e){
+                settlementName = "";
+            }
+            subCommand = new SetTownCenterSettlementSubCommand((Player) commandSender, settlementName);
+        } else if (strings[0].equalsIgnoreCase("list")){
+            int page;
+            try {
+                page = Integer.parseInt(strings[1]);
+            } catch (ArrayIndexOutOfBoundsException e){
+                page = 1;
+            } catch (NumberFormatException e){
+                return true;
+            }
+            subCommand = new ListSettlementSubCommand((Player) commandSender, page);
+        } else if (strings[0].equalsIgnoreCase("info")){
+            String settlementName;
+            try {
+                settlementName = strings[1];
+            } catch (ArrayIndexOutOfBoundsException e){
+                settlementName = "";
+            }
+            subCommand = new InfoSettlementSubCommand((Player) commandSender, settlementName);
         }
         if (subCommand == null){
             commandSender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + strings[0] + " is not a valid subcommand");
@@ -131,11 +157,31 @@ public class SettlementCommand implements TabExecutor {
             if (commandSender.hasPermission("nationcraft.settlement.unclaim")) {
                 subCmds.add("unclaim");
             }
+            if (commandSender.hasPermission("nationcraft.settlement.settowncenter")) {
+                subCmds.add("settowncenter");
+            }
+            if (commandSender.hasPermission("nationcraft.settlement.list")) {
+                subCmds.add("list");
+            }
         } else if (strings[0].equalsIgnoreCase("claim")){
-            for (Shape sh : Shape.values()){
-                if (sh.equals(Shape.ALL)){
-                    continue;
+            if (strings.length <= 2) {
+                for (Shape sh : Shape.values()) {
+                    if (sh.equals(Shape.ALL)) {
+                        continue;
+                    }
+                    subCmds.add(sh.name().toLowerCase());
                 }
+            }
+            if (strings.length == 4 && commandSender.hasPermission("nationcraft.settlement.claim.other")){
+                for (Settlement set : SettlementManager.getInstance().getAllSettlements()){
+                    if (set == null){
+                        continue;
+                    }
+                    subCmds.add(set.getName());
+                }
+            }
+        } else if (strings[0].equalsIgnoreCase("unclaim")){
+            for (Shape sh : Shape.values()){
                 subCmds.add(sh.name().toLowerCase());
             }
             if (strings.length == 4 && commandSender.hasPermission("nationcraft.settlement.claim.other")){

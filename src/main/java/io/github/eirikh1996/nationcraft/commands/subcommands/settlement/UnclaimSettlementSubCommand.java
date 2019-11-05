@@ -31,7 +31,7 @@ public class UnclaimSettlementSubCommand extends SettlementSubCommand {
             }
             settlement = SettlementManager.getInstance().getSettlementByName(settlementName);
         } else {
-            settlement = SettlementManager.getInstance().getSettlementByPlayer(sender);
+            settlement = SettlementManager.getInstance().getSettlementByPlayer(sender.getUniqueId());
         }
         if (settlement == null){
             if (settlementName.length() > 0){

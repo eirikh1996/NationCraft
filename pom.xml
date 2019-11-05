@@ -19,7 +19,7 @@
        </repository>
        <repository>
            <id>ess-repo</id>
-           <url>http://repo.ess3.net/content/groups/essentials</url>
+           <url>https://ci.ender.zone/plugin/repository/everything/</url>
        </repository>
    </repositories>
    <dependencies>
@@ -59,8 +59,9 @@
        </dependency>
        <dependency>
            <groupId>net.ess3</groupId>
-           <artifactId>Essentials</artifactId>
-           <version>LATEST</version>
+           <artifactId>EssentialsX</artifactId>
+           <version>2.16.1</version>
+           <scope>provided</scope>
        </dependency>
        <dependency>
            <groupId>net.milkbowl.vault</groupId>

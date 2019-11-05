@@ -4,15 +4,18 @@ import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.territory.Territory;
 import org.bukkit.event.HandlerList;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 public class NationClaimTerritoryEvent extends NationEvent {
     private static HandlerList handlerList = new HandlerList();
-    private Set<Territory> claimedTerritory;
+    private final ArrayList<Territory> originalTerritory;
+    private final ArrayList<Territory> newTerritory;
 
-    public NationClaimTerritoryEvent(Nation n, Set<Territory> claimedTerritory){
+    public NationClaimTerritoryEvent(Nation n, ArrayList<Territory> originalTerritory, ArrayList<Territory> newTerritory){
         super(n);
-        this.claimedTerritory = claimedTerritory;
+        this.originalTerritory = originalTerritory;
+        this.newTerritory = newTerritory;
     }
     @Override
     public HandlerList getHandlers() {
@@ -23,9 +26,11 @@ public class NationClaimTerritoryEvent extends NationEvent {
         return handlerList;
     }
 
-    public Set<Territory> getClaimedTerritory() {
-        return claimedTerritory;
+    public ArrayList<Territory> getNewTerritory() {
+        return newTerritory;
     }
 
-
+    public ArrayList<Territory> getOriginalTerritory() {
+        return originalTerritory;
+    }
 }

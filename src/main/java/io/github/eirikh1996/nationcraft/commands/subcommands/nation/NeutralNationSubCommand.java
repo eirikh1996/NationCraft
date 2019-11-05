@@ -2,6 +2,7 @@ package io.github.eirikh1996.nationcraft.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
+import io.github.eirikh1996.nationcraft.player.NCPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -23,8 +24,8 @@ public final class NeutralNationSubCommand extends NationSubCommand {
             ownNation.removeAlly(neutralNation);
             //if the sender's nation is on the neutral nations enemy list
             if (neutralNation.getEnemies().contains(ownNation.getName())) {
-                for (UUID id : neutralNation.getPlayers().keySet()) {
-                    Player p = Bukkit.getPlayer(id);
+                for (NCPlayer np : neutralNation.getPlayers().keySet()) {
+                    Player p = Bukkit.getPlayer(np.getPlayerID());
                     if (p == null) {
                         continue;
                     }

@@ -2,6 +2,7 @@ package io.github.eirikh1996.nationcraft.chat;
 
 import com.google.common.collect.Maps;
 
+import java.util.Calendar;
 import java.util.Map;
 
 public enum ChatMode {
@@ -10,7 +11,6 @@ public enum ChatMode {
     TRUCE,
     NATION,
     SETTLEMENT;
-
     private static final Map<String, ChatMode> BY_NAME = Maps.newHashMapWithExpectedSize(ChatMode.values().length);
 
     static {

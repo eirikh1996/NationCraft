@@ -6,6 +6,10 @@ import org.bukkit.event.Event;
 
 public abstract class SettlementEvent extends Event {
     private final Settlement settlement;
+    public SettlementEvent(Settlement settlement){
+        this.settlement = settlement;
+    }
+
     public SettlementEvent(Settlement settlement, boolean isAsync){
         super(isAsync);
         this.settlement = settlement;

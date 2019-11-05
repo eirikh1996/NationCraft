@@ -10,6 +10,9 @@ public class NationCraftCommand implements CommandExecutor {
         if (!command.getName().equalsIgnoreCase("nationcraft")){
             return false;
         }
+        if (strings[0].equalsIgnoreCase("convertfromfactions")){
+
+        }
         return true;
     }
 }

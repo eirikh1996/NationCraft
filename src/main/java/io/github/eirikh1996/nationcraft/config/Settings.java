@@ -12,12 +12,13 @@ public class Settings {
 	public static int maxAllies = -1;
 	public static int maxPlayersPerNation = 50;
 	@NotNull public static List<String> forbiddenNames = null; //Names that are forbidden to use for nations or settlements
-	public static int reduceStrengthOnDeath = 1;
+	public static double reduceStrengthOnDeath = 1.0;
 	public static int teleportationWarmupTime = 5;
 	public static int teleportationCooldownTime = 60;
 	public static List<String> reduceStrengthInWorlds = new ArrayList<>();
 	public static List<String> forbiddenCommandsInEnemyTerritory = new ArrayList<>();
-
+	public static int MaxDaysInactivity;
 
 	public static boolean Debug;
+    public static float MinimumSettlementExposurePercent;
 }

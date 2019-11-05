@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.github.eirikh1996.nationcraft.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.territory.Territory;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -60,6 +61,14 @@ public class NationManager implements Iterable<Nation> {
         }
 		return nations;
 	}
+	public Nation getNationBySettlement(Settlement settlement){
+		for (Nation n : this){
+			if (n.getSettlements().contains(settlement) || n.getCapital() != null && n.getCapital().equals(settlement)){
+				return n;
+			}
+		}
+		return null;
+	}
 	public Nation getNationAt(Chunk chunk){
 		Nation returnNation = null;
 		for (Nation nation : nations){
@@ -99,6 +108,16 @@ public class NationManager implements Iterable<Nation> {
 			}
 		}
 		return returnNation;
+	}
+
+	public Nation getNationByPlayer(UUID id){
+		for (Nation nation : nations){
+			if (!nation.hasPlayer(id)){
+				continue;
+			}
+			return nation;
+		}
+		return null;
 	}
 	public Nation getNationAt(World world, int x, int z){
 		Nation returnNation = null;

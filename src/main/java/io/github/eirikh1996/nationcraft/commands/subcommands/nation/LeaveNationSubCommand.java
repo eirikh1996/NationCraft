@@ -3,6 +3,7 @@ package io.github.eirikh1996.nationcraft.commands.subcommands.nation;
 import io.github.eirikh1996.nationcraft.messages.Messages;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
+import io.github.eirikh1996.nationcraft.player.NCPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -22,8 +23,8 @@ public final class LeaveNationSubCommand extends NationSubCommand {
         }
         if (nation.getPlayers().keySet().remove(sender.getUniqueId())) {
             sender.sendMessage("You have left your nation");
-            for (UUID id : nation.getPlayers().keySet()) {
-                Player p = Bukkit.getPlayer(id);
+            for (NCPlayer np : nation.getPlayers().keySet()) {
+                Player p = Bukkit.getPlayer(np.getPlayerID());
                 if (p == null) {
                     continue;
                 }

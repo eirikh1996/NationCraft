@@ -1,5 +1,7 @@
 package io.github.eirikh1996.nationcraft.territory;
 
+import io.github.eirikh1996.nationcraft.NationCraft;
+import io.github.eirikh1996.nationcraft.events.settlement.SettlementClaimTerritoryEvent;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.settlement.Settlement;
@@ -18,26 +20,27 @@ import static io.github.eirikh1996.nationcraft.messages.Messages.ERROR;
 import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
 public final class SettlementTerritoryManager implements TerritoryManager {
-    private Collection<Territory> territoryCollection = new CopyOnWriteArrayList<>();
+    private ArrayList<Territory> territoryCollection = new ArrayList<>();
     private final Settlement settlement;
 
     public SettlementTerritoryManager(Settlement settlement) {
         this.settlement = settlement;
     }
 
+    /**
+     * Claims a circular territory centered on the chunk the player is standing in
+     * @param player The player claiming the territory
+     * @param radius The radius of the claim
+     */
     @Override
     public void claimCircularTerritory(@NotNull Player player, int radius) {
         @NotNull final ArrayList<Territory> claimed = new ArrayList<>();
         @Nullable final Nation pNation = NationManager.getInstance().getNationByPlayer(player);
         int origX = player.getLocation().getChunk().getX();
         int origZ = player.getLocation().getChunk().getZ();
-        if (size() <= 1 && !settlement.getTownCenter().equals(Territory.fromChunk(player.getLocation().getChunk()))){
+        if (size() <= 1 && !settlement.getTownCenter().equalsTerritory(Territory.fromChunk(player.getLocation().getChunk()))){
             player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Your can only claim from the town center");
             return;
-        } else if (!contains(Territory.fromChunk(player.getLocation().getChunk()))){
-            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Your can only claim from within yhe settlement territory");
-            return;
-
         }
         for (int x = origX - radius; x <= origX + radius; x++){
             for (int z = origZ - radius; z <= origZ + radius; z++){
@@ -59,11 +62,13 @@ public final class SettlementTerritoryManager implements TerritoryManager {
             }
         }
         boolean boundersSettlement = false;
-        for (Territory territory : claimed){
-            if (!settlement.getTerritory().contains(territory) && !settlement.getTerritory().contains(territory.getRelative(Direction.NORTH)) && !settlement.getTerritory().contains(territory.getRelative(Direction.SOUTH)) && !settlement.getTerritory().contains(territory.getRelative(Direction.WEST)) && !settlement.getTerritory().contains(territory.getRelative(Direction.EAST))){
-                continue;
+        if (size() > 1) {
+            for (Territory territory : claimed) {
+                if (!settlement.getTerritory().contains(territory) && !settlement.getTerritory().contains(territory.getRelative(Direction.NORTH)) && !settlement.getTerritory().contains(territory.getRelative(Direction.SOUTH)) && !settlement.getTerritory().contains(territory.getRelative(Direction.WEST)) && !settlement.getTerritory().contains(territory.getRelative(Direction.EAST))) {
+                    continue;
+                }
+                boundersSettlement = true;
             }
-            boundersSettlement = true;
         }
         if (!boundersSettlement){
             player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Your claim does not bounder or overlap your settlement");
@@ -74,7 +79,11 @@ public final class SettlementTerritoryManager implements TerritoryManager {
                 filter.add(territory);
             }
         }
-        territoryCollection.addAll(CollectionUtils.filter(claimed, filter));
+        ArrayList<Territory> toAdd = CollectionUtils.filter(claimed, filter);
+        //Call event
+        SettlementClaimTerritoryEvent event = new SettlementClaimTerritoryEvent(settlement, toAdd, territoryCollection);
+        NationCraft.getInstance().getServer().getPluginManager().callEvent(event);
+        territoryCollection.addAll(toAdd);
     }
 
     @Override
@@ -157,7 +166,11 @@ public final class SettlementTerritoryManager implements TerritoryManager {
                 filter.add(territory);
             }
         }
-        territoryCollection.addAll(CollectionUtils.filter(claimed, filter));
+        ArrayList<Territory> toAdd = CollectionUtils.filter(claimed, filter);
+        //Call event
+        SettlementClaimTerritoryEvent event = new SettlementClaimTerritoryEvent(settlement, toAdd, territoryCollection);
+        NationCraft.getInstance().getServer().getPluginManager().callEvent(event);
+        territoryCollection.addAll(toAdd);
     }
 
     @Override
@@ -248,7 +261,11 @@ public final class SettlementTerritoryManager implements TerritoryManager {
                 filter.add(territory);
             }
         }
-        territoryCollection.addAll(CollectionUtils.filter(claimed, filter));
+        ArrayList<Territory> toAdd = CollectionUtils.filter(claimed, filter);
+        //Call event
+        SettlementClaimTerritoryEvent event = new SettlementClaimTerritoryEvent(settlement, toAdd, territoryCollection);
+        NationCraft.getInstance().getServer().getPluginManager().callEvent(event);
+        territoryCollection.addAll(toAdd);
     }
 
     @Override
@@ -301,7 +318,12 @@ public final class SettlementTerritoryManager implements TerritoryManager {
             player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Your claim does not bounder or overlap your settlement");
             return;
         }
-        territoryCollection.add(territory);
+        ArrayList<Territory> toAdd = new ArrayList<>();
+        toAdd.add(territory);
+        //Call event
+        SettlementClaimTerritoryEvent event = new SettlementClaimTerritoryEvent(settlement, toAdd, territoryCollection);
+        NationCraft.getInstance().getServer().getPluginManager().callEvent(event);
+        territoryCollection.addAll(toAdd);
     }
 
     @Override

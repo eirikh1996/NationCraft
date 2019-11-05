@@ -2,6 +2,7 @@ package io.github.eirikh1996.nationcraft.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
+import io.github.eirikh1996.nationcraft.player.NCPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -37,15 +38,15 @@ public class WarNationSubCommand extends NationSubCommand {
             pNation.removeAlly(enemy);
         }
         pNation.addEnemy(enemy);
-        for (UUID id : pNation.getPlayers().keySet()){
-            Player p = Bukkit.getPlayer(id);
+        for (NCPlayer np : pNation.getPlayers().keySet()){
+            Player p = Bukkit.getPlayer(np.getPlayerID());
             if (p == null){
                 continue;
             }
             p.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + String.format("%s is now a hostile nation", enemy.getName(pNation)));
         }
-        for (UUID id : enemy.getPlayers().keySet()){
-            Player p = Bukkit.getPlayer(id);
+        for (NCPlayer np : enemy.getPlayers().keySet()){
+            Player p = Bukkit.getPlayer(np.getPlayerID());
             if (p == null){
                 continue;
             }
