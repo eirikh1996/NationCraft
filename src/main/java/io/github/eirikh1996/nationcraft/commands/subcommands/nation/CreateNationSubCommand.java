@@ -37,7 +37,7 @@ public final class CreateNationSubCommand extends NationSubCommand {
                 return;
             }
         }
-        if (NationManager.getInstance().getNationByPlayer(sender) != null) {
+        if (NationManager.getInstance().getNationByPlayer(sender.getUniqueId()) != null) {
             sender.sendMessage(Messages.ERROR + "You must leave your current nation before you can create one!");
             return;
         }

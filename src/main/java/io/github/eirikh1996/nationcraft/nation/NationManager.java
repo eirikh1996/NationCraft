@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.github.eirikh1996.nationcraft.player.NCPlayer;
+import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.territory.Territory;
 import org.bukkit.*;
@@ -164,16 +166,6 @@ public class NationManager implements Iterable<Nation> {
 		return returnNation;
 	}
 
-	public Nation getNationByPlayer(Player p){
-		Nation returnNation = null;
-		for (Nation n : nations){
-			if (n.getPlayers().containsKey(p.getUniqueId())){
-				returnNation = n;
-			}
-		}
-		return returnNation;
-	}
-
 
 	public boolean deleteNation(Nation n){
 		File nationFile = getNationFile(n.getName());
@@ -185,7 +177,7 @@ public class NationManager implements Iterable<Nation> {
 
 	public ChatColor getColor(@NotNull Player p, @NotNull Nation n){
 		ChatColor returnColor = ChatColor.RESET;
-		Nation pNation = NationManager.getInstance().getNationByPlayer(p);
+		Nation pNation = NationManager.getInstance().getNationByPlayer(p.getUniqueId());
 		if (pNation == null){
 		    returnColor = ChatColor.WHITE;
         }

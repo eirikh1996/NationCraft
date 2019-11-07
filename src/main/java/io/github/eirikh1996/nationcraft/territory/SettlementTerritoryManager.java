@@ -35,7 +35,7 @@ public final class SettlementTerritoryManager implements TerritoryManager {
     @Override
     public void claimCircularTerritory(@NotNull Player player, int radius) {
         @NotNull final ArrayList<Territory> claimed = new ArrayList<>();
-        @Nullable final Nation pNation = NationManager.getInstance().getNationByPlayer(player);
+        @Nullable final Nation pNation = NationManager.getInstance().getNationByPlayer(player.getUniqueId());
         int origX = player.getLocation().getChunk().getX();
         int origZ = player.getLocation().getChunk().getZ();
         if (size() <= 1 && !settlement.getTownCenter().equalsTerritory(Territory.fromChunk(player.getLocation().getChunk()))){
@@ -89,7 +89,7 @@ public final class SettlementTerritoryManager implements TerritoryManager {
     @Override
     public void unclaimCircularTerritory(Player player, int radius) {
         @NotNull final ArrayList<Territory> claimed = new ArrayList<>();
-        @Nullable final Nation pNation = NationManager.getInstance().getNationByPlayer(player);
+        @Nullable final Nation pNation = NationManager.getInstance().getNationByPlayer(player.getUniqueId());
         int origX = player.getLocation().getChunk().getX();
         int origZ = player.getLocation().getChunk().getZ();
 
@@ -124,7 +124,7 @@ public final class SettlementTerritoryManager implements TerritoryManager {
     @Override
     public void claimSquareTerritory(Player player, int radius) {
         @NotNull final ArrayList<Territory> claimed = new ArrayList<>();
-        @Nullable final Nation pNation = NationManager.getInstance().getNationByPlayer(player);
+        @Nullable final Nation pNation = NationManager.getInstance().getNationByPlayer(player.getUniqueId());
         int origX = player.getLocation().getChunk().getX();
         int origZ = player.getLocation().getChunk().getZ();
         if (size() <= 1 && !settlement.getTownCenter().equalsTerritory(Territory.fromChunk(player.getLocation().getChunk()))){
@@ -176,7 +176,7 @@ public final class SettlementTerritoryManager implements TerritoryManager {
     @Override
     public void unclaimSquareTerritory(Player player, int radius) {
         @NotNull final ArrayList<Territory> claimed = new ArrayList<>();
-        @Nullable final Nation pNation = NationManager.getInstance().getNationByPlayer(player);
+        @Nullable final Nation pNation = NationManager.getInstance().getNationByPlayer(player.getUniqueId());
         int origX = player.getLocation().getChunk().getX();
         int origZ = player.getLocation().getChunk().getZ();
         if (size() <= 1 && !settlement.getTownCenter().equalsTerritory(Territory.fromChunk(player.getLocation().getChunk()))){

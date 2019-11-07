@@ -19,7 +19,7 @@ public class CreateSettlementSubCommand extends SettlementSubCommand {
     @Override
     public void execute() {
         Nation testNation = NationManager.getInstance().getNationAt(sender.getLocation());
-        Nation pNation = NationManager.getInstance().getNationByPlayer(sender);
+        Nation pNation = NationManager.getInstance().getNationByPlayer(sender.getUniqueId());
         Settlement existing = SettlementManager.getInstance().getSettlementByName(settlementName);
         if (pNation == null){//Reject attempts to create new settlement if settlement doesn't exist
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must be part of a nation to create a settlement");

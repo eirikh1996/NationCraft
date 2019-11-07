@@ -33,13 +33,14 @@ public class PlayerManager extends BukkitRunnable implements Iterable<NCPlayer> 
             final NCPlayer ncPlayer = new NCPlayer(playerFile);
             players.put(ncPlayer.getPlayerID(), ncPlayer);
         }
+        instance.runTaskTimerAsynchronously(NationCraft.getInstance(), 0, 20);
     }
 
     private PlayerManager(){
     }
 
     public boolean playerIsAtLeast(Player p, Ranks r){
-        Nation n = NationManager.getInstance().getNationByPlayer(p);
+        Nation n = NationManager.getInstance().getNationByPlayer(p.getUniqueId());
         boolean hasMinRank = false;
         if (n == null){
             return false;
@@ -90,6 +91,7 @@ public class PlayerManager extends BukkitRunnable implements Iterable<NCPlayer> 
     @Override
     public void run() {
         processInactivityRemoval();
+        processPowerRegeneration();
     }
 
     public NCPlayer getPlayer(UUID uuid){
@@ -120,13 +122,23 @@ public class PlayerManager extends BukkitRunnable implements Iterable<NCPlayer> 
         }
     }
 
-    private void savePlayerFiles(){
-        for (NCPlayer player : players.values()){
-
+    private void processPowerRegeneration(){
+        final double powerPerSecond = Settings.powerPerHour / 3600.0;
+        if (players.isEmpty()){
+            return;
+        }
+        for (UUID id : players.keySet()){
+            final NCPlayer player = players.get(id);
+            if (player.getPower() >= Settings.maxPowerPerPlayer){
+                continue;
+            }
+            if (!Settings.regeneratePowerOffline && Bukkit.getPlayer(player.getPlayerID()) == null){
+                continue;
+            }
+            double power = player.getPower();
+            power += powerPerSecond;
+            player.setPower(power);
         }
     }
 
-    public enum TeleportCancellationReason{
-        TAKING_DAMAGE, MOTION
-    }
 }

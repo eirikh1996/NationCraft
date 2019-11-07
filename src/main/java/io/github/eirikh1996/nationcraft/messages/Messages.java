@@ -5,6 +5,7 @@ import io.github.eirikh1996.nationcraft.NationCraft;
 import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.player.NCPlayer;
+import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.territory.Territory;
@@ -318,6 +319,41 @@ public class Messages {
 			marker = ChatColor.BLUE + "+" + ChatColor.RESET;
 		}
 		return marker;
+	}
+
+	public void displayPlayerInfo(Player bp){
+		final NCPlayer player = PlayerManager.getInstance().getPlayer(bp.getUniqueId());
+		final String[] powerBar = new String[103];
+		double ratio = Settings.maxPowerPerPlayer / 101.0;
+
+		powerBar[0] = ChatColor.GOLD + "[" + ChatColor.RESET;
+		powerBar[102] = ChatColor.GOLD + "]" + ChatColor.RESET;
+		float percent = (float) ((player.getPower() / Settings.maxPowerPerPlayer ) * 100f);
+		for (int i = 1 ; i < 102 ; i++){
+			double powerLevel = ratio * i;
+			String point = "";
+
+			if (powerLevel > player.getPower()){
+				point += getChatColor(percent);
+			} else {
+				point += ChatColor.GRAY;
+			}
+			point += "|" + ChatColor.RESET;
+			powerBar[i] = point;
+		}
+		bp.sendMessage("Power: " + player.getPower() + " / " + Settings.maxPowerPerPlayer);
+		bp.sendMessage(String.join("", powerBar));
+		bp.sendMessage("Last activity: " + (Bukkit.getPlayer(player.getPlayerID()) != null ? ChatColor.GREEN + "Currently online " : player.getLastActivityTime()));
+	}
+
+	private ChatColor getChatColor(float percent){
+		if (percent <= 25f){
+			return ChatColor.DARK_RED;
+		} else if (percent <= 75f) {
+			return ChatColor.YELLOW;
+		} else {
+			return ChatColor.DARK_GREEN;
+		}
 	}
 
 }

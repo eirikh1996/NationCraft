@@ -24,7 +24,7 @@ public final class JoinNationSubCommand extends NationSubCommand {
             sender.sendMessage(Messages.ERROR + String.format("Nation %s does not exist", name));
             return;
         }
-        if (NationManager.getInstance().getNationByPlayer(sender) != null) {
+        if (NationManager.getInstance().getNationByPlayer(sender.getUniqueId()) != null) {
             sender.sendMessage(Messages.ERROR + "You must leave your nation before you can join another");
             return;
         }

@@ -20,7 +20,7 @@ public final class InvitePlayerNationSubCommand extends NationSubCommand {
 
     @Override
     public void execute() {
-        Nation n = NationManager.getInstance().getNationByPlayer(sender);
+        Nation n = NationManager.getInstance().getNationByPlayer(sender.getUniqueId());
         if (n == null) {
             sender.sendMessage(Messages.ERROR + "You are not in a nation!");
             return;

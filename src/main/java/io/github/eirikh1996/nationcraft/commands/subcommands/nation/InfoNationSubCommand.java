@@ -21,7 +21,7 @@ public final class InfoNationSubCommand extends NationSubCommand {
     public void execute() {
         Nation n;
         if (name.length() == 0) {
-            n = NationManager.getInstance().getNationByPlayer(sender);
+            n = NationManager.getInstance().getNationByPlayer(sender.getUniqueId());
         } else {
             n = NationManager.getInstance().getNationByName(name);
         }

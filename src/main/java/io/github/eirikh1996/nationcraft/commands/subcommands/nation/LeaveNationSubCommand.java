@@ -16,21 +16,12 @@ public final class LeaveNationSubCommand extends NationSubCommand {
     }
     @Override
     public void execute() {
-        Nation nation = NationManager.getInstance().getNationByPlayer(sender);
+        Nation nation = NationManager.getInstance().getNationByPlayer(sender.getUniqueId());
         if (nation == null) {
             sender.sendMessage(Messages.ERROR + "You are not in a nation!");
             return;
         }
-        if (nation.getPlayers().keySet().remove(sender.getUniqueId())) {
-            sender.sendMessage("You have left your nation");
-            for (NCPlayer np : nation.getPlayers().keySet()) {
-                Player p = Bukkit.getPlayer(np.getPlayerID());
-                if (p == null) {
-                    continue;
-                }
-                p.sendMessage(String.format("%s left your nation.", p.getName()));
-            }
-        }
+        nation.removePlayer(sender.getUniqueId());
         if (nation.getPlayers().keySet().isEmpty()) {
             final String nName = nation.getName();
             if (NationManager.getInstance().deleteNation(nation)) {

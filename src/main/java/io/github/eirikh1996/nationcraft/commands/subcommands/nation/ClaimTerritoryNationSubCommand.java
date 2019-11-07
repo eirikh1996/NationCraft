@@ -31,7 +31,7 @@ public final class ClaimTerritoryNationSubCommand extends NationSubCommand {
             }
             nation = NationManager.getInstance().getNationByName(nationName);
         } else {
-            nation = NationManager.getInstance().getNationByPlayer(sender);
+            nation = NationManager.getInstance().getNationByPlayer(sender.getUniqueId());
         }
         if (nation == null) {
             sender.sendMessage(Messages.ERROR + "You are not in a nation!");

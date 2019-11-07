@@ -13,6 +13,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import static io.github.eirikh1996.nationcraft.messages.Messages.ERROR;
+import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
+
 public final class UnclaimTerritoryNationSubCommand extends NationSubCommand {
     private final Shape shape;
     private final int radius;
@@ -32,15 +35,15 @@ public final class UnclaimTerritoryNationSubCommand extends NationSubCommand {
         Set<Territory> unclaimedTerritory = new HashSet<>();
         if (nationName.length() > 0) {
             if (!sender.hasPermission("nationcraft.nation.claim.other")) {
-                sender.sendMessage(Messages.ERROR + "You can only claim for your own nation.");
+                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You can only claim for your own nation.");
                 return;
             }
             nation = NationManager.getInstance().getNationByName(nationName);
         } else {
-            nation = NationManager.getInstance().getNationByPlayer(sender);
+            nation = NationManager.getInstance().getNationByPlayer(sender.getUniqueId());
         }
         if (nation == null) {
-            sender.sendMessage(Messages.ERROR + "You are not in a nation!");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You are not in a nation!");
             return;
         }
 

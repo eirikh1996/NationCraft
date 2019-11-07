@@ -442,10 +442,10 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return getStrength() >= getTerritoryManager().size();
 	}
 
-	public int getStrength(){
-		int strength = 0;
+	public double getStrength(){
+		double strength = 0.0;
 		for (NCPlayer player : players.keySet()){
-			strength += player.getStrength();
+			strength += player.getPower();
 		}
 		return strength;
 	}
@@ -454,8 +454,8 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return creationTimeMS;
 	}
 
-	public int getMaxStrength(){
-		return Settings.maxStrengthPerPlayer * players.size();
+	public double getMaxStrength(){
+		return Settings.maxPowerPerPlayer * players.size();
 	}
 	public boolean isAlliedWith(Nation alliedNation) {
 		return allies.contains(alliedNation) && alliedNation.getAllies().contains(this);

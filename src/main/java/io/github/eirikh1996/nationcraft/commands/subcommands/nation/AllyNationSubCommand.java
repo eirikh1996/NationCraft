@@ -22,7 +22,7 @@ public final class AllyNationSubCommand extends NationSubCommand {
         }
         NationManager nMgr = new NationManager();
 
-        Nation ownNation = nMgr.getNationByPlayer(sender); //sender's own nation
+        Nation ownNation = nMgr.getNationByPlayer(sender.getUniqueId()); //sender's own nation
         Nation allyNation = nMgr.getNationByName(name); //nation to ally
         if (allyNation == null) {
             sender.sendMessage("The given nation does not exist");

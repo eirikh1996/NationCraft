@@ -21,7 +21,7 @@ public class WarNationSubCommand extends NationSubCommand {
 
     @Override
     public void execute() {
-        Nation pNation = NationManager.getInstance().getNationByPlayer(sender);
+        Nation pNation = NationManager.getInstance().getNationByPlayer(sender.getUniqueId());
         Nation enemy = NationManager.getInstance().getNationByName(enemyName);
         if (pNation == null){
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You are not in a nation");

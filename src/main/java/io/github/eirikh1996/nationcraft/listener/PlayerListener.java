@@ -53,10 +53,15 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void  onPlayerDeath(PlayerDeathEvent event){
-        if (Settings.reduceStrengthInWorlds.contains(event.getEntity().getWorld().getName())){
-            event.getEntity().sendMessage("You did not lose any strength due to the world you were in");
+        if (Settings.reducePowerInWorlds.contains(event.getEntity().getWorld().getName())){
+            event.getEntity().sendMessage(NATIONCRAFT_COMMAND_PREFIX + "You did not lose any strength due to the world you were in");
             return;
         }
+        final NCPlayer player = PlayerManager.getInstance().getPlayer(event.getEntity().getUniqueId());
+        double power = player.getPower();
+        power += Settings.reducePowerOnDeath;
+        player.setPower(power);
+        event.getEntity().sendMessage(NATIONCRAFT_COMMAND_PREFIX + " Your power is now " + power + " / " + Settings.maxPowerPerPlayer);
     }
 
     @EventHandler
@@ -102,7 +107,7 @@ public class PlayerListener implements Listener {
         Player p = event.getPlayer();
         if (p.isBanned()){
             //Remove banned players from their nation
-            Nation pn = NationManager.getInstance().getNationByPlayer(p);
+            Nation pn = NationManager.getInstance().getNationByPlayer(p.getUniqueId());
             if (pn != null) {
                 pn.removePlayer(p.getUniqueId());
             }
@@ -115,7 +120,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerRespawn(PlayerRespawnEvent event){
         Player player = event.getPlayer();
-        Nation pn = NationManager.getInstance().getNationByPlayer(player);
+        Nation pn = NationManager.getInstance().getNationByPlayer(player.getUniqueId());
         Settlement ps = SettlementManager.getInstance().getSettlementByPlayer(player.getUniqueId());
             //Does the player have an active bed spawn location, send him there
         Bukkit.broadcastMessage(String.valueOf(player.getBedSpawnLocation()));
@@ -136,7 +141,7 @@ public class PlayerListener implements Listener {
     public void onPlayerCommandSend(PlayerCommandPreprocessEvent event){
         Player p = event.getPlayer();
         String command = event.getMessage().substring(1).toLowerCase();
-        Nation pNation = NationManager.getInstance().getNationByPlayer(p);
+        Nation pNation = NationManager.getInstance().getNationByPlayer(p.getUniqueId());
         Nation nationAtTerritory = NationManager.getInstance().getNationAt(p.getLocation());
         if (command.startsWith("home") && NationCraft.getInstance().getEssentialsPlugin() != null){
             String[] parts = command.split(" ");

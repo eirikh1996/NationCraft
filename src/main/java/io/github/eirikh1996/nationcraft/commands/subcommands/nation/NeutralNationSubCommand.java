@@ -18,7 +18,7 @@ public final class NeutralNationSubCommand extends NationSubCommand {
     @Override
     public void execute() {
         NationManager nMgr = NationManager.getInstance();
-        Nation ownNation = nMgr.getNationByPlayer(sender); //sender's own nation
+        Nation ownNation = nMgr.getNationByPlayer(sender.getUniqueId()); //sender's own nation
         Nation neutralNation = nMgr.getNationByName(name); //nation to ally
         if (ownNation.getAllies().contains(neutralNation.getName())) {
             ownNation.removeAlly(neutralNation);

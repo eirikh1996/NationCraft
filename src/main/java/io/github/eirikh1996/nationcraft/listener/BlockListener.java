@@ -14,7 +14,7 @@ public class BlockListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event){
         Player p = event.getPlayer();
         Nation foundNation = NationManager.getInstance().getNationAt(event.getBlock().getLocation());
-        Nation pNation = NationManager.getInstance().getNationByPlayer(p);
+        Nation pNation = NationManager.getInstance().getNationByPlayer(p.getUniqueId());
         if (foundNation == null){
             return;
         }

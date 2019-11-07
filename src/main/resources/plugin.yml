@@ -10,6 +10,9 @@ commands:
     usage: /nation <name>
     description: Creates a new nation
     aliases: [n]
+  nationcraft:
+    description: NationCraft main command
+    aliases: [nc]
   map:
     usage: /map [auto]
     description: Displays territory map

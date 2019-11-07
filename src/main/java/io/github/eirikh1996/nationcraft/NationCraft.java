@@ -1,10 +1,7 @@
 package io.github.eirikh1996.nationcraft;
 
 import com.earth2me.essentials.Essentials;
-import io.github.eirikh1996.nationcraft.commands.ChatModeCommand;
-import io.github.eirikh1996.nationcraft.commands.MapCommand;
-import io.github.eirikh1996.nationcraft.commands.NationCommand;
-import io.github.eirikh1996.nationcraft.commands.SettlementCommand;
+import io.github.eirikh1996.nationcraft.commands.*;
 import io.github.eirikh1996.nationcraft.config.Settings;
 import io.github.eirikh1996.nationcraft.listener.BlockListener;
 import io.github.eirikh1996.nationcraft.listener.ChatListener;
@@ -115,7 +112,6 @@ public class NationCraft extends JavaPlugin {
 			}
 			Settings.nationBankMaxBalance = maxNationBal;
 		}
-		//Load players file
 
 		//register events
 		getServer().getPluginManager().registerEvents(new PlayerListener(), this);
@@ -128,6 +124,7 @@ public class NationCraft extends JavaPlugin {
 		this.getCommand("map").setExecutor(new MapCommand());
 		this.getCommand("chatmode").setExecutor(new ChatModeCommand());
 		this.getCommand("settlement").setExecutor(new SettlementCommand());
+		this.getCommand("nationcraft").setExecutor(new NationCraftCommand());
 		long end = System.currentTimeMillis();
 		getLogger().info(String.format("Took %d to enable", end - start));
 	}

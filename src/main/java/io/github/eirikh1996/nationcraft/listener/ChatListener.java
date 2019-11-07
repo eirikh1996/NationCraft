@@ -21,7 +21,7 @@ public class ChatListener implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event){
         final NCPlayer ncPlayer = PlayerManager.getInstance().getPlayer(event.getPlayer().getUniqueId());
         ChatMode mode = ncPlayer.getChatMode();
-        Nation nation = NationManager.getInstance().getNationByPlayer(event.getPlayer());
+        Nation nation = NationManager.getInstance().getNationByPlayer(event.getPlayer().getUniqueId());
         for (Player p : event.getRecipients()) {
             if (mode == ChatMode.SETTLEMENT) {
                 Settlement settlement = SettlementManager.getInstance().getSettlementByPlayer(p.getUniqueId());
@@ -33,7 +33,7 @@ public class ChatListener implements Listener {
                     event.getRecipients().remove(p);
                 }
             } else if (mode == ChatMode.ALLY){
-                Nation ally = NationManager.getInstance().getNationByPlayer(p);
+                Nation ally = NationManager.getInstance().getNationByPlayer(p.getUniqueId());
                 if (!nation.getAllies().contains(ally)){
                     event.getRecipients().remove(p);
                 }

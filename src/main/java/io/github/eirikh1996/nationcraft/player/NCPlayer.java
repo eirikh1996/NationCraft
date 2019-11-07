@@ -5,6 +5,7 @@ import io.github.eirikh1996.nationcraft.NationCraft;
 import io.github.eirikh1996.nationcraft.chat.ChatMode;
 import io.github.eirikh1996.nationcraft.config.Settings;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -13,7 +14,7 @@ import java.util.*;
 public class NCPlayer {
     private final UUID playerID;
     private ChatMode chatMode;
-    private double strength;
+    private double power;
     private long lastActivityTime;
     private String name;
     private boolean autoUpdateTerritoryMap = false;
@@ -22,21 +23,14 @@ public class NCPlayer {
         this.name = name;
         this.playerID = playerID;
         chatMode = ChatMode.GLOBAL;
-        strength = Settings.maxStrengthPerPlayer;
+        power = Settings.initialPowerPerPlayer;
         lastActivityTime = System.currentTimeMillis();
         savetoFile();
     }
     public NCPlayer(UUID playerID, ChatMode chatMode){
         this.playerID = playerID;
         this.chatMode = chatMode;
-        strength = Settings.maxStrengthPerPlayer;
-        lastActivityTime = System.currentTimeMillis();
-        savetoFile();
-    }
-    public NCPlayer(UUID playerID, ChatMode chatMode, int strength){
-        this.playerID = playerID;
-        this.chatMode = chatMode;
-        this.strength = strength;
+        power = Settings.initialPowerPerPlayer;
         lastActivityTime = System.currentTimeMillis();
         savetoFile();
     }
@@ -49,9 +43,9 @@ public class NCPlayer {
             throw new PlayerFileException("Something went wrong while loading player file", e);
         }
         name = (String) data.get("name");
-        playerID = (UUID) data.get("playerID");
+        playerID = UUID.fromString((String) data.get("playerID")) ;
         chatMode = ChatMode.getChatMode((String) data.get("chatMode"));
-        strength = (double) data.get("strength");
+        power = (double) data.get("power");
         lastActivityTime = (long) data.get("lastActivityTime");
         autoUpdateTerritoryMap = (boolean) data.get("autoUpdateTerritoryMap");
         final List<String> names = (List<String>) data.get("previousNames");
@@ -72,12 +66,12 @@ public class NCPlayer {
         return chatMode;
     }
 
-    public double getStrength() {
-        return strength;
+    public double getPower() {
+        return power;
     }
 
-    public void setStrength(double strength) {
-        this.strength = strength;
+    public void setPower(double power) {
+        this.power = power;
         savetoFile();
     }
 
@@ -99,11 +93,13 @@ public class NCPlayer {
         savetoFile();
     }
 
-    public void updateName(String name) {
+    public void updateName(@NotNull String name) {
+        if (name.equals(this.name)){
+            return;
+        }
         previousNames.add(getName().toLowerCase());
         this.name = name;
         savetoFile();
-
     }
 
     private void savetoFile() {
@@ -130,7 +126,7 @@ public class NCPlayer {
         writer.println("name: " + name);
         writer.println("playerID: " + playerID.toString());
         writer.println("chatMode: " + chatMode);
-        writer.println("strength: " + strength);
+        writer.println("power: " + power);
         writer.println("lastActivityTime: " + lastActivityTime);
         writer.println("autoUpdateTerritoryMap: " + autoUpdateTerritoryMap);
         writer.println("previousNames:");

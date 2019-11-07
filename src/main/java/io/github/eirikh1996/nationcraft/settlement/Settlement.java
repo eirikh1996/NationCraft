@@ -80,7 +80,7 @@ final public class Settlement {
 	}
 	public Settlement(String name, Player creator){
 		this.name = name;
-		nation = NationManager.getInstance().getNationByPlayer(creator).getName();
+		nation = NationManager.getInstance().getNationByPlayer(creator.getUniqueId()).getName();
 		world = creator.getWorld();
 		townCenter = new TownCenter(creator.getLocation().getChunk().getX(), creator.getLocation().getChunk().getZ(), world, creator.getLocation());
 		players = new HashMap<>();
