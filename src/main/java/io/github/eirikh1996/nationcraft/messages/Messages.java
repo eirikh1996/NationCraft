@@ -162,7 +162,7 @@ public class Messages {
 			p.sendMessage(ChatColor.YELLOW + "Capital: " + capital);
 			p.sendMessage(ChatColor.YELLOW + "Settlements: " + ChatColor.GREEN + String.join(", ", settlementNames));
 			p.sendMessage(ChatColor.YELLOW + "Territory: " + (n.isStrongEnough() ? ChatColor.GREEN : ChatColor.RED) + n.getTerritoryManager().size());
-			p.sendMessage(ChatColor.YELLOW + "Strength: " + (n.getStrength() >= n.getTerritoryManager().size() ? ChatColor.GREEN : ChatColor.RED) + n.getStrength());
+			p.sendMessage(ChatColor.YELLOW + "Power: " + (n.getPower() >= n.getTerritoryManager().size() ? ChatColor.GREEN : ChatColor.RED) + String.format("%.2f", n.getPower()));
 			p.sendMessage(ChatColor.YELLOW + "Maximum strength: " + n.getMaxStrength());
 			p.sendMessage(ChatColor.YELLOW + "Allies: " + ChatColor.DARK_PURPLE + allyList.toString());
 			p.sendMessage(ChatColor.YELLOW + "Truces: " + ChatColor.LIGHT_PURPLE + truceList.toString());
@@ -321,7 +321,7 @@ public class Messages {
 		return marker;
 	}
 
-	public void displayPlayerInfo(Player bp){
+	public static void displayPlayerInfo(Player bp){
 		final NCPlayer player = PlayerManager.getInstance().getPlayer(bp.getUniqueId());
 		final String[] powerBar = new String[103];
 		double ratio = Settings.maxPowerPerPlayer / 101.0;
@@ -333,7 +333,7 @@ public class Messages {
 			double powerLevel = ratio * i;
 			String point = "";
 
-			if (powerLevel > player.getPower()){
+			if (powerLevel <= player.getPower()){
 				point += getChatColor(percent);
 			} else {
 				point += ChatColor.GRAY;
@@ -341,17 +341,26 @@ public class Messages {
 			point += "|" + ChatColor.RESET;
 			powerBar[i] = point;
 		}
-		bp.sendMessage("Power: " + player.getPower() + " / " + Settings.maxPowerPerPlayer);
+		final Date lastLogin = new Date(player.getLastActivityTime());
+
+
+		bp.sendMessage(String.format("Power: %.2f / %.2f", player.getPower(), Settings.maxPowerPerPlayer));
 		bp.sendMessage(String.join("", powerBar));
-		bp.sendMessage("Last activity: " + (Bukkit.getPlayer(player.getPlayerID()) != null ? ChatColor.GREEN + "Currently online " : player.getLastActivityTime()));
+		bp.sendMessage("Last activity: " + (Bukkit.getPlayer(player.getPlayerID()) != null ? ChatColor.GREEN + "Currently online " : lastLogin.toString()));
 	}
 
-	private ChatColor getChatColor(float percent){
-		if (percent <= 25f){
+	private static ChatColor getChatColor(float percent){
+		if (percent <= 10f){
 			return ChatColor.DARK_RED;
-		} else if (percent <= 75f) {
+		} else if (percent <=30f) {
+		    return ChatColor.RED;
+        } else if (percent <= 70f) {
 			return ChatColor.YELLOW;
-		} else {
+		} else if (percent <= 85f) {
+		    return ChatColor.GREEN;
+        }
+
+		else {
 			return ChatColor.DARK_GREEN;
 		}
 	}

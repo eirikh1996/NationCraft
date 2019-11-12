@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.commands;
 
 import io.github.eirikh1996.nationcraft.NationCraft;
+import io.github.eirikh1996.nationcraft.messages.Messages;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -39,12 +40,12 @@ public class NationCraftCommand implements CommandExecutor {
             return;
         }
         Player player = (Player) sender;
-
+        Messages.displayPlayerInfo(player);
     }
 
     private void defaultCommand(CommandSender sender){
         PluginDescriptionFile desc = NationCraft.getInstance().getDescription();
-        sender.sendMessage(ChatColor.DARK_AQUA + "=========================[" + ChatColor.AQUA + "Nation" + ChatColor.GRAY + "Craft" + ChatColor.DARK_AQUA + "]=========================");
+        sender.sendMessage(ChatColor.DARK_AQUA + "=====================[" + ChatColor.AQUA + "Nation" + ChatColor.GRAY + "Craft" + ChatColor.DARK_AQUA + "]=====================");
         sender.sendMessage("author(s): " + desc.getDescription() + ", version: " + desc.getVersion());
         sender.sendMessage("/nation help for nation commands");
         sender.sendMessage("/settlement help for settlement commands");

@@ -1,23 +1,29 @@
 package io.github.eirikh1996.nationcraft.settlement.siege;
 
-import io.github.eirikh1996.nationcraft.nation.Nation;
-import io.github.eirikh1996.nationcraft.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.NationCraft;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public abstract class SiegeTask extends BukkitRunnable {
-    protected final Settlement settlement;
-    protected final Nation attacker;
-    protected final Nation defender;
+    protected final Siege siege;
 
-    protected SiegeTask(Settlement settlement, Nation attacker, Nation defender) {
-        this.settlement = settlement;
-        this.attacker = attacker;
-        this.defender = defender;
+    protected SiegeTask(Siege siege) {
+        this.siege = siege;
     }
 
     @Override
     public void run() {
-        execute();
+        try {
+            execute();
+            SiegeManager.getInstance().submitCompletedTask(this);
+        } catch (Throwable t){
+            NationCraft.getInstance().getLogger().severe("Something went wrong while processing a siege on settlement " + siege.getSettlement() + " by " + siege.getAttacker().getName());
+            throw new SiegeException(null, t);
+        }
+
     }
     public abstract void execute();
+
+    public Siege getSiege() {
+        return siege;
+    }
 }

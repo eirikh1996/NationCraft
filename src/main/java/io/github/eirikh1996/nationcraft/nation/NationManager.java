@@ -17,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import io.github.eirikh1996.nationcraft.NationCraft;
 import org.jetbrains.annotations.Nullable;
 
+import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
+
 public class NationManager implements Iterable<Nation> {
 	private static NationManager ourInstance;
 	private boolean fileCreated;
@@ -172,6 +174,7 @@ public class NationManager implements Iterable<Nation> {
 		if (nations.remove(n)){
 			return nationFile.delete();
 		}
+		Bukkit.broadcastMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Nation %s has been disbanded", n.getName()));
 		return false;
 	}
 

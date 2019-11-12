@@ -16,6 +16,9 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 public class PlayerManager extends BukkitRunnable implements Iterable<NCPlayer> {
     private static Map<UUID, NCPlayer> players = new HashMap<>();
     private static PlayerManager instance;
@@ -137,7 +140,7 @@ public class PlayerManager extends BukkitRunnable implements Iterable<NCPlayer> 
             }
             double power = player.getPower();
             power += powerPerSecond;
-            player.setPower(power);
+            player.setPower(min(power, Settings.maxPowerPerPlayer));
         }
     }
 

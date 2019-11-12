@@ -70,7 +70,7 @@ public final class NationTerritoryManager implements TerritoryManager {
             }
         }
         int size = size() + CollectionUtils.filter(claimed, territoryCollection).size();
-        if (size > nation.getStrength() && !player.hasPermission("nationcraft.nation.claim.bypassstrength")){
+        if (size > nation.getPower() && !player.hasPermission("nationcraft.nation.claim.bypassstrength")){
             player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot claim more land. You need more power");
             return;
         }
@@ -193,7 +193,7 @@ public final class NationTerritoryManager implements TerritoryManager {
             }
         }
         int size = size() + CollectionUtils.filter(claimed, territoryCollection).size();
-        if (size > nation.getStrength() && !player.hasPermission("nationcraft.nation.claim.bypassstrength")){
+        if (size > nation.getPower() && !player.hasPermission("nationcraft.nation.claim.bypassstrength")){
             player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot claim more land. You need more power");
             return;
         }
@@ -344,7 +344,7 @@ public final class NationTerritoryManager implements TerritoryManager {
             }
         }
         int size = size() + CollectionUtils.filter(claimed, territoryCollection).size();
-        if (size > nation.getStrength()){
+        if (size > nation.getPower()){
             player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot claim more land. You need more power");
             return;
         }

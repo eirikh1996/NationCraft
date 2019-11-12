@@ -27,6 +27,7 @@ final public class Settlement {
 	private TownCenter townCenter;
 	private final TerritoryManager territory;
 	private final HashMap<UUID, Ranks> players;
+	private boolean underSiege = false;
 	
 	public Settlement(File settlementFile) {
 		final Map data;
@@ -188,8 +189,12 @@ final public class Settlement {
 		return ((float) territoriesNotOwnedByNation / (float) surrounding.size()) * 100f;
 	}
 
-	public void siege(){
+	public void siege(Nation attacker){
 
+	}
+
+	public boolean isUnderSiege() {
+		return underSiege;
 	}
 
 	public void saveToFile() {
@@ -253,6 +258,10 @@ final public class Settlement {
 
 	public World getWorld(){
 		return world;
+	}
+
+	public void setNation(String name) {
+		this.nation = name;
 	}
 
 	private class SettlementNotFoundException extends RuntimeException{

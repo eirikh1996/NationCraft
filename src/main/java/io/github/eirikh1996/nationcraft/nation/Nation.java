@@ -285,7 +285,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	public boolean hasPlayer(UUID id){
-		return players.containsKey(id);
+		return players.containsKey(PlayerManager.getInstance().getPlayer(id));
 	}
 
 	public boolean isWarzone(){
@@ -331,6 +331,9 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 				continue;
 			}
 			np.sendMessage(NATIONCRAFT_COMMAND_PREFIX + p.getName() + " left your nation");
+		}
+		if (players.size() == 0){
+			NationManager.getInstance().deleteNation(this);
 		}
 	}
 
@@ -430,19 +433,11 @@ final public class Nation implements Comparable<Nation>, Cloneable {
         return true;
     }
 
-	/**
-	 * Returns true if a nation contains given player
-	 * @param p Player that is part of a nation
-	 * @return true if given player is part of a nation
-	 */
-	public boolean hasPlayer(Player p) {
-		return players.containsKey(p.getUniqueId());
-	}
 	public boolean isStrongEnough(){
-		return getStrength() >= getTerritoryManager().size();
+		return getPower() >= (double) getTerritoryManager().size();
 	}
 
-	public double getStrength(){
+	public double getPower(){
 		double strength = 0.0;
 		for (NCPlayer player : players.keySet()){
 			strength += player.getPower();

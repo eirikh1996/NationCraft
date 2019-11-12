@@ -24,4 +24,6 @@ public class Settings {
 
 	public static boolean Debug;
     public static float MinimumSettlementExposurePercent;
+    public static int SiegeRequiredAttackerPresenceTime;
+	public static int SiegeMaximumAttackerAbsenceTime;
 }
