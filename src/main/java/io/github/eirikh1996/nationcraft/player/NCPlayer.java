@@ -23,14 +23,14 @@ public class NCPlayer {
         this.name = name;
         this.playerID = playerID;
         chatMode = ChatMode.GLOBAL;
-        power = Settings.initialPowerPerPlayer;
+        power = Settings.PlayerInitialPower;
         lastActivityTime = System.currentTimeMillis();
         savetoFile();
     }
     public NCPlayer(UUID playerID, ChatMode chatMode){
         this.playerID = playerID;
         this.chatMode = chatMode;
-        power = Settings.initialPowerPerPlayer;
+        power = Settings.PlayerInitialPower;
         lastActivityTime = System.currentTimeMillis();
         savetoFile();
     }

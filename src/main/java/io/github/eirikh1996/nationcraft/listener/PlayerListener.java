@@ -21,11 +21,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.github.eirikh1996.nationcraft.messages.Messages.ERROR;
@@ -59,9 +61,9 @@ public class PlayerListener implements Listener {
         }
         final NCPlayer player = PlayerManager.getInstance().getPlayer(event.getEntity().getUniqueId());
         double power = player.getPower();
-        power += Settings.reducePowerOnDeath;
+        power += Settings.PlayerPowerPerDeath;
         player.setPower(power);
-        event.getEntity().sendMessage(NATIONCRAFT_COMMAND_PREFIX + " Your power is now " + power + " / " + Settings.maxPowerPerPlayer);
+        event.getEntity().sendMessage(NATIONCRAFT_COMMAND_PREFIX + " Your power is now " + power + " / " + Settings.PlayerMaxPower);
     }
 
     @EventHandler
@@ -137,6 +139,8 @@ public class PlayerListener implements Listener {
             }
 
     }
+
+
     @EventHandler
     public void onPlayerCommandSend(PlayerCommandPreprocessEvent event){
         Player p = event.getPlayer();
@@ -166,12 +170,23 @@ public class PlayerListener implements Listener {
             }
         }
         boolean isInEnemyTerritory = false;
-        if (pNation != null)
-                isInEnemyTerritory = pNation.getRelationTo(nationAtTerritory) == Relation.ENEMY;
-        if (Settings.forbiddenCommandsInEnemyTerritory.contains(command) && isInEnemyTerritory && !p.hasPermission("nationcraft.territory.cmdbypass")){
-            event.setCancelled(true);
-            p.sendMessage(Messages.ERROR + String.format("You are not allowed to use command /%s in enemy territory!", command));
+        if (pNation != null) {
+            List<String> forbiddenCommands = Settings.NationForbiddenCommands.get(pNation.getRelationTo(nationAtTerritory));
+            if (forbiddenCommands.contains(command) && !p.hasPermission("nationcraft.territory.cmdbypass")) {
+                event.setCancelled(true);
+                p.sendMessage(Messages.ERROR + String.format("You are not allowed to use command /%s in enemy territory!", command));
+            }
         }
+    }
+
+    @EventHandler
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        Essentials ess = NationCraft.getInstance().getEssentialsPlugin();
+        if (ess == null) {
+            return;
+        }
+        Location dest = event.getTo();
+        ess.getUser(event.getPlayer()).getHomes();
     }
 
 

@@ -1,10 +1,37 @@
-maxStrengthPerPlayer: 30
-maxAllies: -1
-maxTruces: -1
-maxPlayersPerNation: 50
-forbiddenNames: #Names that are forbidden to use for nations or settlements
-reduceStrengthOnDeath: 1
-forbiddenCommandsInEnemyTerritory:
-  - tpa
-  - home
-  - warp
+Player:
+  MaxPower: 100.0
+  InitialPower: 10.0
+  MaxDaysInactivity: 20
+  PowerPerDeath: -1.0
+  PowerPerHour: 2.0
+  RegenerateOffline: false
+  TeleportationWarmup: 10
+  TeleportationCooldown: 60
+Nation:
+  BankMaxBalance: 1000000000
+  MaxAllies: -1
+  MaxTruces: -1
+  MaxPlayers: 50
+  MinimumRequiredPlayers: 5
+  DeleteAfterDays: 14 #Number of days to delete a nation after its member count falls below minimum required players
+  ForbiddenNames: #Names that are forbidden to use for nations or settlements
+  ForbiddenCommands:
+      Enemy:
+        - tpa
+        - home
+        - warp
+      Neutral:
+        - tpa
+        - home
+        - warp
+Settlement:
+  MinimumDistance: 4
+  TerritoryPerPlayer: 10
+Siege:
+  Enabled: true
+  Cooldown: 3
+  RequiredExposurePrecent: 50.0
+  CostPercentage: 3.0;
+  MaxCost: 5000000
+  RequiredRelations:
+    - ENEMY

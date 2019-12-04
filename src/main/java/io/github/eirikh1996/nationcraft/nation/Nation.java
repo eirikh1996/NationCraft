@@ -34,9 +34,9 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	@NotNull private final List<Nation> allies, enemies;
 	@NotNull private final List<Settlement> settlements;
 	@NotNull private final TerritoryManager territoryManager;
+	@NotNull private final Map<String, Boolean> flags = new HashMap<>();
 	@NotNull private final Map<NCPlayer, Ranks> players;
 	@NotNull private final Set<UUID> invitedPlayers;
-	private final boolean isOpen;
 
 	public Nation(@NotNull String name, @NotNull String description, @Nullable Settlement capital, @NotNull List<Nation> allies, @NotNull List<Nation> enemies, @NotNull List<Settlement> settlements, @NotNull Map<NCPlayer, Ranks> players) {
 		this.uuid = UUID.randomUUID();
@@ -48,7 +48,6 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		this.enemies = enemies;
 		this.settlements = settlements;
 		this.players = players;
-		isOpen = false;
 		invitedPlayers = new HashSet<>();
 		territoryManager = new NationTerritoryManager(this);
 		creationTimeMS = System.currentTimeMillis();
@@ -65,7 +64,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		this.settlements = new ArrayList<>();
 		this.players = new HashMap<>();
 		players.put(PlayerManager.getInstance().getPlayer(leader.getUniqueId()), Ranks.LEADER);
-		isOpen = false;
+		flags.putAll(NationManager.getInstance().getRegisteredFlags());
 		invitedPlayers = new HashSet<>();
 		territoryManager = new NationTerritoryManager(this);
 		creationTimeMS = System.currentTimeMillis();
@@ -92,8 +91,11 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		allies = nationListFromObject("allies");
 		enemies = nationListFromObject("enemies");
 		settlements = settlementListFromObject("settlements");
+		Map<String, Object> flagMap = (Map<String, Object>) data.get("flags");
+		for (String key : flagMap.keySet()) {
+			flags.put(key, (boolean) flagMap.get(key));
+		}
 		invitedPlayers = playerIDListFromObject(data.get("invitedPlayers"));
-		isOpen = (boolean) data.get("isOpen");
 		players = getPlayersAndRanksFromObject(data.get("players"));
 		territoryManager = new NationTerritoryManager(this);
 		territoryManager.addAll(chunkListFromObject(data.get("territory")));
@@ -270,6 +272,11 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return ret;
 	}
 
+	public String getName(UUID playerID) {
+		Nation pNation = NationManager.getInstance().getNationByPlayer(playerID);
+		return getName(pNation);
+	}
+
 	/**
 	 * Sets the nation's name
 	 * @param name The nation's name
@@ -288,12 +295,55 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return players.containsKey(PlayerManager.getInstance().getPlayer(id));
 	}
 
+	public boolean pvpAllowed() {
+		return flags.get("pvp");
+	}
+
+	public void setPvPAllowed(boolean state) {
+		flags.put("pvp", state);
+	}
+
+	public boolean monstersAllowed() {
+		return flags.get("monsters");
+	}
+
+	public void setMonstersAllowed(boolean state) {
+		flags.put("monsters", state);
+	}
+
+	public boolean getFlag(String flag) {
+		if (!flags.containsKey(flag))
+			throw new IllegalArgumentException(flag + " is not a valid nation flag");
+		return flags.get(flag);
+	}
+
+	/**
+	 *
+	 * @param flag
+	 * @param state
+	 *
+	 * @throws IllegalArgumentException if flag is not registered
+	 */
+	public void setFlag(String flag, boolean state) {
+		if (!NationManager.getInstance().registeredFlag(flag)) {
+			throw new IllegalArgumentException("Nation flag " + flag + " is not registered");
+		}
+		flags.put(flag, state);
+	}
 	public boolean isWarzone(){
-		return originalName.equalsIgnoreCase("warzone");
+		return flags.get("warzone");
+	}
+
+	public void setWarzone(boolean state) {
+		flags.put("warzone", state);
 	}
 
 	public boolean isSafezone(){
-		return originalName.equalsIgnoreCase("safezone");
+		return flags.get("safezone");
+	}
+
+	public void setSafezone(boolean state) {
+		flags.put("safezone", state);
 	}
 
 	public void setDescription(@NotNull String description){ this.description = description; }
@@ -449,8 +499,8 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return creationTimeMS;
 	}
 
-	public double getMaxStrength(){
-		return Settings.maxPowerPerPlayer * players.size();
+	public double getMaxPower(){
+		return Settings.PlayerMaxPower * players.size();
 	}
 	public boolean isAlliedWith(Nation alliedNation) {
 		return allies.contains(alliedNation) && alliedNation.getAllies().contains(this);
@@ -469,7 +519,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	public boolean isOpen(){
-		return isOpen;
+		return flags.get("open");
 	}
 
 	@NotNull

@@ -163,7 +163,7 @@ public class Messages {
 			p.sendMessage(ChatColor.YELLOW + "Settlements: " + ChatColor.GREEN + String.join(", ", settlementNames));
 			p.sendMessage(ChatColor.YELLOW + "Territory: " + (n.isStrongEnough() ? ChatColor.GREEN : ChatColor.RED) + n.getTerritoryManager().size());
 			p.sendMessage(ChatColor.YELLOW + "Power: " + (n.getPower() >= n.getTerritoryManager().size() ? ChatColor.GREEN : ChatColor.RED) + String.format("%.2f", n.getPower()));
-			p.sendMessage(ChatColor.YELLOW + "Maximum strength: " + n.getMaxStrength());
+			p.sendMessage(ChatColor.YELLOW + "Maximum strength: " + n.getMaxPower());
 			p.sendMessage(ChatColor.YELLOW + "Allies: " + ChatColor.DARK_PURPLE + allyList.toString());
 			p.sendMessage(ChatColor.YELLOW + "Truces: " + ChatColor.LIGHT_PURPLE + truceList.toString());
 			p.sendMessage(ChatColor.YELLOW + "Enemies: " + ChatColor.RED + enemyList.toString());
@@ -324,11 +324,11 @@ public class Messages {
 	public static void displayPlayerInfo(Player bp){
 		final NCPlayer player = PlayerManager.getInstance().getPlayer(bp.getUniqueId());
 		final String[] powerBar = new String[103];
-		double ratio = Settings.maxPowerPerPlayer / 101.0;
+		double ratio = Settings.PlayerMaxPower / 101.0;
 
 		powerBar[0] = ChatColor.GOLD + "[" + ChatColor.RESET;
 		powerBar[102] = ChatColor.GOLD + "]" + ChatColor.RESET;
-		float percent = (float) ((player.getPower() / Settings.maxPowerPerPlayer ) * 100f);
+		float percent = (float) ((player.getPower() / Settings.PlayerMaxPower ) * 100f);
 		for (int i = 1 ; i < 102 ; i++){
 			double powerLevel = ratio * i;
 			String point = "";
@@ -344,7 +344,7 @@ public class Messages {
 		final Date lastLogin = new Date(player.getLastActivityTime());
 
 
-		bp.sendMessage(String.format("Power: %.2f / %.2f", player.getPower(), Settings.maxPowerPerPlayer));
+		bp.sendMessage(String.format("Power: %.2f / %.2f", player.getPower(), Settings.PlayerMaxPower));
 		bp.sendMessage(String.join("", powerBar));
 		bp.sendMessage("Last activity: " + (Bukkit.getPlayer(player.getPlayerID()) != null ? ChatColor.GREEN + "Currently online " : lastLogin.toString()));
 	}

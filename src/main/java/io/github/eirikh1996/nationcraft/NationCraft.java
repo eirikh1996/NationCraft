@@ -8,11 +8,13 @@ import io.github.eirikh1996.nationcraft.listener.ChatListener;
 import io.github.eirikh1996.nationcraft.listener.EntityListener;
 import io.github.eirikh1996.nationcraft.listener.PlayerListener;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
+import io.github.eirikh1996.nationcraft.nation.Relation;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.settlement.SettlementManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -68,15 +70,40 @@ public class NationCraft extends JavaPlugin {
 		this.saveDefaultConfig();
 
 		//Read config file
-		Settings.maxPlayersPerNation = getConfig().getInt("MaxPlayersPerNation", 50);
-		Settings.NationCreateCost = getConfig().getInt("NationCreateCost",1000);
-		Settings.MinimumSettlementExposurePercent = (float) getConfig().getDouble("MinimumSettlementExposurePercent", 50.0);
-		List<String> forbiddenCommandsInEnemyTerritory = getConfig().getStringList("forbiddenCommandsInEnemyTerritory");
-		if (forbiddenCommandsInEnemyTerritory == null){
-			Settings.forbiddenCommandsInEnemyTerritory = Collections.emptyList();
-		} else {
-			Settings.forbiddenCommandsInEnemyTerritory = forbiddenCommandsInEnemyTerritory;
+		//player
+		ConfigurationSection playerSection = getConfig().getConfigurationSection("Player");
+		Settings.PlayerMaxDaysInactivity = playerSection.getInt("MaxDaysInactivity", 25);
+		Settings.PlayerMaxPower = playerSection.getDouble("MaxPower", 100.0);
+		Settings.PlayerInitialPower = playerSection.getDouble("InitialPower", 10.0);
+		Settings.PlayerRegeneratePowerOffline = playerSection.getBoolean("RegenerateOffline");
+		Settings.PlayerPowerPerHour = playerSection.getDouble("PowerPerHour", 2.0);
+		Settings.PlayerPowerPerDeath = playerSection.getDouble("PowerPerDeath", -2.0);
+		Settings.PlayerRegeneratePowerOffline = playerSection.getBoolean("RegenerateOffline", false);
+		Settings.PlayerTeleportationWarmup = playerSection.getInt("TeleportationWarmup", 10);
+		Settings.PlayerTeleportationCooldown = playerSection.getInt("TeleportationCooldown", 60);
+
+		//nation
+		ConfigurationSection nationSection = getConfig().getConfigurationSection("Nation");
+		Settings.NationBankMaxBalance = nationSection.getLong("BankMaxBalance", 1000000000);
+		Settings.NationMaxAllies = nationSection.getInt("MaxAllies", -1);
+		Settings.NationMaxTruces = nationSection.getInt("MaxTruces", -1);
+		Settings.NationMaxPlayers = nationSection.getInt("MaxPlayers", 50);
+		Settings.NationCreateCost = nationSection.getInt("CreateCost",1000);
+		Settings.NationMinimumRequiredPlayers = nationSection.getInt("MinimumRequiredPlayers", 5);
+		Settings.NationDeleteAfterDays = nationSection.getInt("DeleteAfterDays", 14);
+		Settings.NationForbiddenNames.addAll(nationSection.getStringList("ForbiddenNames"));
+		final ConfigurationSection forbiddenCommands = nationSection.getConfigurationSection("ForbiddenCommands");
+		for (Relation rel : Relation.values()) {
+			String key = rel.name().replace(rel.name().substring(1), rel.name().substring(1).toLowerCase());
+			List<String> values = forbiddenCommands.getStringList(key);
+			Settings.NationForbiddenCommands.put(rel, values);
 		}
+
+		//settlements
+		ConfigurationSection settlementSection = getConfig().getConfigurationSection("Settlement");
+		Settings.MinimumSettlementExposurePercent = (float) getConfig().getDouble("MinimumSettlementExposurePercent", 50.0);
+
+
 		Settings.Debug = getConfig().getBoolean("Debug", false);
 
 		//Load plugins that are required for full functionality
@@ -103,14 +130,9 @@ public class NationCraft extends JavaPlugin {
 		}
 		if (economy == null){
 			getLogger().info("NationCraft did not find a compatible version of Vault. Disabling Vault integration");
-			Settings.nationBankMaxBalance = 0;
+			Settings.NationBankMaxBalance = 0;
 		} else {
-			long maxNationBal = getConfig().getLong("nationBankMaxBalance", 1000000000);
-			if (maxNationBal > Long.MAX_VALUE){
-				getLogger().warning("nationBankMaxBalance in config.yml was set to " + maxNationBal + ", which may cause an overflow. Setting to maximum allowed value");
-				maxNationBal = Long.MAX_VALUE;
-			}
-			Settings.nationBankMaxBalance = maxNationBal;
+			Settings.NationBankMaxBalance = nationSection.getLong("BankMaxBalance", 1000000000);
 		}
 
 		//register events

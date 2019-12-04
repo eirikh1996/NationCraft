@@ -111,7 +111,7 @@ public class PlayerManager extends BukkitRunnable implements Iterable<NCPlayer> 
                 continue;
             }
             long daysOfInactivity = TimeUnit.DAYS.toDays(System.currentTimeMillis() - ncPlayer.getLastActivityTime());
-            if (daysOfInactivity <= Settings.MaxDaysInactivity){
+            if (daysOfInactivity <= Settings.PlayerMaxDaysInactivity){
                 continue;
             }
             final Nation pNation = NationManager.getInstance().getNationByPlayer(id);
@@ -126,21 +126,21 @@ public class PlayerManager extends BukkitRunnable implements Iterable<NCPlayer> 
     }
 
     private void processPowerRegeneration(){
-        final double powerPerSecond = Settings.powerPerHour / 3600.0;
+        final double powerPerSecond = Settings.PlayerPowerPerHour / 3600.0;
         if (players.isEmpty()){
             return;
         }
         for (UUID id : players.keySet()){
             final NCPlayer player = players.get(id);
-            if (player.getPower() >= Settings.maxPowerPerPlayer){
+            if (player.getPower() >= Settings.PlayerMaxPower){
                 continue;
             }
-            if (!Settings.regeneratePowerOffline && Bukkit.getPlayer(player.getPlayerID()) == null){
+            if (!Settings.PlayerRegeneratePowerOffline && Bukkit.getPlayer(player.getPlayerID()) == null){
                 continue;
             }
             double power = player.getPower();
             power += powerPerSecond;
-            player.setPower(min(power, Settings.maxPowerPerPlayer));
+            player.setPower(min(power, Settings.PlayerMaxPower));
         }
     }
 

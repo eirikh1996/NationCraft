@@ -39,7 +39,7 @@ public final class JoinNationSubCommand extends NationSubCommand {
             }
             return;
         }
-        if (nation.getPlayers().keySet().size() >= Settings.maxPlayersPerNation) {
+        if (nation.getPlayers().keySet().size() >= Settings.NationMaxPlayers) {
             sender.sendMessage(Messages.ERROR + "Nation " + nation.getName() + " is full! Join another nation, or create your own.");
             return;
         }

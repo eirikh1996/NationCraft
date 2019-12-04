@@ -22,17 +22,44 @@ import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COM
 public class NationManager implements Iterable<Nation> {
 	private static NationManager ourInstance;
 	private boolean fileCreated;
+	private Map<String, Boolean> registeredFlags = new HashMap<>();
 	private String nationFilePath = NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations";
 	@NotNull private final Set<Nation> nations;
 
 	public NationManager(){
 		nations = new HashSet<>();
+		registeredFlags.put("pvp", true);
+		registeredFlags.put("monsters", true);
+		registeredFlags.put("open", false);
+		registeredFlags.put("safezone", false);
+		registeredFlags.put("warzone", false);
 	}
+
 	public static void initialize(){ ourInstance = new NationManager(); }
 
 	public void loadNations(){
 		nations.addAll(getNationsFromFile());
 	}
+
+	public Map<String, Boolean> getRegisteredFlags() {
+		return registeredFlags;
+	}
+
+	/**
+	 * Registers a new nation flag
+	 *
+	 * This is preferred to be done at onLoad in your plugin's main class
+	 * @param flag The identifier of the flag
+	 * @param def the default value of the flag
+	 */
+	public void registerFlag(String flag, boolean def) {
+		registeredFlags.put(flag, def);
+	}
+
+	public boolean registeredFlag(String flag) {
+		return registeredFlags.containsKey(flag);
+	}
+
 	public void reload(){
 		nations.clear();
 	    nations.addAll(getNationsFromFile());
@@ -207,13 +234,17 @@ public class NationManager implements Iterable<Nation> {
 	public boolean createSafezone(){
 
 		Nation safezone = new Nation("Safezone","Free from PvP and monsters", null,Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptyMap());
+		safezone.setSafezone(true);
+		safezone.setPvPAllowed(false);
+		safezone.setMonstersAllowed(false);
 		return safezone.saveToFile();
 	}
 
 	public boolean createWarzone(){
 
-		Nation safezone = new Nation("Warzone","Not the safest place to be!", null,Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptyMap());
-		return safezone.saveToFile();
+		Nation warzone = new Nation("Warzone","Not the safest place to be!", null,Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptyMap());
+		warzone.setWarzone(true);
+		return warzone.saveToFile();
 	}
 
 	public static NationManager getInstance(){
@@ -231,6 +262,7 @@ public class NationManager implements Iterable<Nation> {
 	public String getNationFilePath(){
 		return nationFilePath;
 	}
+
 
 	@NotNull
 	@Override

@@ -46,6 +46,7 @@ public class SiegeManager extends BukkitRunnable {
         for (Siege siege : sieges){
             new SiegePlayerCheckTask(siege).runTask(NationCraft.getInstance());
             if (siege.getAttackerPresenceTime() >= Settings.SiegeRequiredAttackerPresenceTime){
+                Bukkit.broadcastMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("%s has sucessfully taken control of %s from %s", siege.getAttacker().getName(), siege.getSettlement().getName(), siege.getDefender().getName()));
                 siege.getSettlement().setNation(siege.getAttacker().getName());
                 completedSieges.add(siege);
             } else if (siege.getAttackerAbsenceTime() >= Settings.SiegeMaximumAttackerAbsenceTime){
