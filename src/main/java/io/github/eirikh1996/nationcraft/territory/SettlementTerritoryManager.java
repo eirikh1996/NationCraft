@@ -348,6 +348,16 @@ public final class SettlementTerritoryManager implements TerritoryManager {
     }
 
     @Override
+    public boolean remove(Territory territory) {
+        return territoryCollection.remove(territory);
+    }
+
+    @Override
+    public boolean removeAll(Collection<? extends Territory> territories) {
+        return territoryCollection.removeAll(territories);
+    }
+
+    @Override
     public int size() {
         return territoryCollection.size();
     }

@@ -7,6 +7,7 @@ import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.nation.Ranks;
 import io.github.eirikh1996.nationcraft.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.settlement.SettlementManager;
+import io.github.eirikh1996.nationcraft.utils.TimeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -110,12 +111,13 @@ public class PlayerManager extends BukkitRunnable implements Iterable<NCPlayer> 
             if (Bukkit.getPlayer(ncPlayer.getPlayerID()) != null){
                 continue;
             }
-            long daysOfInactivity = TimeUnit.DAYS.toDays(System.currentTimeMillis() - ncPlayer.getLastActivityTime());
+            long daysOfInactivity = TimeUtils.daysSince(ncPlayer.getLastActivityTime());
             if (daysOfInactivity <= Settings.PlayerMaxDaysInactivity){
                 continue;
             }
             final Nation pNation = NationManager.getInstance().getNationByPlayer(id);
             if (pNation != null){
+                NationCraft.getInstance().getLogger().info("Player " + ncPlayer.getName() + " removed after " + daysOfInactivity + " days of inactivity");
                 pNation.removePlayer(id);
             }
             final Settlement ps = SettlementManager.getInstance().getSettlementByPlayer(id);

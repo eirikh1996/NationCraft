@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,12 +55,13 @@ public class Messages {
 
 
 	}
-	public static String[] startUpMessage(){
-		String[] message = new String[5];
-		message[0] = ChatColor.AQUA.toString() + "||  ||  //\\  ====== ||  //=\\  ||";
-		message[1] = "||\\|| //==\\   ||   || ||   || ||";
-		message[2] = "||  || ||  ||   ||   ||  \\=//  ||";
-		return message;
+	public static void logMessage() {
+		final Logger log = NationCraft.getInstance().getLogger();
+		log.info("");
+		log.info("\u00A79\u00A7l|\\  |  /\\ === | /--\\ |\\  |\u00A77\u00A7l /--  |--\\  /\\  |== ===");
+		log.info("\u00A79\u00A7l| \\ | /__\\ |  ||   | | \\ |\u00A77\u00A7l|    |--/  /__\\ |=   | ");
+		log.info("\u00A79\u00A7l|  \\|/    \\|  | \\--/ |  \\|\u00A77\u00A7l \\-- |  \\/    \\|    | ");
+		log.info("");
 	}
 	public static void nationInfo(Nation n, Player p, ChatColor color) {
 		String name = n.getName();
@@ -98,61 +100,16 @@ public class Messages {
 		List<String> truceList = new ArrayList<>();
 
 		Map<NCPlayer, Ranks> playerList = n.getPlayers();
-		String onlinePlayers = "";
-		String offlinePlayers = "";
+		Set<String> onlinePlayers = new HashSet<>();
+		Set<String> offlinePlayers = new HashSet<>();
 
 			for (NCPlayer np : playerList.keySet()) {
 				if (Bukkit.getPlayer(np.getPlayerID()) != null) {
-					Player player = Bukkit.getPlayer(np.getPlayerID());
-					String playerName = player.getName();
-					Ranks r = playerList.get(np);
-					String rankMarker = "";
-					if (r == Ranks.RECRUIT) {
-						rankMarker = "-";
-					}
-					if (r == Ranks.MEMBER) {
-						rankMarker = "+";
-					}
-					if (r == Ranks.OFFICER) {
-						rankMarker = "*";
-					}
-					if (r == Ranks.OFFICIAL) {
-						rankMarker = "**";
-					}
-					if (r == Ranks.LEADER) {
-						rankMarker = "***";
-					}
-					onlinePlayers += rankMarker;
-					onlinePlayers += playerName;
-					if (playerList.keySet().size() > 1){
-						onlinePlayers += ", ";
-					}
+					onlinePlayers.add(rankMarker(np, playerList.get(np)) + np.getName());
 				} else {
-					OfflinePlayer player = Bukkit.getOfflinePlayer(np.getPlayerID());
-					String playerName = player.getName();
-					Ranks r = playerList.get(player.getUniqueId());
-					String rankMarker = "";
-					if (r == Ranks.RECRUIT) {
-						rankMarker = "-";
-					}
-					if (r == Ranks.MEMBER) {
-						rankMarker = "+";
-					}
-					if (r == Ranks.OFFICER) {
-						rankMarker = "*";
-					}
-					if (r == Ranks.OFFICIAL) {
-						rankMarker = "**";
-					}
-					if (r == Ranks.LEADER) {
-						rankMarker = "***";
-					}
-					offlinePlayers += rankMarker;
-					offlinePlayers += playerName;
-					if (playerList.keySet().size() > 1){
-						offlinePlayers += ", ";
-					}
+					offlinePlayers.add(rankMarker(np, playerList.get(np)) + np.getName());
 				}
+
 			}
 			Collections.sort(allyList);
 			Collections.sort(truceList);
@@ -167,8 +124,8 @@ public class Messages {
 			p.sendMessage(ChatColor.YELLOW + "Allies: " + ChatColor.DARK_PURPLE + allyList.toString());
 			p.sendMessage(ChatColor.YELLOW + "Truces: " + ChatColor.LIGHT_PURPLE + truceList.toString());
 			p.sendMessage(ChatColor.YELLOW + "Enemies: " + ChatColor.RED + enemyList.toString());
-			p.sendMessage(ChatColor.YELLOW + "Players online: " + color + onlinePlayers);
-			p.sendMessage(ChatColor.YELLOW + "Players offline: " + color + offlinePlayers);
+			p.sendMessage(ChatColor.YELLOW + "Players online: " + color + String.join(", ", onlinePlayers));
+			p.sendMessage(ChatColor.YELLOW + "Players offline: " + color + String.join(", ", offlinePlayers));
 		}
 	public static void generateTerritoryMap(Player p){
 		if (Settings.Debug){
@@ -254,7 +211,11 @@ public class Messages {
 				.sorted(Map.Entry.comparingByValue())
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 
-		player.sendMessage(ChatColor.YELLOW + "================{" + ChatColor.RESET + "Nearest settlements" + ChatColor.YELLOW + "}================");
+		if (sorted.isEmpty()) {
+		    player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "No settlements nearby");
+		    return;
+        }
+		player.sendMessage(ChatColor.YELLOW + "================={" + ChatColor.RESET + "Nearest settlements" + ChatColor.YELLOW + "}=================");
 		int count = 0;
 		for (Settlement s : sorted.keySet()){
 			player.sendMessage(s.getName() + String.format(" [%d, %d]", s.getTownCenter().getCenterPoint().getBlockX(), s.getTownCenter().getCenterPoint().getBlockZ()) + String.format(" %d blocks away", sorted.get(s)));
@@ -264,6 +225,26 @@ public class Messages {
 			count++;
 		}
 		player.sendMessage(ChatColor.YELLOW + "=====================================================");
+	}
+
+	private static String rankMarker(NCPlayer player, Ranks r) {
+		String rankMarker = "";
+		if (r == Ranks.RECRUIT) {
+			rankMarker = "-";
+		}
+		if (r == Ranks.MEMBER) {
+			rankMarker = "+";
+		}
+		if (r == Ranks.OFFICER) {
+			rankMarker = "*";
+		}
+		if (r == Ranks.OFFICIAL) {
+			rankMarker = "**";
+		}
+		if (r == Ranks.LEADER) {
+			rankMarker = "***";
+		}
+		return rankMarker;
 	}
 
 	private static Map< Nation, String> nationMarkers( int scanRange, @NotNull Player p){
@@ -344,6 +325,7 @@ public class Messages {
 		final Date lastLogin = new Date(player.getLastActivityTime());
 
 
+		bp.sendMessage("========={ Player " + player.getName() + "}=========");
 		bp.sendMessage(String.format("Power: %.2f / %.2f", player.getPower(), Settings.PlayerMaxPower));
 		bp.sendMessage(String.join("", powerBar));
 		bp.sendMessage("Last activity: " + (Bukkit.getPlayer(player.getPlayerID()) != null ? ChatColor.GREEN + "Currently online " : lastLogin.toString()));

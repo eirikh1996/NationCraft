@@ -1,6 +1,5 @@
 package io.github.eirikh1996.nationcraft.territory;
 
-import io.github.eirikh1996.nationcraft.messages.Messages;
 import io.github.eirikh1996.nationcraft.nation.Nation;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.utils.CollectionUtils;
@@ -13,13 +12,12 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static io.github.eirikh1996.nationcraft.messages.Messages.ERROR;
 import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
 public final class NationTerritoryManager implements TerritoryManager {
-    private Collection<Territory> territoryCollection = new CopyOnWriteArrayList<>();
+    private Collection<Territory> territoryCollection = new HashSet<>();
     private final Nation nation;
 
     public NationTerritoryManager(Nation nation) {
@@ -40,9 +38,9 @@ public final class NationTerritoryManager implements TerritoryManager {
                 claimed.add(new Territory(player.getWorld(), x, z));
             }
         }
-        ArrayList<Territory> alreadyClaimed = new ArrayList<>();
-        HashMap<Nation, ArrayList<Territory>> strongEnoughNations = new HashMap<>();
-        HashMap<Nation, ArrayList<Territory>> overclaimedTerritories = new HashMap<>();
+        Set<Territory> alreadyClaimed = new HashSet<>();
+        HashMap<Nation, Set<Territory>> strongEnoughNations = new HashMap<>();
+        HashMap<Nation, Set<Territory>> overclaimedTerritories = new HashMap<>();
         for (Territory territory : claimed){
             Nation nation = NationManager.getInstance().getNationAt(territory);
             if (nation == null){
@@ -55,7 +53,7 @@ public final class NationTerritoryManager implements TerritoryManager {
                 if (strongEnoughNations.containsKey(nation)){
                     strongEnoughNations.get(nation).add(territory);
                 } else {
-                    ArrayList<Territory> canHold = new ArrayList<>();
+                    Set<Territory> canHold = new HashSet<>();
                     canHold.add(territory);
                     strongEnoughNations.put(nation, canHold);
                 }
@@ -63,7 +61,7 @@ public final class NationTerritoryManager implements TerritoryManager {
                 if (overclaimedTerritories.containsKey(nation)){
                     overclaimedTerritories.get(nation).add(territory);
                 } else {
-                    ArrayList<Territory> lost = new ArrayList<>();
+                    Set<Territory> lost = new HashSet<>();
                     lost.add(territory);
                     overclaimedTerritories.put(nation, lost);
                 }
@@ -112,8 +110,8 @@ public final class NationTerritoryManager implements TerritoryManager {
                 unclaimed.add(new Territory(player.getWorld(), x, z));
             }
         }
-        HashMap<Nation, ArrayList<Territory>> strongEnoughNations = new HashMap<>();
-        HashMap<Nation, ArrayList<Territory>> overclaimedTerritories = new HashMap<>();
+        HashMap<Nation, HashSet<Territory>> strongEnoughNations = new HashMap<>();
+        HashMap<Nation, HashSet<Territory>> overclaimedTerritories = new HashMap<>();
         for (Territory territory : unclaimed){
             Nation testNation = NationManager.getInstance().getNationAt(territory);
             if (!nation.equals(testNation) && testNation == null){
@@ -123,7 +121,7 @@ public final class NationTerritoryManager implements TerritoryManager {
                 if (strongEnoughNations.containsKey(nation)){
                     strongEnoughNations.get(nation).add(territory);
                 } else {
-                    ArrayList<Territory> canHold = new ArrayList<>();
+                    HashSet<Territory> canHold = new HashSet<>();
                     canHold.add(territory);
                     strongEnoughNations.put(nation, canHold);
                 }
@@ -131,7 +129,7 @@ public final class NationTerritoryManager implements TerritoryManager {
                 if (overclaimedTerritories.containsKey(nation)){
                     overclaimedTerritories.get(nation).add(territory);
                 } else {
-                    ArrayList<Territory> lost = new ArrayList<>();
+                    HashSet<Territory> lost = new HashSet<>();
                     lost.add(territory);
                     overclaimedTerritories.put(nation, lost);
                 }
@@ -167,8 +165,8 @@ public final class NationTerritoryManager implements TerritoryManager {
                 claimed.add(new Territory(player.getWorld(), x, z));
             }
         }
-        HashMap<Nation, ArrayList<Territory>> strongEnoughNations = new HashMap<>();
-        HashMap<Nation, ArrayList<Territory>> overclaimedTerritories = new HashMap<>();
+        HashMap<Nation, Set<Territory>> strongEnoughNations = new HashMap<>();
+        HashMap<Nation, Set<Territory>> overclaimedTerritories = new HashMap<>();
         for (Territory territory : claimed){
             Nation nation = NationManager.getInstance().getNationAt(territory);
             if (nation == null){
@@ -178,7 +176,7 @@ public final class NationTerritoryManager implements TerritoryManager {
                 if (strongEnoughNations.containsKey(nation)){
                     strongEnoughNations.get(nation).add(territory);
                 } else {
-                    ArrayList<Territory> canHold = new ArrayList<>();
+                    Set<Territory> canHold = new HashSet<>();
                     canHold.add(territory);
                     strongEnoughNations.put(nation, canHold);
                 }
@@ -186,22 +184,25 @@ public final class NationTerritoryManager implements TerritoryManager {
                 if (overclaimedTerritories.containsKey(nation)){
                     overclaimedTerritories.get(nation).add(territory);
                 } else {
-                    ArrayList<Territory> lost = new ArrayList<>();
+                    Set<Territory> lost = new HashSet<>();
                     lost.add(territory);
                     overclaimedTerritories.put(nation, lost);
                 }
             }
         }
         int size = size() + CollectionUtils.filter(claimed, territoryCollection).size();
-        if (size > nation.getPower() && !player.hasPermission("nationcraft.nation.claim.bypassstrength")){
+        if (size > nation.getPower() && !nation.isSafezone() && !nation.isWarzone()){
             player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot claim more land. You need more power");
             return;
         }
         ArrayList<Territory> filter = new ArrayList<>();
         if (!overclaimedTerritories.isEmpty()){
             for (Nation overclaimed : overclaimedTerritories.keySet()){
-                filter.addAll(overclaimedTerritories.get(overclaimed));
+                Set<Territory> overclaimedTerritory = overclaimedTerritories.get(overclaimed);
+                filter.addAll(overclaimedTerritory);
+                overclaimed.getTerritoryManager().removeAll(overclaimedTerritory);
                 player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName()));
+
                 territoryCollection.addAll(overclaimedTerritories.get(overclaimed));
             }
         }
@@ -479,6 +480,16 @@ public final class NationTerritoryManager implements TerritoryManager {
 
     public boolean addAll(Collection<? extends Territory> territories){
         return territoryCollection.addAll(territories);
+    }
+
+    @Override
+    public boolean remove(Territory territory) {
+        return territoryCollection.remove(territory);
+    }
+
+    @Override
+    public boolean removeAll(Collection<? extends Territory> territories) {
+        return territoryCollection.removeAll(territories);
     }
 
     public int size(){

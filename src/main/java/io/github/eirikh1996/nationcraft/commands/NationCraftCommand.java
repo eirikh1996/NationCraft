@@ -2,6 +2,9 @@ package io.github.eirikh1996.nationcraft.commands;
 
 import io.github.eirikh1996.nationcraft.NationCraft;
 import io.github.eirikh1996.nationcraft.messages.Messages;
+import io.github.eirikh1996.nationcraft.player.NCPlayer;
+import io.github.eirikh1996.nationcraft.player.PlayerManager;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,17 +32,25 @@ public class NationCraftCommand implements CommandExecutor {
         }
 
         if (strings[0].equalsIgnoreCase("player")){
-            playerSubCommand(commandSender);
+            Player other;
+            try {
+                other = Bukkit.getPlayer(strings[1]);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                other = null;
+            }
+            playerSubCommand(commandSender, other);
         }
         return true;
     }
 
-    private void playerSubCommand(CommandSender sender){
-        if (!(sender instanceof Player)){
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+    private void playerSubCommand(CommandSender sender, Player player){
+        if (player == null && !(sender instanceof Player)){
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must specify a player name");
             return;
         }
-        Player player = (Player) sender;
+        if (player == null) {
+            player = (Player) sender;
+        }
         Messages.displayPlayerInfo(player);
     }
 

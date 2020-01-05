@@ -21,6 +21,14 @@
            <id>ess-repo</id>
            <url>https://ci.ender.zone/plugin/repository/everything/</url>
        </repository>
+       <repository>
+           <id>placeholderapi</id>
+           <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+       </repository>
+       <repository>
+           <id>codemc-snapshots</id>
+           <url>https://repo.codemc.io/repository/maven-snapshots/</url>
+       </repository>
    </repositories>
    <dependencies>
        <dependency>
@@ -67,6 +75,28 @@
            <groupId>net.milkbowl.vault</groupId>
            <artifactId>VaultAPI</artifactId>
            <version>LATEST</version>
+       </dependency>
+       <dependency>
+           <groupId>me.clip</groupId>
+           <artifactId>placeholderapi</artifactId>
+           <version>LATEST</version>
+           <scope>provided</scope>
+       </dependency>
+       <dependency>
+           <groupId>com.SirBlobman.combatlogx</groupId>
+           <artifactId>CombatLogX-API</artifactId>
+           <version>10.0.0.0-SNAPSHOT</version>
+           <scope>provided</scope>
+       </dependency>
+       <dependency>
+           <groupId>com.google.code.gson</groupId>
+           <artifactId>gson</artifactId>
+           <version>2.8.5</version>
+       </dependency>
+       <dependency>
+           <groupId>com.google.code.gson</groupId>
+           <artifactId>gson-parent</artifactId>
+           <version>2.8.5</version>
        </dependency>
    </dependencies>
     <build>

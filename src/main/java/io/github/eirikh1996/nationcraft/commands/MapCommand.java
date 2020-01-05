@@ -5,6 +5,7 @@ import io.github.eirikh1996.nationcraft.messages.Messages;
 import io.github.eirikh1996.nationcraft.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -39,6 +40,13 @@ public class MapCommand implements TabExecutor {
                 status = "disabled";
             }
             p.sendMessage("Automatic map updates " + status);
+        } else if (strings[0].equalsIgnoreCase("help") || strings[0].equalsIgnoreCase("?")) {
+            p.sendMessage("=================== Map help ===================");
+            p.sendMessage(ChatColor.RED + "Enemy");
+            p.sendMessage(ChatColor.WHITE + "Neutral");
+            p.sendMessage(ChatColor.DARK_PURPLE + "Ally");
+            p.sendMessage(ChatColor.GOLD + "Safezone");
+            p.sendMessage(ChatColor.DARK_RED + "Warzone");
         }
         long endTime = System.currentTimeMillis();
         if (Settings.Debug){

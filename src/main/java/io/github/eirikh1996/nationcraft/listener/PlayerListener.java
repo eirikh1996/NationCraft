@@ -1,5 +1,6 @@
 package io.github.eirikh1996.nationcraft.listener;
 
+import com.SirBlobman.combatlogx.api.utility.ICombatManager;
 import com.earth2me.essentials.Essentials;
 import io.github.eirikh1996.nationcraft.NationCraft;
 import io.github.eirikh1996.nationcraft.chat.ChatMode;
@@ -34,6 +35,7 @@ import static io.github.eirikh1996.nationcraft.messages.Messages.ERROR;
 import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
 public class PlayerListener implements Listener {
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(PlayerLoginEvent event){
         PlayerManager mgr = PlayerManager.getInstance();
@@ -94,6 +96,14 @@ public class PlayerListener implements Listener {
             }
         }
         if (fromN != toN){
+            if (NationCraft.getInstance().getCombatLogXPlugin() != null) {
+                ICombatManager combatManager = NationCraft.getInstance().getCombatLogXPlugin().getCombatManager();
+                if (combatManager.isInCombat(event.getPlayer()) && toN != null && !toN.pvpAllowed()) {
+                    event.getPlayer().sendMessage(NATIONCRAFT_COMMAND_PREFIX + "You cannot enter PvP disabled territory while in combat");
+                    event.setCancelled(true);
+                    return;
+                }
+            }
             String fromNationName = (fromN != null ? NationManager.getInstance().getColor(event.getPlayer(), fromN) + fromN.getName() : ChatColor.DARK_GREEN + "Wilderness") + ChatColor.RESET;
             String toNationName = (toN != null ? NationManager.getInstance().getColor(event.getPlayer(), toN) + toN.getName() : ChatColor.DARK_GREEN + "Wilderness") + ChatColor.RESET;
             event.getPlayer().sendTitle(toNationName, toN == null ? "" : toN.getDescription(),10,70,20);
@@ -107,14 +117,6 @@ public class PlayerListener implements Listener {
 
     public void onPlayerQuit(PlayerQuitEvent event){
         Player p = event.getPlayer();
-        if (p.isBanned()){
-            //Remove banned players from their nation
-            Nation pn = NationManager.getInstance().getNationByPlayer(p.getUniqueId());
-            if (pn != null) {
-                pn.removePlayer(p.getUniqueId());
-            }
-
-        }
         PlayerManager.getInstance().getPlayer(p.getUniqueId()).setLastActivityTime(System.currentTimeMillis());
 
     }

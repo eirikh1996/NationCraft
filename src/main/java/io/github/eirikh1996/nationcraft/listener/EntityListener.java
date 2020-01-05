@@ -32,7 +32,7 @@ public class EntityListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerDamage(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
             Player damager = (Player) event.getDamager();
@@ -44,7 +44,7 @@ public class EntityListener implements Listener {
                 event.setCancelled(true);
             }
             else if (atDamagerLoc != null && !atDamagerLoc.pvpAllowed()) {
-                damagee.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("PvP is not permitted in the territory of %s", atDamagerLoc.getName(damager.getUniqueId())));
+                damager.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("You cannot damage other players from %s's territory since PvP is not permitted", atDamagerLoc.getName(damager.getUniqueId())));
                 event.setCancelled(true);
             }
         }

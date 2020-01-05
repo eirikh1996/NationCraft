@@ -22,12 +22,6 @@ public final class LeaveNationSubCommand extends NationSubCommand {
             return;
         }
         nation.removePlayer(sender.getUniqueId());
-        if (nation.getPlayers().keySet().isEmpty()) {
-            final String nName = nation.getName();
-            if (NationManager.getInstance().deleteNation(nation)) {
-                Bukkit.broadcastMessage(String.format("Nation %s has been disbanded", nName));
-            }
-        }
         nation.saveToFile();
     }
 }

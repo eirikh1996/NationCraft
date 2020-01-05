@@ -24,6 +24,14 @@ Nation:
         - tpa
         - home
         - warp
+  RelationColors:
+    Wilderness: DARK_GREEN
+    Enemy: RED
+    Neutral: WHITE
+    Ally: DARK_PURPLE
+    Truce: LIGHT_PURPLE
+    Own: GREEN
+
 Settlement:
   MinimumDistance: 4
   TerritoryPerPlayer: 10

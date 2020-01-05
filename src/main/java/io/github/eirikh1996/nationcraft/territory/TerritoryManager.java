@@ -19,6 +19,8 @@ public interface TerritoryManager extends Iterable<Territory> {
     void unclaimAll(Player player);
     boolean add(Territory territory);
     boolean addAll(Collection<? extends Territory> territories);
+    boolean remove(Territory territory);
+    boolean removeAll(Collection<? extends Territory> territories);
     int size();
     boolean contains(Territory territory);
     boolean isEmpty();

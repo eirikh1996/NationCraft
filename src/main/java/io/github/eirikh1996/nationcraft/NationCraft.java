@@ -1,5 +1,6 @@
 package io.github.eirikh1996.nationcraft;
 
+import com.SirBlobman.combatlogx.api.ICombatLogX;
 import com.earth2me.essentials.Essentials;
 import io.github.eirikh1996.nationcraft.commands.*;
 import io.github.eirikh1996.nationcraft.config.Settings;
@@ -7,11 +8,14 @@ import io.github.eirikh1996.nationcraft.listener.BlockListener;
 import io.github.eirikh1996.nationcraft.listener.ChatListener;
 import io.github.eirikh1996.nationcraft.listener.EntityListener;
 import io.github.eirikh1996.nationcraft.listener.PlayerListener;
+import io.github.eirikh1996.nationcraft.messages.Messages;
 import io.github.eirikh1996.nationcraft.nation.NationManager;
 import io.github.eirikh1996.nationcraft.nation.Relation;
 import io.github.eirikh1996.nationcraft.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.settlement.SettlementManager;
+import me.clip.placeholderapi.PlaceholderAPI;
+import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -27,7 +31,8 @@ public class NationCraft extends JavaPlugin {
 	private static NationCraft instance;
 	private static Economy economy;
 	private static Essentials essentialsPlugin;
-
+	private static PlaceholderAPIPlugin placeholderAPIPlugin;
+	private static ICombatLogX combatLogXPlugin;
 	
 	public void onEnable() {
 		long start = System.currentTimeMillis();
@@ -46,8 +51,8 @@ public class NationCraft extends JavaPlugin {
 		}
 		boolean szCreated = false;
 		boolean wzCreated = false;
-		File szFile = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations/Safezone.nation");
-		File wzFile = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations/Warzone.nation");
+		File szFile = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations/safezone.nation");
+		File wzFile = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations/warzone.nation");
 		if (!szFile.exists()){
 			szCreated = nManager.createSafezone();
 			if (szCreated)
@@ -58,9 +63,9 @@ public class NationCraft extends JavaPlugin {
 		if (!wzFile.exists()){
 			wzCreated = nManager.createWarzone();
 			if (wzCreated)
-			getLogger().info("Safezone file created.");
+			getLogger().info("Warzone file created.");
 			else
-			getLogger().warning("Safezone failed to create file!");
+			getLogger().warning("Warzone failed to create file!");
 		}
 		if (wzCreated || szCreated){
 			nManager.reload();
@@ -135,6 +140,16 @@ public class NationCraft extends JavaPlugin {
 			Settings.NationBankMaxBalance = nationSection.getLong("BankMaxBalance", 1000000000);
 		}
 
+		//Placeholder API
+		Plugin pHolder = getServer().getPluginManager().getPlugin("PlaceholderAPI");
+		if (pHolder instanceof PlaceholderAPIPlugin) {
+			getLogger().info("NationCraft found a compatible version of PlaceholderAPI. Enabling PlaceholderAPI integration");
+			placeholderAPIPlugin = (PlaceholderAPIPlugin) pHolder;
+		}
+		if (placeholderAPIPlugin == null) {
+			getLogger().info("NationCraft didn not find a compatible version of PlaceholderAPI. Disabling PlaceholderAPI integration");
+		}
+
 		//register events
 		getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		getServer().getPluginManager().registerEvents(new BlockListener(), this);
@@ -147,6 +162,7 @@ public class NationCraft extends JavaPlugin {
 		this.getCommand("chatmode").setExecutor(new ChatModeCommand());
 		this.getCommand("settlement").setExecutor(new SettlementCommand());
 		this.getCommand("nationcraft").setExecutor(new NationCraftCommand());
+		Messages.logMessage();
 		long end = System.currentTimeMillis();
 		getLogger().info(String.format("Took %d to enable", end - start));
 	}
@@ -173,5 +189,13 @@ public class NationCraft extends JavaPlugin {
 
 	public Essentials getEssentialsPlugin(){
 		return essentialsPlugin;
+	}
+
+	public PlaceholderAPIPlugin getPlaceholderAPIPlugin() {
+		return placeholderAPIPlugin;
+	}
+
+	public ICombatLogX getCombatLogXPlugin() {
+		return combatLogXPlugin;
 	}
 }

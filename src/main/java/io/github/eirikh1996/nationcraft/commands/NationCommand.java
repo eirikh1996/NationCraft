@@ -245,9 +245,18 @@ public class NationCommand implements TabExecutor {
 
 			}
 		} else if (strings[0].equalsIgnoreCase("claim") || strings[0].equalsIgnoreCase("unclaim")){
-			completions.addAll(Arrays.asList(Shape.getShapeNames()));
-			if (strings[0].equalsIgnoreCase("claim")){
-				completions.remove("all");
+
+			if (strings.length == 3) {
+				return Collections.emptyList();
+			} else if (strings.length == 4 && commandSender.hasPermission("nationcraft.nation.claim.other")) {
+				for (Nation n : NationManager.getInstance()) {
+					completions.add(n.getName());
+				}
+			} else {
+				completions.addAll(Arrays.asList(Shape.getShapeNames()));
+				if (strings[0].equalsIgnoreCase("claim")){
+					completions.remove("all");
+				}
 			}
 		} else {
 			return Collections.emptyList();

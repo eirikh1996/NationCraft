@@ -4,6 +4,7 @@ package io.github.eirikh1996.nationcraft.player;
 import io.github.eirikh1996.nationcraft.NationCraft;
 import io.github.eirikh1996.nationcraft.chat.ChatMode;
 import io.github.eirikh1996.nationcraft.config.Settings;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
@@ -18,6 +19,8 @@ public class NCPlayer {
     private long lastActivityTime;
     private String name;
     private boolean autoUpdateTerritoryMap = false;
+    private int mapHeight = 20;
+    private boolean adminMode = false;
     private final List<String> previousNames = new ArrayList<>();
     public NCPlayer(UUID playerID, String name){
         this.name = name;
@@ -134,6 +137,23 @@ public class NCPlayer {
             writer.println("   - " + previousName);
         }
         writer.close();
+    }
+
+    @Override
+    public int hashCode() {
+        return playerID.hashCode();
+    }
+
+    public void teleport(Location destination) {
+
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof NCPlayer)) {
+            return false;
+        }
+        final NCPlayer np = (NCPlayer) obj;
+        return playerID == np.playerID;
     }
 
     public void setChatMode(ChatMode chatMode) {

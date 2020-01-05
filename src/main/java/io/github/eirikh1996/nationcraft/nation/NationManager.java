@@ -19,9 +19,8 @@ import org.jetbrains.annotations.Nullable;
 
 import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
-public class NationManager implements Iterable<Nation> {
+public class NationManager extends BukkitRunnable implements Iterable<Nation> {
 	private static NationManager ourInstance;
-	private boolean fileCreated;
 	private Map<String, Boolean> registeredFlags = new HashMap<>();
 	private String nationFilePath = NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations";
 	@NotNull private final Set<Nation> nations;
@@ -35,7 +34,10 @@ public class NationManager implements Iterable<Nation> {
 		registeredFlags.put("warzone", false);
 	}
 
-	public static void initialize(){ ourInstance = new NationManager(); }
+	public static void initialize(){
+		ourInstance = new NationManager();
+		ourInstance.runTaskTimerAsynchronously(NationCraft.getInstance(), 0, 1);
+	}
 
 	public void loadNations(){
 		nations.addAll(getNationsFromFile());
@@ -165,20 +167,8 @@ public class NationManager implements Iterable<Nation> {
 		return returnNation;
 	}
 
-	public boolean nationDataChanged(Nation nation){
-		File nationFile = getNationFile(nation.getName());
-		if (!nationFile.exists()){
-			return true;
-		}
-		Nation fileNation = new Nation(nationFile);
-		if (fileNation == null){
-			return true;
-		}
-		return fileNation != nation;
-	}
-
 	public File getNationFile(String nationName){
-		return new File(nationFilePath + "/" + nationName + ".nation");
+		return new File(nationFilePath + "/" + nationName.toLowerCase() + ".nation");
 	}
 
 	public Set<Nation> getNations() {
@@ -196,14 +186,7 @@ public class NationManager implements Iterable<Nation> {
 	}
 
 
-	public boolean deleteNation(Nation n){
-		File nationFile = getNationFile(n.getName());
-		if (nations.remove(n)){
-			return nationFile.delete();
-		}
-		Bukkit.broadcastMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Nation %s has been disbanded", n.getName()));
-		return false;
-	}
+
 
 	public ChatColor getColor(@NotNull Player p, @NotNull Nation n){
 		ChatColor returnColor = ChatColor.RESET;
@@ -253,7 +236,7 @@ public class NationManager implements Iterable<Nation> {
 
 	public void saveAllNationsToFile(){
 		for (Nation n : this){
-			if (n == null){
+			if (n == null || n.getPlayers().isEmpty() && !n.isWarzone() && !n.isSafezone()){
 				continue;
 			}
 			n.saveToFile();
@@ -270,4 +253,27 @@ public class NationManager implements Iterable<Nation> {
 		return Collections.unmodifiableSet(this.nations).iterator();
 	}
 
+
+    @Override
+    public void run() {
+        processNationCleanup();
+    }
+
+    private void processNationCleanup() {
+	    if (nations.isEmpty())
+	        return;
+	    final Iterator<Nation> iterator = nations.iterator();
+	    while (iterator.hasNext()) {
+	        final Nation n = iterator.next();
+	        if (n == null || !n.getPlayers().isEmpty() || n.isSafezone() || n.isWarzone()) {
+	            continue;
+            }
+
+	        final File nFile = getNationFile(n.getName());
+            Bukkit.broadcastMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Nation %s has been disbanded", n.getName()));
+	        nFile.delete();
+	        iterator.remove();
+
+        }
+    }
 }

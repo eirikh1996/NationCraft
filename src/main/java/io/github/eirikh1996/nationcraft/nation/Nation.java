@@ -18,6 +18,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
@@ -26,7 +27,7 @@ import static io.github.eirikh1996.nationcraft.messages.Messages.NATIONCRAFT_COM
 
 
 final public class Nation implements Comparable<Nation>, Cloneable {
-	@NotNull private final long creationTimeMS;
+	private final long creationTimeMS;
 	@NotNull private final UUID uuid;
 	@NotNull private final String originalName;
 	@NotNull private String name, description;
@@ -206,7 +207,14 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 				World world = NationCraft.getInstance().getServer().getWorld(wID);
 				returnList.add(new Territory(world,x,z));
 			} else if (o instanceof String){
-
+				String str = (String) o;
+				str = str.replace("[", "").replace("]", "");
+				String[] parts = str.split(",");
+				UUID id = UUID.fromString(parts[0]);
+				int x = Integer.parseInt(parts[1]);
+				int z = Integer.parseInt(parts[2]);
+				World world = Bukkit.getWorld(id);
+				returnList.add(new Territory(world, x, z));
 			}
 		}
 		return returnList;
@@ -292,11 +300,17 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	public boolean hasPlayer(UUID id){
-		return players.containsKey(PlayerManager.getInstance().getPlayer(id));
+	    for (NCPlayer player : players.keySet()) {
+	        if (!player.getPlayerID().equals(id)) {
+	            continue;
+            }
+	        return true;
+        }
+	    return false;
 	}
 
 	public boolean pvpAllowed() {
-		return flags.get("pvp");
+		return flags.getOrDefault("pvp", true);
 	}
 
 	public void setPvPAllowed(boolean state) {
@@ -304,7 +318,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	public boolean monstersAllowed() {
-		return flags.get("monsters");
+		return flags.getOrDefault("monsters", true);
 	}
 
 	public void setMonstersAllowed(boolean state) {
@@ -331,7 +345,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		flags.put(flag, state);
 	}
 	public boolean isWarzone(){
-		return flags.get("warzone");
+		return flags.getOrDefault("warzone", false);
 	}
 
 	public void setWarzone(boolean state) {
@@ -339,7 +353,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	public boolean isSafezone(){
-		return flags.get("safezone");
+		return flags.getOrDefault("safezone", false);
 	}
 
 	public void setSafezone(boolean state) {
@@ -381,9 +395,6 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 				continue;
 			}
 			np.sendMessage(NATIONCRAFT_COMMAND_PREFIX + p.getName() + " left your nation");
-		}
-		if (players.size() == 0){
-			NationManager.getInstance().deleteNation(this);
 		}
 	}
 
@@ -562,60 +573,64 @@ final public class Nation implements Comparable<Nation>, Cloneable {
         }
 
         try {
-            FileWriter writer = new FileWriter(path);
-            writer.write("uuid: " + getUuid().toString() + "\n");
-            writer.write("name: " + getName() + "\n");
-            writer.write("creationTimeMS: " + getCreationTimeMS() + "\n");
-			writer.write("originalName: " + originalName + "\n");
-            writer.write("description: " + getDescription() + "\n");
-            writer.write("capital: " + (getCapital() != null ? getCapital().getName().toLowerCase() : "" ) + "\n");
-            writer.write("allies:\n");
+            PrintWriter writer = new PrintWriter(path);
+            writer.println("uuid: " + getUuid().toString());
+            writer.println("name: " + getName());
+            writer.println("creationTimeMS: " + getCreationTimeMS());
+			writer.println("originalName: " + originalName);
+            writer.println("description: " + getDescription() );
+            writer.println("capital: " + (getCapital() != null ? getCapital().getName().toLowerCase() : "" ));
+            writer.println("allies:");
             if (!getAllies().isEmpty()) {
             	for (Nation ally : getAllies()) {
             		if (ally == null){
             			continue;
 					}
-            		writer.write("- " + ally.getName() + "\n");
+            		writer.println("- " + ally.getName());
             	}
             }
-            writer.write("enemies:\n");
+            writer.println("enemies:");
             if (!getEnemies().isEmpty()) {
             	for (Nation enemy : getEnemies()) {
             		if (enemy == null){
             			continue;
 					}
-            		writer.write("- " + enemy.getName() + "\n");
+            		writer.println("- " + enemy.getName());
             	}
             }
-            writer.write("settlements:\n");
+            writer.println("settlements:");
             if (!getSettlements().isEmpty()) {
             	for (Settlement settlement : getSettlements()) {
             		if (settlement == null){
             			continue;
 					}
-            		writer.write("- " + settlement.getName() + "\n");
+            		writer.println("- " + settlement.getName());
             	}
             }
-            writer.write("territory:\n");
+
+            writer.println("territory:");
             if (!getTerritoryManager().isEmpty()) {
                 for (Territory t : getTerritoryManager()) {
                 	if (t == null){
                 		continue;
 					}
-                    writer.write("- [" + t.getWorld().getUID() + ", " + t.getX() + ", " + t.getZ() + "]\n");
+                    writer.println("- [" + t.getWorld().getUID() + ", " + t.getX() + ", " + t.getZ() + "]");
                 }
             }
-            writer.write("isOpen: " + isOpen() + "\n");
-            writer.write("invitedPlayers:\n");
+            writer.println("flags:");
+            for (String flag : flags.keySet()) {
+            	writer.println("   " + flag + ": " + flags.get(flag));
+			}
+            writer.println("invitedPlayers:");
             if (getInvitedPlayers().isEmpty()) {
             	for (UUID id : getInvitedPlayers()) {
-            		writer.write("- " + id + "\n");
+            		writer.println("- " + id);
             	}
             }
-            writer.write("players:\n");
+            writer.println("players:");
             for (NCPlayer player : getPlayers().keySet()){
                 Ranks r = getPlayers().get(player);
-                writer.write("  " + player.getPlayerID() + ": " + r + "\n");
+                writer.println("   " + player.getPlayerID() + ": " + r );
             }
             writer.close();
             return true;
@@ -635,7 +650,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, description, capital, allies, enemies, settlements, territoryManager, players, invitedPlayers);
+		return uuid.hashCode();
 	}
 
 	@Override
@@ -644,7 +659,16 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 			return false;
 		}
 		Nation n = (Nation) obj;
-		return super.equals(obj);
+		return name == n.name &&
+				description == n.description &&
+				capital == n.capital &&
+				allies == n.allies &&
+				enemies == n.enemies &&
+				settlements == n.settlements &&
+				territoryManager == n.territoryManager &&
+				players == n.players &&
+				invitedPlayers == n.invitedPlayers &&
+				flags == n.flags;
 	}
 
 	@Override

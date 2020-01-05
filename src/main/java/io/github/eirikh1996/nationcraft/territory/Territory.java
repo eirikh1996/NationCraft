@@ -41,8 +41,8 @@ public final class Territory implements Comparable<Territory> {
     }
 
     /**
-     *
-     * @return
+     * Gets the z value of the territory chunk
+     * @return z chunk coordinate
      */
     public int getZ() {
         return z;
@@ -125,6 +125,10 @@ public final class Territory implements Comparable<Territory> {
         return new Vector(x,0,z);
     }
 
+    @Override
+    public String toString() {
+        return "[" + world.getName() + ", " + x + ", " + z + "]";
+    }
 
     @Override
     public int compareTo(@NotNull Territory o) {
