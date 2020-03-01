@@ -6,7 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="NationCraft" />
+        <module name="NationCraft-Core" />
+        <module name="NationCraft-Sponge" />
+        <module name="NationCraft-Bukkit" />
       </profile>
     </annotationProcessing>
   </component>
