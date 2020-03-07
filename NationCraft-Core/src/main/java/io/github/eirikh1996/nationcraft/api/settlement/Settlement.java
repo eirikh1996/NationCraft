@@ -18,7 +18,7 @@ import org.yaml.snakeyaml.Yaml;
 
 final public class Settlement {
 	private String name;
-	private final UUID world;
+	private final String world;
 	private String nation;
 	private TownCenter townCenter;
 	private final TerritoryManager territory;
@@ -38,19 +38,19 @@ final public class Settlement {
 		}
 			name = (String) data.get("name");
 			nation = (String) data.get("nation");
-			world = uuidFromObject(data.get("world"));
+			world = (String) data.get("world");
 			Map<String, Object> tcData = (Map<String, Object>) data.get("townCenter");
 			final int tcX = (int) tcData.get("x");
 			final int tcZ = (int) tcData.get("z");
 			final ArrayList<Integer> tpCoords = (ArrayList<Integer>) tcData.get("teleportationPoint");
 			tpCoords.size();
-			UUID world = UUID.fromString((String) tcData.get("world"));
+			String world = (String) tcData.get("world");
 			final NCLocation teleportLoc = new NCLocation(world, tpCoords.get(0), tpCoords.get(1), tpCoords.get(2));
 			townCenter = new TownCenter(tcX, tcZ, world, teleportLoc);
 			territory = new SettlementTerritoryManager(this);
 			ArrayList<ArrayList> terrList = (ArrayList<ArrayList>) data.get("territory");
 			for (ArrayList list : terrList){
-				territory.add(new Territory(UUID.fromString((String) list.get(0)), (int) list.get(1), (int) list.get(2)));
+				territory.add(new Territory((String) list.get(0), (int) list.get(1), (int) list.get(2)));
 			}
 			players = new HashMap<>();
 			Map playerData = (Map) data.get("players");
@@ -67,7 +67,7 @@ final public class Settlement {
 			}
 		
 	}
-	public Settlement(String name, String nation, UUID world, TownCenter townCenter, HashMap<NCPlayer, Ranks> players) {
+	public Settlement(String name, String nation, String world, TownCenter townCenter, HashMap<NCPlayer, Ranks> players) {
 		this.name = name;
 		this.nation = nation;
 		this.world = world;
@@ -112,7 +112,7 @@ final public class Settlement {
 				List<?> objects = (List<?>) o;
 				int x = (Integer) objects.get(1);
 				int z = (Integer) objects.get(2);
-				UUID world = UUID.fromString((String) objects.get(0));
+				String world = (String) objects.get(0);
 				returnList.add(new Territory(world, x, z));
 			} else if (o instanceof String){
 
@@ -245,7 +245,7 @@ final public class Settlement {
 		return townCenter;
 	}
 
-	public UUID getWorld(){
+	public String getWorld(){
 		return world;
 	}
 

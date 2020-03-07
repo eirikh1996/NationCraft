@@ -5,14 +5,13 @@ import io.github.eirikh1996.nationcraft.api.objects.NCVector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
-import java.util.UUID;
 
 public final class TownCenter {
     private final int x, z;
-    @NotNull private final UUID world;
+    @NotNull private final String world;
     @NotNull private final NCLocation teleportationPoint;
 
-    public TownCenter(int x, int z, @NotNull UUID world, @NotNull NCLocation teleportationPoint) {
+    public TownCenter(int x, int z, @NotNull String world, @NotNull NCLocation teleportationPoint) {
         this.x = x;
         this.z = z;
         this.world = world;
@@ -31,7 +30,7 @@ public final class TownCenter {
         return new NCVector(x * 15 - 7, 0, z * 15 - 7);
     }
     @NotNull
-    public UUID getWorld() {
+    public String getWorld() {
         return world;
     }
 

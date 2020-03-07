@@ -37,6 +37,7 @@ public class Settings {
     public static float MinimumSettlementExposurePercent;
     public static int SiegeRequiredAttackerPresenceTime;
 	public static int SiegeMaximumAttackerAbsenceTime;
+	public static boolean UseExternalChatPlugin = false;
 
 
 }

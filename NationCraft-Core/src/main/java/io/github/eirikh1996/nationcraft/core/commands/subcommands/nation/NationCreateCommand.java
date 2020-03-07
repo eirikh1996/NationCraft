@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.api.NationCraftAPI;
+import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.api.events.nation.NationCreateEvent;
 import io.github.eirikh1996.nationcraft.api.objects.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
@@ -33,13 +34,13 @@ public final class NationCreateCommand extends Command {
             sender.sendMessage("Error: You must supply a name!");
             return;
         }
-        if (name.length() <= 2) {
+        if (args[0].length() <= 2) {
             sender.sendMessage("Error: Nation names must be at least 2 characters long");
             return;
         }
         for (Nation existing : NationManager.getInstance().getNations()) {
-            if (existing.getName().equalsIgnoreCase(name)) {
-                sender.sendMessage(String.format("Error: A nation with the name of %s already exists!", name));
+            if (existing.getName().equalsIgnoreCase(args[0])) {
+                sender.sendMessage(String.format("Error: A nation with the name of %s already exists!", args[0]));
                 return;
             }
         }
@@ -48,7 +49,11 @@ public final class NationCreateCommand extends Command {
             sender.sendMessage(Messages.ERROR + "You must leave your current nation before you can create one!");
             return;
         }
-        Nation newNation = new Nation(name, player);
+        if (Settings.NationCreateCost > 0 && !player.charge(Settings.NationCreateCost)) {
+
+            return;
+        }
+        Nation newNation = new Nation(args[0], player);
         //Call event
         NationCreateEvent event = new NationCreateEvent(newNation, player);
         NationCraftAPI.getInstance().callEvent(event);
@@ -56,7 +61,7 @@ public final class NationCreateCommand extends Command {
             sender.sendMessage("Cancelled: " + event.isCancelled());
             return;
         }
-        sender.sendMessage("You successfully created a new nation named " + TextColor.GREEN + name);
+        sender.sendMessage("You successfully created a new nation named " + TextColor.GREEN + args[0]);
         NationManager.getInstance().getNations().add(newNation);
         newNation.saveToFile();
     }

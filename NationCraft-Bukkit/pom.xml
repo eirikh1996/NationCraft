@@ -13,6 +13,9 @@
     <artifactId>NationCraft-Bukkit</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <repositories>
         <repository>
             <id>spigot-repo</id>
@@ -72,6 +75,20 @@
             <artifactId>placeholderapi</artifactId>
             <version>LATEST</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>xyz.olivermartin</groupId>
+            <artifactId>MultiChat</artifactId>
+            <version>LATEST</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../libs/multichat-1.7.5.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>mineverse.Aust1n46</groupId>
+            <artifactId>VentureChat</artifactId>
+            <version>LATEST</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../libs/bukkit/VentureChat.jar</systemPath>
         </dependency>
     </dependencies>
     <build>

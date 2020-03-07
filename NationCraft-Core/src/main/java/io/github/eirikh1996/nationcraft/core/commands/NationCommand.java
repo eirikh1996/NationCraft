@@ -22,6 +22,7 @@ public class NationCommand extends Command {
 		addChild(new NationLeaveCommand());
 		addChild(new NationListCommand());
 		addChild(new NationNeutralCommand());
+		addChild(new NationTerritoryCommand());
 		addChild(new NationUnclaimCommand());
 		addChild(new NationWarCommand());
 	}
@@ -35,6 +36,10 @@ public class NationCommand extends Command {
 		}
 		if (args.length < 1) {
 			sender.sendMessage("Type /nation help for help on the nation command");
+			return;
+		}
+		if (!children.containsKey(args[0])) {
+			sender.sendMessage("Invalid sub-command: " + args[0]);
 			return;
 		}
 		children.get(args[0]).execute(sender, Arrays.copyOfRange(args, 1, args.length));

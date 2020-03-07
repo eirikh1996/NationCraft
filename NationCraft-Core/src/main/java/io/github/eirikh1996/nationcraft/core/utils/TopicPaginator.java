@@ -23,8 +23,7 @@ public class TopicPaginator {
         if(!isInBounds(pageNumber))
             throw new IndexOutOfBoundsException("Page number " + pageNumber + " exceeds bounds <" + 1 + "," + getPageCount() + ">");
         String[] tempLines = new String[pageNumber == getPageCount() ? (lines.size()%9) + 1 : 9];
-        tempLines[0] = TextColor.YELLOW + " " + title +
-                "page " + pageNumber + "/" + getPageCount() + " ---";
+        tempLines[0] = "§8======= §b" + title + " §8===== page §b" + pageNumber + "§3/§b" + getPageCount() + " §8======";
         for(int i = 0; i< tempLines.length-1; i++)
             tempLines[i+1] = lines.get(((9-1) * (pageNumber-1)) + i);
         return tempLines;

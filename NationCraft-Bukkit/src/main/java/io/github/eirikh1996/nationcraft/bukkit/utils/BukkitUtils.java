@@ -19,7 +19,7 @@ public class BukkitUtils {
     private BukkitUtils() {}
 
     public NCLocation bukkitToNCLoc(Location bLoc) {
-        return new NCLocation(bLoc.getWorld().getUID(), bLoc.getX(), bLoc.getY(), bLoc.getZ(), bLoc.getPitch(), bLoc.getYaw());
+        return new NCLocation(bLoc.getWorld().getName(), bLoc.getX(), bLoc.getY(), bLoc.getZ(), bLoc.getPitch(), bLoc.getYaw());
     }
 
     public NCCommandSender getCorrespondingSender(CommandSender sender) {

@@ -65,6 +65,8 @@ public abstract class PlayerManager implements Runnable, Iterable<NCPlayer> {
         return players.get(uuid);
     }
 
+    public abstract <P> NCPlayer getPlayer(P player);
+
     @Nullable
     public NCPlayer getPlayer(String name) {
         for (NCPlayer player : players.values()) {

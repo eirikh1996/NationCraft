@@ -30,8 +30,8 @@ public final class SettlementTerritoryManager implements TerritoryManager {
      */
     @Override
     public void claimCircularTerritory(@NotNull NCPlayer player, int radius) {
-        @NotNull final ArrayList<Territory> claimed = new ArrayList<>();
-        @Nullable final Nation pNation = NationManager.getInstance().getNationByPlayer(player);
+        @NotNull final Set<Territory> claimed = new HashSet<>();
+
         int origX = player.getLocation().getBlockX() >> 4;
         int origZ = player.getLocation().getBlockZ() >> 4;
         if (size() <= 1 && !settlement.getTownCenter().equalsTerritory(new Territory(player.getLocation().getWorld(), origX, origZ))) {
@@ -45,39 +45,10 @@ public final class SettlementTerritoryManager implements TerritoryManager {
                     continue;
                 }
                 Territory territory = new Territory(player.getLocation().getWorld(), x, z);
-                Nation locN = NationManager.getInstance().getNationAt(territory);
-                if (locN == null){
-                    player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Settlements cannot be claimed in the wilderness");
-                    return;
-                }
-                else if (!locN.equals(pNation)){
-                    player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You can only claim settlements on lands of your own nation");
-                    return;
-                }
                 claimed.add(territory);
             }
         }
-        boolean boundersSettlement = false;
-        if (size() > 1) {
-            for (Territory territory : claimed) {
-                if (!settlement.getTerritory().contains(territory) && !settlement.getTerritory().contains(territory.getRelative(Direction.NORTH)) && !settlement.getTerritory().contains(territory.getRelative(Direction.SOUTH)) && !settlement.getTerritory().contains(territory.getRelative(Direction.WEST)) && !settlement.getTerritory().contains(territory.getRelative(Direction.EAST))) {
-                    continue;
-                }
-                boundersSettlement = true;
-            }
-        }
-        if (!boundersSettlement){
-            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Your claim does not bounder or overlap your settlement");
-        }
-        ArrayList<Territory> filter = new ArrayList<>();
-        for (Territory territory : claimed){
-            if (territoryCollection.contains(territory) || settlement.getTownCenter().equals(territory)){
-                filter.add(territory);
-            }
-        }
-        ArrayList<Territory> toAdd = CollectionUtils.filter(claimed, filter);
-        //Call event
-        territoryCollection.addAll(toAdd);
+        processSettlementClaim(claimed, player);
     }
 
     @Override
@@ -363,5 +334,48 @@ public final class SettlementTerritoryManager implements TerritoryManager {
     @Override
     public Iterator<Territory> iterator() {
         return Collections.unmodifiableCollection(territoryCollection).iterator();
+    }
+
+    private void processSettlementClaim(final Set<Territory> claimed, final NCPlayer player) {
+        boolean boundersSettlement = false;
+        if (size() > 1) {
+            for (Territory territory : claimed) {
+                if (settlement.getTerritory().contains(territory)) {
+                    boundersSettlement = true;
+                    continue;
+                }
+                if (!boundersSettlement) {
+                    for (Territory surrounding : territory.getSurroundings()) {
+                        if (!this.contains(surrounding)) {
+                            continue;
+                        }
+                        boundersSettlement = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!boundersSettlement){
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Your claim does not bounder or overlap your settlement");
+        }
+        Set<Territory> filter = new HashSet<>();
+        for (Territory territory : claimed){
+            @Nullable Nation locN = NationManager.getInstance().getNationAt(territory);
+            @Nullable final Nation pNation = player.getNation();
+            if (locN == null){
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Settlements cannot be claimed in the wilderness");
+                return;
+            }
+            else if (!locN.equals(pNation)){
+                player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You can only claim settlements on lands of your own nation");
+                return;
+            }
+            if (territoryCollection.contains(territory) || settlement.getTownCenter().equals(territory)){
+                filter.add(territory);
+            }
+        }
+        Collection<Territory> toAdd = CollectionUtils.filter(claimed, filter);
+        //Call event
+        territoryCollection.addAll(toAdd);
     }
 }

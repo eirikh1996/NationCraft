@@ -10,9 +10,9 @@ import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
-public class CreateSettlementSubCommand extends Command {
+public class SettlementCreateCommand extends Command {
     
-    public CreateSettlementSubCommand() {
+    public SettlementCreateCommand() {
         super("create");
     }
 

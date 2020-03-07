@@ -5,6 +5,7 @@ import java.util.*;
 
 public abstract class Command {
     protected final String name;
+    protected int index;
     protected final List<String> aliases;
     protected final Map<String, Command> children;
 
@@ -41,7 +42,15 @@ public abstract class Command {
         }
     }
 
-    public List<String> getTabCompletions() {
+    public Optional<Command> getChild(String childName) {
+        return Optional.ofNullable(children.getOrDefault(childName, null));
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public List<String> getTabCompletions(final NCCommandSender sender, final String[] args) {
         List<String> completions = new ArrayList<>();
         for (Map.Entry<String, Command> entry : children.entrySet()) {
             completions.add(entry.getKey());

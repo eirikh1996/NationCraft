@@ -56,7 +56,7 @@ public final class NationInviteCommand extends Command {
     }
 
     @Override
-    public List<String> getTabCompletions() {
+    public List<String> getTabCompletions(final NCCommandSender sender, final String[] args) {
         final ArrayList<String> completions = new ArrayList<>();
         for (NCPlayer player : PlayerManager.getInstance()) {
             completions.add(player.getName());

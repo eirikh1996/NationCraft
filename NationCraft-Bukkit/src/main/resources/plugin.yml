@@ -1,5 +1,5 @@
 name: NationCraft
-main: io.github.eirikh1996.nationcraft.NationCraft
+main: io.github.eirikh1996.nationcraft.bukkit.NationCraft
 version: 1.0.0
 author: eirikh1996
 softdepend:

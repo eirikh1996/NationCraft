@@ -7,8 +7,8 @@ import java.util.Arrays;
 
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
-public class PlayerAdminSubCommand extends Command {
-    public PlayerAdminSubCommand() {
+public class PlayerAdminCommand extends Command {
+    public PlayerAdminCommand() {
         super("admin", Arrays.asList("override"));
     }
 

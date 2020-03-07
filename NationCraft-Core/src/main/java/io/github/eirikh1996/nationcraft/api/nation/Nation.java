@@ -25,14 +25,14 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	@NotNull private final String originalName;
 	@NotNull private String name, description;
 	@Nullable private Settlement capital;
-	@NotNull private final List<Nation> allies, enemies;
-	@NotNull private final List<Settlement> settlements;
+	@NotNull private final Set<Nation> allies, enemies, truces;
+	@NotNull private final Set<Settlement> settlements;
 	@NotNull private final TerritoryManager territoryManager;
 	@NotNull private final Map<String, Boolean> flags = new HashMap<>();
 	@NotNull private final Map<NCPlayer, Ranks> players;
 	@NotNull private final Set<NCPlayer> invitedPlayers = new HashSet<>();
 
-	public Nation(@NotNull String name, @NotNull String description, @Nullable Settlement capital, @NotNull List<Nation> allies, @NotNull List<Nation> enemies, @NotNull List<Settlement> settlements, @NotNull Map<NCPlayer, Ranks> players) {
+	public Nation(@NotNull String name, @NotNull String description, @Nullable Settlement capital, @NotNull Set<Nation> allies, @NotNull Set<Nation> enemies, @NotNull Set<Nation> truces, @NotNull Set<Settlement> settlements, @NotNull Map<NCPlayer, Ranks> players) {
 		this.uuid = UUID.randomUUID();
 		this.name = name;
 		originalName = name;
@@ -41,9 +41,28 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		this.allies = allies;
 		this.enemies = enemies;
 		this.settlements = settlements;
+		this.truces = truces;
 		this.players = players;
 		territoryManager = new NationTerritoryManager(this);
 		creationTimeMS = System.currentTimeMillis();
+		NationManager.getInstance().getNations().add(this);
+	}
+
+	Nation(@NotNull String name, @NotNull String description){
+		this.uuid = UUID.randomUUID();
+		this.name = name;
+		originalName = name;
+		this.description = description;
+		this.capital = null;
+		this.allies = new HashSet<>();
+		this.enemies = new HashSet<>();
+		this.truces = new HashSet<>();
+		this.settlements = new HashSet<>();
+		this.players = new HashMap<>();
+		flags.putAll(NationManager.getInstance().getRegisteredFlags());
+		territoryManager = new NationTerritoryManager(this);
+		creationTimeMS = System.currentTimeMillis();
+		NationManager.getInstance().getNations().add(this);
 	}
 
 	public Nation(@NotNull String name, NCPlayer leader){
@@ -52,9 +71,10 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		originalName = name;
 		this.description = "Default description";
 		this.capital = null;
-		this.allies = new ArrayList<>();
-		this.enemies = new ArrayList<>();
-		this.settlements = new ArrayList<>();
+		this.allies = new HashSet<>();
+		this.enemies = new HashSet<>();
+		this.truces = new HashSet<>();
+		this.settlements = new HashSet<>();
 		this.players = new HashMap<>();
 		players.put(leader, Ranks.LEADER);
 		flags.putAll(NationManager.getInstance().getRegisteredFlags());
@@ -82,6 +102,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		capital = Settlement.loadFromFile((String) data.get("capital"));
 		allies = nationListFromObject("allies");
 		enemies = nationListFromObject("enemies");
+		truces = nationListFromObject("truces");
 		settlements = settlementListFromObject("settlements");
 		Map<String, Object> flagMap = (Map<String, Object>) data.get("flags");
 		for (String key : flagMap.keySet()) {
@@ -93,8 +114,8 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		territoryManager.addAll(chunkListFromObject(data.get("territory")));
 		creationTimeMS = (long) data.get("creationTimeMS");
 	}
-	private ArrayList<Nation> nationListFromObject(Object obj){
-		ArrayList<Nation> returnList = new ArrayList<>();
+	private Set<Nation> nationListFromObject(Object obj){
+		HashSet<Nation> returnList = new HashSet<>();
 		if (obj == null){
 			return returnList;
 		} else if (obj instanceof ArrayList) {
@@ -123,11 +144,14 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return returnList;
 	}
 
-	private ArrayList<Settlement> settlementListFromObject(Object obj){
-	    ArrayList<Settlement> returnList = new ArrayList<>();
-	    if (obj instanceof String){
+	private Set<Settlement> settlementListFromObject(Object obj){
+	    HashSet<Settlement> returnList = new HashSet<>();
+	    if (obj == null) {
+	    	return returnList;
+		} else if (obj instanceof String){
 	        String string = (String) obj;
-	        returnList.add(Settlement.loadFromFile(string));
+	        final Settlement fromFile = Settlement.loadFromFile(string);
+	        returnList.add(fromFile);
         } else if (obj instanceof ArrayList){
 	        ArrayList objList = (ArrayList) obj;
 	        for (Object o : objList){
@@ -192,21 +216,27 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		for (Object o : objList){
 			if (o instanceof ArrayList){
 				List<?> objects = (List<?>) o;
-				UUID wID = UUID.fromString((String) objects.get(0));
+				String world = (String) objects.get(0);
 				int x = (Integer) objects.get(1);
 				int z = (Integer) objects.get(2);
-				returnList.add(new Territory(wID,x,z));
+				returnList.add(new Territory(world, x, z));
 			} else if (o instanceof String){
 				String str = (String) o;
 				str = str.replace("[", "").replace("]", "");
 				String[] parts = str.split(",");
-				UUID id = UUID.fromString(parts[0]);
+				String world = parts[0];
 				int x = Integer.parseInt(parts[1]);
 				int z = Integer.parseInt(parts[2]);
-				returnList.add(new Territory(id, x, z));
+				returnList.add(new Territory(world, x, z));
 			}
 		}
 		return returnList;
+	}
+
+	public void broadcast(@NotNull final String message) {
+		for (NCPlayer player : players.keySet()) {
+			player.sendMessage(message);
+		}
 	}
 
 
@@ -244,26 +274,34 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return name;
 	}
 
-	public String getName(Nation other){
-		String ret = "" + TextColor.WHITE;
-		if (other == null){
-			ret += TextColor.WHITE;
-		}
-		else if (this.equals(other)){
-			ret += TextColor.GREEN;
-		}
-		else if (isAlliedWith(other)){
-			ret += TextColor.DARK_PURPLE;
-		}
-		else if (isAtWarWith(other)){
-			ret += TextColor.RED;
-		}
-		else if (isSafezone()){
-			ret += TextColor.GOLD;
+	public TextColor getColor(@NotNull NCPlayer player) {
+		return getColor(player.getNation());
+	}
+
+	public TextColor getColor(@Nullable Nation other) {
+		if (isSafezone()){
+			return TextColor.GOLD;
 		}
 		else if (isWarzone()){
-			ret += TextColor.DARK_RED;
+			return TextColor.DARK_RED;
 		}
+		else if (other == null){
+			return TextColor.WHITE;
+		}
+		else if (this.equals(other)){
+			return TextColor.GREEN;
+		}
+		else if (isAlliedWith(other)){
+			return TextColor.DARK_PURPLE;
+		}
+		else if (isAtWarWith(other)){
+			return TextColor.RED;
+		}
+		return TextColor.WHITE;
+	}
+
+	public String getName(Nation other){
+		String ret = "" + getColor(other);
 		ret += getName();
 		ret += TextColor.RESET;
 		return ret;
@@ -274,9 +312,8 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return getName(pNation);
 	}
 
-	public String getName(NCPlayer player) {
-		Nation pNation = NationManager.getInstance().getNationByPlayer(player);
-		return getName(pNation);
+	public String getName(NCPlayer player) {;
+		return getName(player.getNation());
 	}
 
 	/**
@@ -376,7 +413,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	 */
 	public void setCapital(@Nullable Settlement capital) { this.capital = capital; }
 
-	@NotNull public List<Nation> getAllies(){
+	@NotNull public Set<Nation> getAllies(){
 		return allies;
 	}
 
@@ -389,6 +426,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	public void removePlayer(NCPlayer p){
+		p.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "You left your nation");
 		players.remove(p);
 		for (NCPlayer player : players.keySet()){
 			if (!player.isOnline()){
@@ -408,7 +446,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		}
 	}
 
-	@NotNull public List<Nation> getEnemies(){
+	@NotNull public Set<Nation> getEnemies(){
 		return enemies;
 	}
 
@@ -420,7 +458,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return enemies.remove(enemy);
 	}
 
-	@NotNull public List<Settlement> getSettlements() { return settlements; }
+	@NotNull public Set<Settlement> getSettlements() { return settlements; }
 
 	@NotNull
 	public TerritoryManager getTerritoryManager() {
@@ -487,7 +525,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
     }
 
 	public boolean isStrongEnough(){
-		return getPower() >= (double) getTerritoryManager().size() || isSafezone() || isWarzone();
+		return isSafezone() || isWarzone() || getPower() >= (double) getTerritoryManager().size();
 	}
 
 	public int getPower(){
@@ -507,6 +545,10 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 	public boolean isAlliedWith(Nation alliedNation) {
 		return allies.contains(alliedNation) && alliedNation.getAllies().contains(this);
+	}
+
+	public boolean isTrucedWith(Nation truce) {
+		return truces.contains(truce) && truce.getTruces().contains(this);
 	}
 
 	public boolean isAtWarWith(Nation enemyNation) {
@@ -636,16 +678,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 			return false;
 		}
 		Nation n = (Nation) obj;
-		return name == n.name &&
-				description == n.description &&
-				capital == n.capital &&
-				allies == n.allies &&
-				enemies == n.enemies &&
-				settlements == n.settlements &&
-				territoryManager == n.territoryManager &&
-				players == n.players &&
-				invitedPlayers == n.invitedPlayers &&
-				flags == n.flags;
+		return uuid.equals(n.uuid);
 	}
 
 	@Override
@@ -658,5 +691,10 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		str += String.format("enemies: %s \n",enemies.toString());
 		str += String.format("settlements: %s \n",settlements.toString());
 		return str;
+	}
+
+	@NotNull
+	public Set<Nation> getTruces() {
+		return truces;
 	}
 }

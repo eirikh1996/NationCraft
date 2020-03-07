@@ -1,16 +1,20 @@
 package io.github.eirikh1996.nationcraft.api.objects;
 
+import io.github.eirikh1996.nationcraft.api.nation.Nation;
+import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.core.territory.Territory;
+
 import java.util.UUID;
 
 public class NCLocation {
-    private final UUID world;
+    private final String world;
     private final double x, y, z;
     private final float pitch, yaw;
-    public NCLocation(UUID world, double x, double y, double z) {
+    public NCLocation(String world, double x, double y, double z) {
         this(world, x, y, z, 0f, 0f);
     }
 
-    public NCLocation(UUID world, double x, double y, double z, float pitch, float yaw) {
+    public NCLocation(String world, double x, double y, double z, float pitch, float yaw) {
         this.world = world;
         this.x = x;
         this.y = y;
@@ -19,7 +23,7 @@ public class NCLocation {
         this.yaw = yaw;
     }
 
-    public UUID getWorld() {
+    public String getWorld() {
         return world;
     }
 
@@ -65,5 +69,17 @@ public class NCLocation {
 
     public int getChunkZ() {
         return getBlockZ() >> 4;
+    }
+
+    public Territory getTerritory() {
+        return new Territory(world, getChunkX(), getChunkZ());
+    }
+
+    public Nation getNation() {
+        return getTerritory().getNation();
+    }
+
+    public Settlement getSettlement() {
+        return getTerritory().getSettlement();
     }
 }

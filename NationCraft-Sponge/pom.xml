@@ -11,6 +11,34 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
 
+    <repositories>
+        <repository>
+            <id>sponge-repo</id>
+            <name>Sponge Maven Repository</name>
+            <url>https://repo.spongepowered.org/maven</url>
+        </repository>
+        <repository>
+            <id>jitpack</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.eirikh1996</groupId>
+            <artifactId>NationCraft-Core</artifactId>
+            <version>Core</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.spongepowered</groupId>
+            <artifactId>spongeapi</artifactId>
+            <version>7.1.0</version>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
     <artifactId>NationCraft-Sponge</artifactId>
     <build>
         <plugins>

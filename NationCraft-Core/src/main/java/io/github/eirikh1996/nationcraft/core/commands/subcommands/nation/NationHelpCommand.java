@@ -5,6 +5,7 @@ import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.core.utils.TopicPaginator;
 
 import java.util.Arrays;
+import java.util.List;
 
 public final class NationHelpCommand extends Command {
 
@@ -15,7 +16,7 @@ public final class NationHelpCommand extends Command {
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
         TopicPaginator paginator = new TopicPaginator("Nation commands");
-        int page = args.length == 0 ? Integer.parseInt(args[0]) : 1;
+        int page = args.length > 0 ? Integer.parseInt(args[0]) : 1;
         if (sender.hasPermission("nationcraft.nation.create"))
             paginator.addLine("/nation,n create <nation name>");
         if (sender.hasPermission("nationcraft.nation.join"))

@@ -1,6 +1,9 @@
 package io.github.eirikh1996.nationcraft.core.commands;
 
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
+import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
+import io.github.eirikh1996.nationcraft.core.commands.subcommands.player.PlayerAdminCommand;
+import io.github.eirikh1996.nationcraft.core.messages.Messages;
 
 import java.util.Arrays;
 
@@ -11,14 +14,28 @@ public class PlayerCommand extends Command {
 
     PlayerCommand() {
         super("player", Arrays.asList("p"));
+        addChild(new PlayerAdminCommand());
     }
 
     @Override
     public void execute(NCCommandSender sender, String[] args) {
-        if ((!(sender instanceof NCPlayer)) && args.length == 0) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must specify a player");
+        if (sender instanceof NCPlayer && args.length == 0) {
+            NCPlayer player = (NCPlayer) sender;
+            Messages.displayPlayerInfo(player);
             return;
         }
-        children.get(args[0]).execute(sender, Arrays.copyOfRange(args, 1, args.length));
+        else if (args.length > 0 && children.containsKey(args[0])) {
+            children.get(args[0]).execute(sender, Arrays.copyOfRange(args, 1, args.length));
+            return;
+        } else if (args.length == 0) {
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must specify a player name or a sub command");
+            return;
+        }
+        NCPlayer player = PlayerManager.getInstance().getPlayer(args[0]);
+        if (player == null) {
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Invalid player name: " + args[0]);
+            return;
+        }
+        Messages.displayPlayerInfo(player);
     }
 }

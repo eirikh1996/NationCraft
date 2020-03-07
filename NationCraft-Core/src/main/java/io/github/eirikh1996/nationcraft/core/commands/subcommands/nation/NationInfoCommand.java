@@ -41,7 +41,7 @@ public final class NationInfoCommand extends Command {
     }
 
     @Override
-    public List<String> getTabCompletions() {
+    public List<String> getTabCompletions(final NCCommandSender sender, final String[] args) {
         List<String> completions = new ArrayList<>();
         for (Nation n : NationManager.getInstance()) {
             completions.add(n.getName());

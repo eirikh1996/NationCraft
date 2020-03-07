@@ -4,6 +4,7 @@ import io.github.eirikh1996.nationcraft.api.NationCraftMain;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.bukkit.NationCraft;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.UUID;
@@ -30,5 +31,13 @@ public class BukkitPlayerManager extends PlayerManager {
     @Override
     public void addPlayer(UUID id, String name) {
         players.put(id, new NCBukkitPlayer(id, name));
+    }
+
+    @Override
+    public <P> NCPlayer getPlayer(P player) {
+        if (!(player instanceof Player)) {
+            throw new IllegalStateException();
+        }
+        return getPlayer(((Player) player).getUniqueId());
     }
 }

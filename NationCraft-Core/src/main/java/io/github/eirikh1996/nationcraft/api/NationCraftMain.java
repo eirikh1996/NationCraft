@@ -2,8 +2,10 @@ package io.github.eirikh1996.nationcraft.api;
 
 import io.github.eirikh1996.nationcraft.core.commands.NCBlockSender;
 import io.github.eirikh1996.nationcraft.core.commands.NCConsole;
+import io.github.eirikh1996.nationcraft.core.listener.BlockListener;
 
 import java.io.File;
+import java.util.List;
 
 public interface NationCraftMain {
     void logError(String errorMessage);
@@ -14,4 +16,10 @@ public interface NationCraftMain {
     NCConsole getConsole();
     NationCraftAPI getAPI();
     File getDataFolder();
+    default void registerCoreListeners() {
+        final NationCraftAPI api = NationCraftAPI.getInstance();
+        api.registerEvent(new BlockListener());
+    }
+    String getVersion();
+    List<String> getAuthors();
 }

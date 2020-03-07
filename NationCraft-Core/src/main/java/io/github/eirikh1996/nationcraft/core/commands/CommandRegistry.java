@@ -9,8 +9,6 @@ public class CommandRegistry implements Iterable<Command> {
 
     private final Map<String, Command> registeredCommands = new HashMap<>();
 
-    private CommandRegistry() {}
-
     public boolean isRegistered(String command) {
         return registeredCommands.containsKey(command);
     }
@@ -26,6 +24,7 @@ public class CommandRegistry implements Iterable<Command> {
     }
 
     public void registerDefaultCommands() {
+        register(new ChatModeCommand());
         register(new NationCraftCommand());
         register(new NationCommand());
         register(new MapCommand());

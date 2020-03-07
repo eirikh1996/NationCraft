@@ -1,19 +1,25 @@
 package io.github.eirikh1996.nationcraft.core.territory;
 
+import io.github.eirikh1996.nationcraft.api.nation.Nation;
+import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.objects.NCVector;
+import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.core.utils.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.UUID;
 
 public final class Territory implements Comparable<Territory> {
     private final int x, z;
-    private final UUID world;
+    private final String world;
 
-    public Territory(UUID world, int x, int z){
+    public Territory(String world, int x, int z){
         this.world = world;
         this.x = x;
         this.z = z;
@@ -40,12 +46,12 @@ public final class Territory implements Comparable<Territory> {
      * @return the world this territory chunk is located in
      */
     @NotNull
-    public UUID getWorld() {
+    public String getWorld() {
         return world;
     }
 
-    public boolean contains(UUID world, int x, int z) {
-        return this.world == world && x >> 4 == this.x && z >> 4 == this.z;
+    public boolean contains(String world, int x, int z) {
+        return this.world.equals(world) && x >> 4 == this.x && z >> 4 == this.z;
     }
 
     public boolean contains(NCLocation loc) {
@@ -91,6 +97,45 @@ public final class Territory implements Comparable<Territory> {
         return null;
     }
 
+
+
+    /**
+     * Gets the nation that have laid claim to this territory, or null if no nation has claimed it
+     * @return the nation holding the territory. Null if unclaimed
+     */
+
+    @Nullable
+    public Nation getNation() {
+        return NationManager.getInstance().getNationAt(this);
+    }
+
+    /**
+     * Gets the settlement that have laid claim to this territory, or null if no nation has claimed it
+     * @return the settlement holding the territory. Null if unclaimed
+     */
+
+    @Nullable
+    public Settlement getSettlement() {
+        return SettlementManager.getInstance().getSettlementAt(this);
+    }
+
+    /**
+     * Gets the territory chunks adjacent and surrounding this territory
+     * @return surrounding and adjacent territories
+     */
+
+    @NotNull
+    public Collection<Territory> getSurroundings() {
+        final HashSet<Territory> surroundings = new HashSet<>();
+        for (int x = this.x - 1; x <= this.x - 1; x += 2) {
+            surroundings.add(new Territory(world, x, z));
+        }
+        for (int z = this.z - 1; z <= this.z - 1; z += 2) {
+            surroundings.add(new Territory(world, x, z));
+        }
+        return surroundings;
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
         if (!(obj instanceof Territory)){
@@ -98,12 +143,12 @@ public final class Territory implements Comparable<Territory> {
         }
         Territory other = (Territory) obj;
 
-        return other.getWorld() == getWorld() && other.getX() == getX() && other.getZ() == getZ();
+        return other.world.equals(world) && other.x == x && other.z == z;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(world,x,z);
+        return world.hashCode() + (x ^ (z >> 12));
     }
 
     @NotNull

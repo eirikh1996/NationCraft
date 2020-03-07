@@ -8,6 +8,7 @@ import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.objects.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.core.Core;
 import io.github.eirikh1996.nationcraft.core.territory.Territory;
 import org.jetbrains.annotations.NotNull;
 
@@ -147,11 +148,11 @@ public class NationManager implements Runnable, Iterable<Nation> {
 		}
 		return null;
 	}
-	public Nation getNationAt(UUID world, int x, int z){
+	public Nation getNationAt(String world, int x, int z){
 		Nation returnNation = null;
 		for (Nation nation : nations){
 			for (Territory terr : nation.getTerritoryManager()){
-				if (terr.getX() != x||terr.getZ() != z || terr.getWorld() != world)
+				if (terr.getX() != x||terr.getZ() != z || !terr.getWorld().equals(world))
 					continue;
 				returnNation = nation;
 				break;
@@ -212,7 +213,7 @@ public class NationManager implements Runnable, Iterable<Nation> {
 
 	public boolean createSafezone(){
 
-		Nation safezone = new Nation("Safezone","Free from PvP and monsters", null,Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptyMap());
+		Nation safezone = new Nation("Safezone","Free from PvP and monsters");
 		safezone.setSafezone(true);
 		safezone.setPvPAllowed(false);
 		safezone.setMonstersAllowed(false);
@@ -221,7 +222,7 @@ public class NationManager implements Runnable, Iterable<Nation> {
 
 	public boolean createWarzone(){
 
-		Nation warzone = new Nation("Warzone","Not the safest place to be!", null,Collections.emptyList(),Collections.emptyList(),Collections.emptyList(),Collections.emptyMap());
+		Nation warzone = new Nation("Warzone","Not the safest place to be!");
 		warzone.setWarzone(true);
 		return warzone.saveToFile();
 	}

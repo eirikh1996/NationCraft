@@ -7,8 +7,8 @@ import io.github.eirikh1996.nationcraft.core.messages.Messages;
 
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
-public class NearestSettlementSubCommand extends Command {
-    public NearestSettlementSubCommand() {
+public class SettlementNearestCommand extends Command {
+    public SettlementNearestCommand() {
         super("nearest");
     }
 

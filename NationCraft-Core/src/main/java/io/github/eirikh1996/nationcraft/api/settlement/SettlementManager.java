@@ -78,8 +78,8 @@ public class SettlementManager {
 		return null;
 	}
 
-	public ArrayList<Settlement> getAllSettlements(){
-		ArrayList<Settlement> returnList = new ArrayList<>();
+	public Set<Settlement> getAllSettlements(){
+		HashSet<Settlement> returnList = new HashSet<>();
 		for (Nation n : NationManager.getInstance()){
 			if (!n.getSettlements().isEmpty())
 				returnList.addAll(n.getSettlements());

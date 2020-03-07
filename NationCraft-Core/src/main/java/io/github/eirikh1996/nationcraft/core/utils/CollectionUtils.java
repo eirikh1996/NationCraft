@@ -1,7 +1,6 @@
 package io.github.eirikh1996.nationcraft.core.utils;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
 public class CollectionUtils {
     public static <E> Collection<E> filter(Collection<E> collection, Collection<E> filter){
@@ -26,5 +25,9 @@ public class CollectionUtils {
             returnColl.add(object);
         }
         return returnColl;
+    }
+
+    public static <E> Set<E> fromArray(E... elements) {
+        return new HashSet<>(Arrays.asList(elements));
     }
 }

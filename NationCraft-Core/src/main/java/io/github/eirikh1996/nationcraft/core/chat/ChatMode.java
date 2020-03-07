@@ -1,7 +1,6 @@
 package io.github.eirikh1996.nationcraft.core.chat;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public enum ChatMode {
     GLOBAL,
@@ -19,6 +18,15 @@ public enum ChatMode {
     }
     public static ChatMode getChatMode(String name){
         return BY_NAME.get(name);
+    }
+
+    public static List<String> getNames() {
+        final ArrayList<String> returnList = new ArrayList<>();
+        for (ChatMode mode : values()) {
+            returnList.add(String.valueOf(mode.name().toLowerCase().charAt(0)));
+            returnList.add(mode.name().toLowerCase());
+        }
+        return returnList;
     }
 
 }

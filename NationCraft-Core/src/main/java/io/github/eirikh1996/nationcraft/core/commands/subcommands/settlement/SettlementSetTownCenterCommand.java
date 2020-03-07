@@ -9,9 +9,9 @@ import io.github.eirikh1996.nationcraft.core.territory.TownCenter;
 
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
-public final class SetTownCenterSettlementSubCommand extends Command {
+public final class SettlementSetTownCenterCommand extends Command {
 
-    public SetTownCenterSettlementSubCommand() {
+    public SettlementSetTownCenterCommand() {
         super("settowncenter");
     }
 

@@ -1,6 +1,10 @@
 package io.github.eirikh1996.nationcraft.api.player;
 
+import io.github.eirikh1996.nationcraft.api.nation.Nation;
+import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
+import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.core.chat.ChatMode;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
@@ -107,6 +111,13 @@ public abstract class NCPlayer implements NCCommandSender {
 
     public abstract boolean isOnline();
 
+    /**
+     * Charges the player a fare
+     * @param fare The fare to charge the player
+     * @return true if the player has sufficient funds. False otherwise
+     */
+    public abstract boolean charge(double fare);
+
     public boolean isAutoUpdateTerritoryMap() {
         return autoUpdateTerritoryMap;
     }
@@ -123,6 +134,49 @@ public abstract class NCPlayer implements NCCommandSender {
         previousNames.add(getName().toLowerCase());
         this.name = name;
         savetoFile();
+    }
+
+    public Nation getNation() {
+        return NationManager.getInstance().getNationByPlayer(this);
+    }
+
+    public boolean hasNation() {
+        return getNation() != null;
+    }
+
+    public Settlement getSettlement() {
+        return SettlementManager.getInstance().getSettlementByPlayer(this);
+    }
+
+    public boolean hasSettlement() {
+        return getSettlement() != null;
+    }
+
+    public boolean isInNationWith(NCPlayer other) {
+        if (hasNation()) {
+            return getNation().equals(other.getNation());
+        }
+        return !other.hasNation();
+    }
+
+    public boolean isInSettlementWith(NCPlayer other) {
+        return hasSettlement() && getSettlement().equals(other.getSettlement());
+    }
+
+    public boolean isAlliedWith(NCPlayer other) {
+        return hasNation() && getNation().isAlliedWith(other.getNation());
+    }
+
+    public boolean isTrucedWith(NCPlayer other) {
+        return hasNation() && getNation().isTrucedWith(other.getNation());
+    }
+
+    public boolean isAtWarWith(NCPlayer other) {
+        return hasNation() && getNation().isAtWarWith(other.getNation());
+    }
+
+    public String getWorld() {
+        return getLocation().getWorld();
     }
 
 

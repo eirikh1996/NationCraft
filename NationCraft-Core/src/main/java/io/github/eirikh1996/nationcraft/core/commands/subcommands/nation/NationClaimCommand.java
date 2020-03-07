@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
+import io.github.eirikh1996.nationcraft.core.Core;
 import io.github.eirikh1996.nationcraft.core.claiming.Shape;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
@@ -8,7 +9,9 @@ import io.github.eirikh1996.nationcraft.core.messages.Messages;
 import io.github.eirikh1996.nationcraft.api.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
@@ -33,7 +36,7 @@ public final class NationClaimCommand extends Command {
         }
         String nationName;
         try {
-            nationName = radius > 0 ? args[1] : args[2];
+            nationName = radius > 0 ? args[2] : args[1];
         } catch (ArrayIndexOutOfBoundsException e) {
             nationName = "";
         }
@@ -44,6 +47,7 @@ public final class NationClaimCommand extends Command {
                 sender.sendMessage(Messages.ERROR + "You can only claim for your own nation.");
                 return;
             }
+            Core.getMain().broadcast(nationName);
             nation = NationManager.getInstance().getNationByName(nationName);
         } else {
             nation = NationManager.getInstance().getNationByPlayer(player.getPlayerID());
@@ -63,5 +67,26 @@ public final class NationClaimCommand extends Command {
             nation.getTerritoryManager().claimLineTerritory(player, radius);
         }
         nation.saveToFile();
+    }
+
+    @Override
+    public List<String> getTabCompletions(final NCCommandSender sender, final String[] args) {
+        if (args.length == 2) {
+            return Arrays.asList(Shape.getShapeNames());
+        }
+        else if (args.length == 4 && !(args[1].equalsIgnoreCase("single") || args[1].equalsIgnoreCase("s"))) {
+            final ArrayList<String> completions = new ArrayList<>();
+            for (Nation n : NationManager.getInstance()) {
+                completions.add(n.getName());
+            }
+            return completions;
+        } else if (args.length == 3 && (args[1].equalsIgnoreCase("single") || args[1].equalsIgnoreCase("s"))) {
+            final ArrayList<String> completions = new ArrayList<>();
+            for (Nation n : NationManager.getInstance()) {
+                completions.add(n.getName());
+            }
+            return completions;
+        }
+        return new ArrayList<>();
     }
 }

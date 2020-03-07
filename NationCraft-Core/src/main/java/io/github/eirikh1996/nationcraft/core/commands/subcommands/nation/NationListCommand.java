@@ -23,7 +23,7 @@ public final class NationListCommand extends Command {
             return;
         }
         final NCPlayer player = (NCPlayer) sender;
-        int page = args.length == 0 ? 0 : Integer.parseInt(args[0]);
+        int page = args.length == 0 ? 1 : Integer.parseInt(args[0]);
         if (NationManager.getInstance().getNations().isEmpty()) {
             sender.sendMessage(Messages.ERROR + "No nations found");
             return;
@@ -36,6 +36,7 @@ public final class NationListCommand extends Command {
         }
         if (!paginator.isInBounds(page)) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Invalid page: " + page);
+            return;
         }
         for (String msg : paginator.getPage(page)) {
             sender.sendMessage(msg);

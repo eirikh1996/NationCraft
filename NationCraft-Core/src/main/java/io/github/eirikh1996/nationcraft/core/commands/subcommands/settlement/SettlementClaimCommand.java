@@ -11,8 +11,8 @@ import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
-public class ClaimSettlementSubCommand extends Command {
-    public ClaimSettlementSubCommand() {
+public class SettlementClaimCommand extends Command {
+    public SettlementClaimCommand() {
         super("claim");
     }
 

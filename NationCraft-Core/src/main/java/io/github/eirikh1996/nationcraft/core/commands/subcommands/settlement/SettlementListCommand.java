@@ -6,9 +6,9 @@ import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.core.utils.TopicPaginator;
 
-public class ListSettlementSubCommand extends Command {
+public class SettlementListCommand extends Command {
 
-    public ListSettlementSubCommand() {
+    public SettlementListCommand() {
         super("list");
     }
 

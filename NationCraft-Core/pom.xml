@@ -6,17 +6,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.eirikh1996</groupId>
-    <name>NationCraft-Core</name><build><plugins>
-    <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-            <source>8</source>
-            <target>8</target>
-        </configuration>
-    </plugin>
-</plugins>
-</build>
+    <name>NationCraft-Core</name>
+    <artifactId>NationCraft-Core</artifactId>
+    <packaging>jar</packaging>
+    <version>Core</version>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.jetbrains</groupId>
@@ -36,7 +32,16 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
-    <artifactId>NationCraft-Core</artifactId>
-    <packaging>jar</packaging>
-    <version>Core</version>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

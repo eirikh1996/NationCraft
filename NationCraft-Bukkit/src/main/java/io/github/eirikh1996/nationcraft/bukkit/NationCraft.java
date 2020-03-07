@@ -4,6 +4,7 @@ import com.SirBlobman.combatlogx.api.ICombatLogX;
 import com.earth2me.essentials.Essentials;
 import io.github.eirikh1996.nationcraft.api.NationCraftAPI;
 import io.github.eirikh1996.nationcraft.api.NationCraftMain;
+import io.github.eirikh1996.nationcraft.bukkit.hooks.chat.VentureChatHook;
 import io.github.eirikh1996.nationcraft.bukkit.objects.NCBukkitConsole;
 import io.github.eirikh1996.nationcraft.bukkit.player.BukkitPlayerManager;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
@@ -12,7 +13,9 @@ import io.github.eirikh1996.nationcraft.bukkit.listener.ChatListener;
 import io.github.eirikh1996.nationcraft.bukkit.listener.EntityListener;
 import io.github.eirikh1996.nationcraft.bukkit.listener.PlayerListener;
 import io.github.eirikh1996.nationcraft.bukkit.utils.BukkitUtils;
+import io.github.eirikh1996.nationcraft.core.Core;
 import io.github.eirikh1996.nationcraft.core.commands.CommandRegistry;
+import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.core.commands.NCConsole;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;
@@ -20,6 +23,7 @@ import io.github.eirikh1996.nationcraft.api.nation.Relation;
 import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -29,6 +33,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xyz.olivermartin.multichat.spigotbridge.MultiChatSpigot;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -36,6 +41,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class NationCraft extends JavaPlugin implements NationCraftMain {
 	private static Economy economy;
@@ -52,7 +58,9 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		BukkitPlayerManager.initialize(this);
 		NationManager.initialize(getDataFolder(),this);
 
+
 		SettlementManager.initialize(this);
+		Messages.initialize(this);
 		NationManager nManager = NationManager.getInstance();
 		nManager.loadNations();
 		if (nManager.getNations().isEmpty()){
@@ -61,6 +69,7 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		else {
 			getLogger().info(String.format("Loaded %d nation files", NationManager.getInstance().getNations().size()));
 		}
+		getLogger().info(nManager.getNations().toString());
 		boolean szCreated = false;
 		boolean wzCreated = false;
 		File szFile = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations/safezone.nation");
@@ -82,6 +91,7 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		if (wzCreated || szCreated){
 			nManager.reload();
 		}
+		getServer().getScheduler().runTaskTimerAsynchronously(this, nManager, 0, 20);
 
 
 
@@ -116,14 +126,23 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 			placeholderAPIPlugin = (PlaceholderAPIPlugin) pHolder;
 		}
 		if (placeholderAPIPlugin == null) {
-			getLogger().info("NationCraft didn not find a compatible version of PlaceholderAPI. Disabling PlaceholderAPI integration");
+			getLogger().info("NationCraft did not find a compatible version of PlaceholderAPI. Disabling PlaceholderAPI integration");
 		}
+		Plugin vChat = getServer().getPluginManager().getPlugin("VentureChat");
+		if (vChat instanceof MultiChatSpigot) {
+			getLogger().info("NationCraft found a compatible version of VentureChat. Enabling PlaceholderAPI integration");
+			Settings.UseExternalChatPlugin = true;
+			getServer().getPluginManager().registerEvents(new VentureChatHook(), this);
+		}
+		readConfig();
 
 		//register events
 		getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		getServer().getPluginManager().registerEvents(new BlockListener(), this);
 		getServer().getPluginManager().registerEvents(new ChatListener(), this);
 		getServer().getPluginManager().registerEvents(new EntityListener(), this);
+
+		registerCoreListeners();
 
 		for (io.github.eirikh1996.nationcraft.core.commands.Command cmd : commandRegistry) {
 			final PluginCommand command = getCommand(cmd.getName());
@@ -134,6 +153,7 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		}
 
 		//Now register commands
+		commandRegistry.registerDefaultCommands();
 		/*this.getCommand("nation").setExecutor(new NationCommand());
 		this.getCommand("player").setExecutor(new PlayerCommand());
 		this.getCommand("map").setExecutor(new MapCommand());
@@ -155,18 +175,8 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 	public void onLoad() {
 		instance = this;
 		api = NationCraftAPI.getInstance();
-		try {
-			Class clazz = Class.forName("io.github.eirikh1996.nationcraft.core.commands.CommandRegistry");
-			if (CommandRegistry.class.isAssignableFrom(clazz)) {
-				final Constructor c = clazz.getConstructor();
-				if (!c.isAccessible()) {
-					c.setAccessible(true);
-				}
-				commandRegistry = (CommandRegistry) c.newInstance();
-			}
-		} catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
+		commandRegistry = new CommandRegistry();
+		Core.initialize(this);
 	}
 	
 	public static synchronized NationCraft getInstance() {
@@ -207,7 +217,7 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 	@Override
 	public void readConfig() {
 //Load config file
-		this.saveDefaultConfig();
+		saveDefaultConfig();
 
 		//Read config file
 		//player
@@ -270,13 +280,23 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 	}
 
 	@Override
+	public String getVersion() {
+		return getDescription().getVersion();
+	}
+
+	@Override
+	public List<String> getAuthors() {
+		return getDescription().getAuthors();
+	}
+
+	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		String cmd = command.getName();
 		if (!commandRegistry.isRegistered(cmd)) {
 			return false;
 		}
 		commandRegistry.runCommand(cmd, BukkitUtils.getInstance().getCorrespondingSender(sender), args);
-		return false;
+		return true;
 	}
 
 	@Nullable
@@ -287,8 +307,19 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		}
 		io.github.eirikh1996.nationcraft.core.commands.Command cmd = commandRegistry.getCommand(command.getName());
 		List<String> completions = new ArrayList<>();
-		for (String arg : cmd.getTabCompletions()) {
-			if (!args[args.length - 1].startsWith(arg))
+		final NCCommandSender ncSender = BukkitUtils.getInstance().getCorrespondingSender(sender);
+		Optional<io.github.eirikh1996.nationcraft.core.commands.Command> child = cmd.getChild(args[0]);
+		if (child.isPresent()) {
+			child.get().setIndex(args.length - 1);
+			for (String arg : child.get().getTabCompletions(ncSender, args)) {
+				if (!arg.startsWith(args[args.length - 1]))
+					continue;
+				completions.add(arg);
+			}
+			return completions;
+		}
+		for (String arg : cmd.getTabCompletions(ncSender, args)) {
+			if (!arg.startsWith(args[args.length - 1]))
 				continue;
 			completions.add(arg);
 		}

@@ -7,6 +7,7 @@ import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCVector;
 import io.github.eirikh1996.nationcraft.api.objects.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
+import io.github.eirikh1996.nationcraft.core.Core;
 import io.github.eirikh1996.nationcraft.core.commands.NCConsole;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
@@ -131,13 +132,13 @@ public class Messages {
 		int cx = p.getLocation().getBlockX() >> 4;
 		int cz = p.getLocation().getBlockZ() >> 4;
 		NationManager nManager = NationManager.getInstance();
-		Nation locN = nManager.getNationAt(p.getLocation());
+		Nation locN = p.getLocation().getNation();
 		final int minX = cx - 25;
 		final int maxX = cx + 25;
 		final int minZ = cz - p.getMapHeight() / 2;
 		final int maxZ = cz + p.getMapHeight() / 2;
 		@NotNull final Map<Nation, String> nationMarkers = nationMarkers(p);
-		String header = (locN != null ? nManager.getColor(p, locN) + locN.getName() : TextColor.DARK_GREEN + "Wilderness");
+		String header = cx + ", " + cz + TextColor.YELLOW + "}==={" +(locN != null ? nManager.getColor(p, locN) + locN.getName() : TextColor.DARK_GREEN + "Wilderness");
 		int clauseLength = 25 - (TextColor.strip(header).length() / 2);
 		int index = 0;
 		String leftClause = "";
@@ -243,8 +244,8 @@ public class Messages {
 
 	private static Map< Nation, String> nationMarkers( @NotNull NCPlayer p){
 		Map<Nation, String> returnMap = new HashMap<>();
-		int cx = p.getLocation().getBlockX() >> 4;
-		int cz = p.getLocation().getBlockZ() >> 4;
+		int cx = p.getLocation().getChunkX();
+		int cz = p.getLocation().getChunkZ();
 		final int minX = cx - 25;
 		final int maxX = cx + 25;
 		final int minZ = cz - p.getMapHeight() / 2;
@@ -252,8 +253,8 @@ public class Messages {
 		int index = 0;
 		for (int z = minZ ; z <= maxZ ; z++) {
 			for (int x = minX; x <= maxX; x++) {
-				Territory territory = new Territory(p.getLocation().getWorld(), x, z);
-				Nation foundNation = NationManager.getInstance().getNationAt(territory);
+				Territory territory = new Territory(p.getWorld(), x, z);
+				Nation foundNation = territory.getNation();
 				if (!returnMap.containsKey(foundNation)){
 					returnMap.put(foundNation, MARKERS.get(index));
 					index++;
@@ -264,11 +265,11 @@ public class Messages {
 	}
 	private static String getTerritoryMarker(Map<Nation, String> nationMarkers , Territory territory, NCPlayer player){
 		String marker = "-";
-		@Nullable final Nation n = NationManager.getInstance().getNationAt(territory);
+		@Nullable final Nation n = territory.getNation();
 		Settlement settlement = null;
 
 		if (n != null ){
-			marker = NationManager.getInstance().getColor(player,n) + nationMarkers.get(n) + TextColor.RESET;
+			marker = n.getColor(player) + nationMarkers.get(n) + TextColor.RESET;
 			for (Settlement s : n.getSettlements()){
 				if (s == null || !s.getTerritory().contains(territory)){
 					continue;
@@ -318,10 +319,10 @@ public class Messages {
 		final Date lastLogin = new Date(player.getLastActivityTime());
 
 
-		player.sendMessage("========={ Player " + player.getName() + "}=========");
-		player.sendMessage(String.format("Power: %.2f / %.2f", player.getPower(), Settings.PlayerMaxPower));
+		player.sendMessage("§8========={ §3Player " + player.getName() + "§8}=========");
+		player.sendMessage(String.format("§7Power: §3%.2f / %.2f", player.getPower(), Settings.PlayerMaxPower));
 		player.sendMessage(String.join("", powerBar));
-		player.sendMessage("Last activity: " + (player.isOnline() ? TextColor.GREEN + "Currently online " : lastLogin.toString()));
+		player.sendMessage("§7Last activity: " + (player.isOnline() ? TextColor.GREEN + "Currently online " : TextColor.DARK_AQUA + lastLogin.toString()));
 	}
 
 	private static TextColor getTextColor(float percent){

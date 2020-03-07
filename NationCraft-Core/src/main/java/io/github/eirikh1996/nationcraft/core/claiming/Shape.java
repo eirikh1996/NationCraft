@@ -13,9 +13,9 @@ public enum Shape {
         for (Shape shape : Shape.values()){
             FROM_STRING.put(shape.toString().toLowerCase(), shape);
             if (shape.equals(SQUARE))
-                FROM_STRING.put(shape.toString().toLowerCase().substring(0,1), shape);
+                FROM_STRING.put(shape.toString().toLowerCase().substring(0,2), shape);
             else
-                FROM_STRING.put(shape.toString().toLowerCase().substring(0,0), shape);
+                FROM_STRING.put(shape.toString().toLowerCase().substring(0,1), shape);
         }
     }
 

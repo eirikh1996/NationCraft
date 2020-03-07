@@ -12,9 +12,9 @@ import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
-public class InfoSettlementSubCommand extends Command {
+public class SettlementInfoCommand extends Command {
 
-    public InfoSettlementSubCommand() {
+    public SettlementInfoCommand() {
         super("info");
     }
 
