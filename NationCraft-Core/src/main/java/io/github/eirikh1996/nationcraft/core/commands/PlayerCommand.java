@@ -36,6 +36,6 @@ public class PlayerCommand extends Command {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Invalid player name: " + args[0]);
             return;
         }
-        Messages.displayPlayerInfo(player);
+        Messages.displayPlayerInfo(sender, player);
     }
 }

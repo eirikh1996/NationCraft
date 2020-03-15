@@ -13,6 +13,7 @@ import io.github.eirikh1996.nationcraft.bukkit.listener.ChatListener;
 import io.github.eirikh1996.nationcraft.bukkit.listener.EntityListener;
 import io.github.eirikh1996.nationcraft.bukkit.listener.PlayerListener;
 import io.github.eirikh1996.nationcraft.bukkit.utils.BukkitUtils;
+import io.github.eirikh1996.nationcraft.bukkit.utils.PlaceHolderUtils;
 import io.github.eirikh1996.nationcraft.core.Core;
 import io.github.eirikh1996.nationcraft.core.commands.CommandRegistry;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
@@ -124,6 +125,7 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		if (pHolder instanceof PlaceholderAPIPlugin) {
 			getLogger().info("NationCraft found a compatible version of PlaceholderAPI. Enabling PlaceholderAPI integration");
 			placeholderAPIPlugin = (PlaceholderAPIPlugin) pHolder;
+			new PlaceHolderUtils().register();
 		}
 		if (placeholderAPIPlugin == null) {
 			getLogger().info("NationCraft did not find a compatible version of PlaceholderAPI. Disabling PlaceholderAPI integration");
@@ -222,15 +224,15 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		//Read config file
 		//player
 		ConfigurationSection playerSection = getConfig().getConfigurationSection("Player");
-		Settings.PlayerMaxDaysInactivity = playerSection.getInt("MaxDaysInactivity", 25);
-		Settings.PlayerMaxPower = playerSection.getDouble("MaxPower", 100.0);
-		Settings.PlayerInitialPower = playerSection.getDouble("InitialPower", 10.0);
-		Settings.PlayerRegeneratePowerOffline = playerSection.getBoolean("RegenerateOffline");
-		Settings.PlayerPowerPerHour = playerSection.getDouble("PowerPerHour", 2.0);
-		Settings.PlayerPowerPerDeath = playerSection.getDouble("PowerPerDeath", -2.0);
-		Settings.PlayerRegeneratePowerOffline = playerSection.getBoolean("RegenerateOffline", false);
-		Settings.PlayerTeleportationWarmup = playerSection.getInt("TeleportationWarmup", 10);
-		Settings.PlayerTeleportationCooldown = playerSection.getInt("TeleportationCooldown", 60);
+		Settings.player.MaxDaysInactivity = playerSection.getInt("MaxDaysInactivity", 25);
+		Settings.player.MaxPower = playerSection.getDouble("MaxPower", 100.0);
+		Settings.player.InitialPower = playerSection.getDouble("InitialPower", 10.0);
+		Settings.player.RegeneratePowerOffline = playerSection.getBoolean("RegenerateOffline");
+		Settings.player.PowerPerHour = playerSection.getDouble("PowerPerHour", 2.0);
+		Settings.player.PowerPerDeath = playerSection.getDouble("PowerPerDeath", -2.0);
+		Settings.player.RegeneratePowerOffline = playerSection.getBoolean("RegenerateOffline", false);
+		Settings.player.TeleportationWarmup = playerSection.getInt("TeleportationWarmup", 10);
+		Settings.player.TeleportationCooldown = playerSection.getInt("TeleportationCooldown", 60);
 
 		//nation
 		ConfigurationSection nationSection = getConfig().getConfigurationSection("Nation");
@@ -290,7 +292,7 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+	public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, @NotNull String[] args) {
 		String cmd = command.getName();
 		if (!commandRegistry.isRegistered(cmd)) {
 			return false;
@@ -310,7 +312,6 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		final NCCommandSender ncSender = BukkitUtils.getInstance().getCorrespondingSender(sender);
 		Optional<io.github.eirikh1996.nationcraft.core.commands.Command> child = cmd.getChild(args[0]);
 		if (child.isPresent()) {
-			child.get().setIndex(args.length - 1);
 			for (String arg : child.get().getTabCompletions(ncSender, args)) {
 				if (!arg.startsWith(args[args.length - 1]))
 					continue;

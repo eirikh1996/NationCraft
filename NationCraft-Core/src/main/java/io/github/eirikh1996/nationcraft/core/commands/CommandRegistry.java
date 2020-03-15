@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.core.commands;
 
-import io.github.eirikh1996.nationcraft.core.commands.subcommands.map.HeightSubCommand;
+import io.github.eirikh1996.nationcraft.api.NationCraftAPI;
+import io.github.eirikh1996.nationcraft.api.events.command.CommandProcessEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -43,7 +44,13 @@ public class CommandRegistry implements Iterable<Command> {
         if (!isRegistered(commandName)) {
             throw new IllegalArgumentException("Command " + commandName + " is not registered");
         }
-        registeredCommands.get(commandName).execute(sender, args);
+        final Command cmd = registeredCommands.get(commandName);
+        //Call event
+        final CommandProcessEvent event = new CommandProcessEvent(sender, cmd);
+        NationCraftAPI.getInstance().callEvent(event);
+        if (event.isCancelled())
+            return;
+        cmd.execute(sender, args);
     }
 
     @NotNull

@@ -2,6 +2,7 @@ package io.github.eirikh1996.nationcraft.bukkit.listener;
 
 import com.SirBlobman.combatlogx.api.utility.ICombatManager;
 import com.earth2me.essentials.Essentials;
+import io.github.eirikh1996.nationcraft.api.NationCraftAPI;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
@@ -56,15 +57,15 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void  onPlayerDeath(PlayerDeathEvent event){
-        if (Settings.reducePowerInWorlds.contains(event.getEntity().getWorld().getName())){
+        if (Settings.player.reducePowerInWorlds.contains(event.getEntity().getWorld().getName())){
             event.getEntity().sendMessage(NATIONCRAFT_COMMAND_PREFIX + "You did not lose any strength due to the world you were in");
             return;
         }
         final NCPlayer player = PlayerManager.getInstance().getPlayer(event.getEntity().getUniqueId());
         double power = player.getPower();
-        power += Settings.PlayerPowerPerDeath;
+        power += Settings.player.PowerPerDeath;
         player.setPower(power);
-        event.getEntity().sendMessage(NATIONCRAFT_COMMAND_PREFIX + " Your power is now " + power + " / " + Settings.PlayerMaxPower);
+        event.getEntity().sendMessage(NATIONCRAFT_COMMAND_PREFIX + " Your power is now " + power + " / " + Settings.player.MaxPower);
     }
 
     @EventHandler
@@ -75,43 +76,9 @@ public class PlayerListener implements Listener {
         NCLocation from = BukkitUtils.getInstance().bukkitToNCLoc(event.getFrom());
         NCLocation to = BukkitUtils.getInstance().bukkitToNCLoc(event.getTo());
         NCPlayer player = PlayerManager.getInstance().getPlayer(event.getPlayer());
-        @Nullable Nation fromN = NationManager.getInstance().getNationAt(from);
-        @Nullable Nation toN = NationManager.getInstance().getNationAt(to);
-        if (player.isAutoUpdateTerritoryMap()) {
-
-            if (from.getTerritory() != to.getTerritory()) {
-                Messages.generateTerritoryMap(player);
-            }
-        }
-        Settlement fromS = SettlementManager.getInstance().getSettlementAt(from);
-        Settlement toS = SettlementManager.getInstance().getSettlementAt(to);
-        if (toS != null || fromS != null){
-            if (toS == null){
-                event.getPlayer().sendMessage("Leaving the settlement of " + fromS.getName());
-            } else if (fromS == null){
-                event.getPlayer().sendMessage("Entering the settlement of " + toS.getName());
-            } else if (toS.getTownCenter().equalsTerritory(to.getTerritory()) && !toS.getTownCenter().equalsTerritory(from.getTerritory())){
-                event.getPlayer().sendMessage("Entering the town center of " + toS.getName());
-            } else if (fromS.getTownCenter().equalsTerritory(from.getTerritory()) && !fromS.getTownCenter().equalsTerritory(to.getTerritory())){
-                event.getPlayer().sendMessage("Leaving the town center of " + fromS.getName());
-            }
-        }
-        if (fromN != toN){
-            if (NationCraft.getInstance().getCombatLogXPlugin() != null) {
-                ICombatManager combatManager = NationCraft.getInstance().getCombatLogXPlugin().getCombatManager();
-                if (combatManager.isInCombat(event.getPlayer()) && toN != null && !toN.pvpAllowed()) {
-                    event.getPlayer().sendMessage(NATIONCRAFT_COMMAND_PREFIX + "You cannot enter PvP disabled territory while in combat");
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-            String fromNationName = (fromN != null ? NationManager.getInstance().getColor(player, fromN) + fromN.getName() : ChatColor.DARK_GREEN + "Wilderness") + ChatColor.RESET;
-            String toNationName = (toN != null ? NationManager.getInstance().getColor(player, toN) + toN.getName() : ChatColor.DARK_GREEN + "Wilderness") + ChatColor.RESET;
-            event.getPlayer().sendTitle(toNationName, toN == null ? "" : toN.getDescription(),10,70,20);
-            event.getPlayer().sendMessage(String.format("Leaving %s, entering %s", fromNationName, toNationName));
-        }
-
-        //auto update map if player is moving
+        io.github.eirikh1996.nationcraft.api.events.player.PlayerMoveEvent pme = new io.github.eirikh1996.nationcraft.api.events.player.PlayerMoveEvent(player, from, to);
+        NationCraftAPI.getInstance().callEvent(pme);
+        event.setCancelled(pme.isCancelled());
 
 
     }
@@ -135,9 +102,9 @@ public class PlayerListener implements Listener {
 
                 if (ps != null) { //Else if the player is member of a settlement, send him to its town center
                     Bukkit.broadcastMessage(String.valueOf(ps));
-                    //event.setRespawnLocation(ps.getTownCenter().getTeleportationPoint());
+                    event.setRespawnLocation(BukkitUtils.getInstance().ncToBukkitLoc(ps.getTownCenter().getTeleportationPoint()));
                 } else if (pn != null && pn.getCapital() != null) {//If not member of a settlement, but member of a nation, send him to the capital's towncenter
-                    //event.setRespawnLocation(pn.getCapital().getTownCenter().getTeleportationPoint());
+                    event.setRespawnLocation(BukkitUtils.getInstance().ncToBukkitLoc(pn.getCapital().getTownCenter().getTeleportationPoint()));
                 }
             }
 
@@ -159,9 +126,9 @@ public class PlayerListener implements Listener {
                 homeName = "home";
             }
             Essentials ess = NationCraft.getInstance().getEssentialsPlugin();
-            Location home = null;
+            Location home;
             try {
-                ess.getUser(p.getUniqueId()).getHome(homeName);
+                home = ess.getUser(p.getUniqueId()).getHome(homeName);
             } catch (Exception e) {
                 return;
             }

@@ -1,4 +1,4 @@
-package io.github.eirikh1996.nationcraft.api.objects;
+package io.github.eirikh1996.nationcraft.api.objects.text;
 
 public enum  TextColor {
     BLACK("§0"),
@@ -17,11 +17,6 @@ public enum  TextColor {
     LIGHT_PURPLE("§d"),
     YELLOW("§e"),
     WHITE("§f"),
-    OBFUSCATED("§k"),
-    BOLD("§l"),
-    STRIKETHROUGH("§m"),
-    UNDERLINE("§n"),
-    ITALIC("§o"),
     RESET("§r");
 
 

@@ -3,6 +3,7 @@ package io.github.eirikh1996.nationcraft.api.player;
 import io.github.eirikh1996.nationcraft.api.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
+import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.core.chat.ChatMode;
@@ -19,6 +20,7 @@ public abstract class NCPlayer implements NCCommandSender {
     protected ChatMode chatMode;
     protected double power;
     protected long lastActivityTime;
+    protected long lastMapUpdateTime;
     protected String name;
     protected boolean autoUpdateTerritoryMap = false;
     protected int mapHeight = 20;
@@ -28,14 +30,14 @@ public abstract class NCPlayer implements NCCommandSender {
         this.name = name;
         this.playerID = playerID;
         chatMode = ChatMode.GLOBAL;
-        power = Settings.PlayerInitialPower;
+        power = Settings.player.InitialPower;
         lastActivityTime = System.currentTimeMillis();
         savetoFile();
     }
     public NCPlayer(UUID playerID, ChatMode chatMode){
         this.playerID = playerID;
         this.chatMode = chatMode;
-        power = Settings.PlayerInitialPower;
+        power = Settings.player.InitialPower;
         lastActivityTime = System.currentTimeMillis();
         savetoFile();
     }
@@ -60,6 +62,10 @@ public abstract class NCPlayer implements NCCommandSender {
 
 
     }
+
+    public abstract void sendMessage(@NotNull final ChatText text);
+
+    public abstract void sendActionBar(@NotNull final String text);
 
     public String getName() {
         return name;
@@ -232,6 +238,16 @@ public abstract class NCPlayer implements NCCommandSender {
     public void setChatMode(ChatMode chatMode) {
         this.chatMode = chatMode;
     }
+
+    public long getLastMapUpdateTime() {
+        return lastMapUpdateTime;
+    }
+
+    public void setLastMapUpdateTime(long lastMapUpdateTime) {
+        this.lastMapUpdateTime = lastMapUpdateTime;
+    }
+
+    public abstract void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut);
 
     private static class PlayerFileException extends RuntimeException {
         public PlayerFileException(String message, Throwable cause){

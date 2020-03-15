@@ -7,7 +7,7 @@ import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.nation.Ranks;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
-import io.github.eirikh1996.nationcraft.core.utils.TimeUtils;
+import io.github.eirikh1996.nationcraft.api.utils.TimeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,7 +87,7 @@ public abstract class PlayerManager implements Runnable, Iterable<NCPlayer> {
                 continue;
             }
             long daysOfInactivity = TimeUtils.daysSince(ncPlayer.getLastActivityTime());
-            if (daysOfInactivity <= Settings.PlayerMaxDaysInactivity){
+            if (daysOfInactivity <= Settings.player.MaxDaysInactivity){
                 continue;
             }
             final Nation pNation = NationManager.getInstance().getNationByPlayer(id);
@@ -103,21 +103,21 @@ public abstract class PlayerManager implements Runnable, Iterable<NCPlayer> {
     }
 
     private void processPowerRegeneration(){
-        final double powerPerSecond = Settings.PlayerPowerPerHour / 3600.0;
+        final double powerPerSecond = Settings.player.PowerPerHour / 3600.0;
         if (players.isEmpty()){
             return;
         }
         for (UUID id : players.keySet()){
             final NCPlayer player = players.get(id);
-            if (player.getPower() >= Settings.PlayerMaxPower){
+            if (player.getPower() >= Settings.player.MaxPower){
                 continue;
             }
-            if (!Settings.PlayerRegeneratePowerOffline && !player.isOnline()){
+            if (!Settings.player.RegeneratePowerOffline && !player.isOnline()){
                 continue;
             }
             double power = player.getPower();
             power += powerPerSecond;
-            player.setPower(Math.min(power, Settings.PlayerMaxPower));
+            player.setPower(Math.min(power, Settings.player.MaxPower));
         }
     }
 

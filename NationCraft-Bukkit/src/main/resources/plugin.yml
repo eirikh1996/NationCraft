@@ -5,6 +5,7 @@ author: eirikh1996
 softdepend:
   - Essentials
   - Vault
+  - PlaceholderAPI
 commands:
   nation:
     usage: /nation <name>

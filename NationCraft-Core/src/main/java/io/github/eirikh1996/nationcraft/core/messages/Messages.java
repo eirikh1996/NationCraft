@@ -5,15 +5,18 @@ import io.github.eirikh1996.nationcraft.api.NationCraftMain;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCVector;
-import io.github.eirikh1996.nationcraft.api.objects.TextColor;
+import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
+import io.github.eirikh1996.nationcraft.api.objects.text.ChatTextComponent;
+import io.github.eirikh1996.nationcraft.api.objects.text.HoverEvent;
+import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
-import io.github.eirikh1996.nationcraft.core.Core;
+import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.core.commands.NCConsole;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.core.territory.Territory;
-import io.github.eirikh1996.nationcraft.core.utils.Compass;
-import io.github.eirikh1996.nationcraft.core.utils.Direction;
+import io.github.eirikh1996.nationcraft.api.utils.Compass;
+import io.github.eirikh1996.nationcraft.api.utils.Direction;
 
 import io.github.eirikh1996.nationcraft.api.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.nation.Ranks;
@@ -158,11 +161,12 @@ public class Messages {
 		}
 		p.sendMessage(TextColor.YELLOW + leftClause + header + TextColor.YELLOW + rightClause);
 		for (int z = minZ ; z <= maxZ ; z++){
-			String mapLine = "";
-			String compassLine = "";
+			ChatText.Builder mapLine = ChatText.builder();
+			ChatText.Builder compassLine = ChatText.builder();
 			int line = z - minZ;
 			if (line <= 2) {
-				compassLine = compass.getLine(line) + " ";
+				compassLine = compassLine.addText(compass.getLine(line))
+				.addText(" ");
 			}
 			for (int x = minX ; x <= maxX ; x++){
 				int column = x - minX;
@@ -170,10 +174,11 @@ public class Messages {
 				if (line <= 2 && column <= 4){
 					continue;
 				}
-				mapLine += getTerritoryMarker(nationMarkers, territory, p);
+				mapLine.addText(getTerritoryMarker(nationMarkers, territory, p));
 
 			}
-			p.sendMessage(compassLine + mapLine);
+			compassLine = compassLine.addText(mapLine.build());
+			p.sendMessage(compassLine.build());
 		}
 		if (!nationMarkers.isEmpty()){
 			String nations = "";
@@ -190,7 +195,7 @@ public class Messages {
 
 	public static void nearestSettlements(NCPlayer player){
 		HashMap<Settlement, Integer> nearestSettlement = new HashMap<>();
-		for (Settlement s : SettlementManager.getInstance().getAllSettlements()){
+		for (Settlement s : SettlementManager.getInstance()){
 			NCVector pLoc = player.getLocation().toVector();
 			pLoc.setY(0);
 			NCVector sLoc = s.getTownCenter().getCenterPoint();
@@ -263,13 +268,15 @@ public class Messages {
 		}
 		return returnMap;
 	}
-	private static String getTerritoryMarker(Map<Nation, String> nationMarkers , Territory territory, NCPlayer player){
-		String marker = "-";
+	private static ChatTextComponent getTerritoryMarker(Map<Nation, String> nationMarkers , Territory territory, NCPlayer player){
+		ChatTextComponent marker = new ChatTextComponent("-");
 		@Nullable final Nation n = territory.getNation();
 		Settlement settlement = null;
 
 		if (n != null ){
-			marker = n.getColor(player) + nationMarkers.get(n) + TextColor.RESET;
+			marker = new ChatTextComponent(n.getColor(player), nationMarkers.get(n) + TextColor.RESET, new HoverEvent(
+					HoverEvent.Action.SHOW_TEXT, n.getName(player)
+			));
 			for (Settlement s : n.getSettlements()){
 				if (s == null || !s.getTerritory().contains(territory)){
 					continue;
@@ -282,33 +289,51 @@ public class Messages {
 		}
 		if (settlement != null){
 			if (settlement.getTownCenter().equalsTerritory(territory)){
-				marker = TextColor.DARK_BLUE + "T" + TextColor.RESET;
+				marker = new ChatTextComponent(TextColor.DARK_BLUE, "T", new HoverEvent(
+						HoverEvent.Action.SHOW_TEXT,
+						TextColor.DARK_BLUE + settlement.getName() + " town center" + TextColor.RESET
+				));
 			} else if (n.getCapital().equals(settlement)){
-                marker = TextColor.GRAY + "C" + TextColor.RESET;
+                marker = new ChatTextComponent(TextColor.GRAY, "C" + TextColor.RESET, new HoverEvent(
+						HoverEvent.Action.SHOW_TEXT,
+						TextColor.GRAY + settlement.getName() + ", capital of " + n.getName(player) + TextColor.RESET
+				));
             }
 			else {
-				marker = TextColor.GRAY + "S" + TextColor.RESET;
+				marker = new ChatTextComponent(TextColor.GRAY, "S" + TextColor.RESET, new HoverEvent(
+						HoverEvent.Action.SHOW_TEXT,
+						TextColor.GRAY + settlement.getName() + ", settlement of " + n.getName(player) + TextColor.RESET
+				));
 			}
 
 		}
 		if (territory.contains(player.getLocation())){
-			marker = TextColor.BLUE + "+" + TextColor.RESET;
+			marker = new ChatTextComponent(TextColor.BLUE, "+" + TextColor.RESET, new HoverEvent(
+					HoverEvent.Action.SHOW_TEXT,
+					TextColor.GRAY + "Your position" + TextColor.RESET
+			));
 		}
 		return marker;
 	}
 
-	public static void displayPlayerInfo(NCPlayer player){
+	public static void displayPlayerInfo(NCCommandSender sender){
+		if (!(sender instanceof NCPlayer))
+			return;
+		displayPlayerInfo(sender, (NCPlayer) sender);
+	}
+
+	public static void displayPlayerInfo(NCCommandSender sender, NCPlayer target){
 		final String[] powerBar = new String[103];
-		double ratio = Settings.PlayerMaxPower / 101.0;
+		double ratio = Settings.player.MaxPower / 101.0;
 
 		powerBar[0] = TextColor.GOLD + "[" + TextColor.RESET;
 		powerBar[102] = TextColor.GOLD + "]" + TextColor.RESET;
-		float percent = (float) ((player.getPower() / Settings.PlayerMaxPower ) * 100f);
+		float percent = (float) ((target.getPower() / Settings.player.MaxPower ) * 100f);
 		for (int i = 1 ; i < 102 ; i++){
 			double powerLevel = ratio * i;
 			String point = "";
 
-			if (powerLevel <= player.getPower()){
+			if (powerLevel <= target.getPower()){
 				point += getTextColor(percent);
 			} else {
 				point += TextColor.GRAY;
@@ -316,13 +341,13 @@ public class Messages {
 			point += "|" + TextColor.RESET;
 			powerBar[i] = point;
 		}
-		final Date lastLogin = new Date(player.getLastActivityTime());
+		final Date lastLogin = new Date(target.getLastActivityTime());
 
 
-		player.sendMessage("§8========={ §3Player " + player.getName() + "§8}=========");
-		player.sendMessage(String.format("§7Power: §3%.2f / %.2f", player.getPower(), Settings.PlayerMaxPower));
-		player.sendMessage(String.join("", powerBar));
-		player.sendMessage("§7Last activity: " + (player.isOnline() ? TextColor.GREEN + "Currently online " : TextColor.DARK_AQUA + lastLogin.toString()));
+		sender.sendMessage("§8========={ §3Player " + target.getName() + "§8}=========");
+		sender.sendMessage(String.format("§7Power: §3%.2f / %.2f", target.getPower(), Settings.player.MaxPower));
+		sender.sendMessage(String.join("", powerBar));
+		sender.sendMessage("§7Last activity: " + (target.isOnline() ? TextColor.GREEN + "Currently online " : TextColor.DARK_AQUA + lastLogin.toString()));
 	}
 
 	private static TextColor getTextColor(float percent){

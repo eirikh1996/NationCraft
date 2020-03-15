@@ -1,5 +1,9 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
+import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
+import io.github.eirikh1996.nationcraft.api.objects.text.ClickEvent;
+import io.github.eirikh1996.nationcraft.api.objects.text.HoverEvent;
+import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
@@ -29,7 +33,7 @@ public final class NationInviteCommand extends Command {
             return;
         }
         NCPlayer np = (NCPlayer) sender;
-        Nation n = NationManager.getInstance().getNationByPlayer(np.getPlayerID());
+        Nation n = np.getNation();
 
         if (n == null) {
             sender.sendMessage(Messages.ERROR + "You are not in a nation!");
@@ -46,7 +50,12 @@ public final class NationInviteCommand extends Command {
         }
         NCPlayer target = PlayerManager.getInstance().getPlayer(args[0]);
         if (target != null) {
-            target.sendMessage("You have been invited to join " + NationManager.getInstance().getColor(target, n) + n.getName());
+            target.sendMessage(ChatText.builder()
+                    .addText("You have been invited to join " + n.getName(target) + " ")
+                    .addText(TextColor.AQUA, "[Accept]",
+                            new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/nation join " + n.getName()),
+                            new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextColor.AQUA + "Click to join " + n.getName()))
+                    .build());
         } else {
             sender.sendMessage(Messages.ERROR + "Player " + args[0] + " has never joined the server!");
             return;

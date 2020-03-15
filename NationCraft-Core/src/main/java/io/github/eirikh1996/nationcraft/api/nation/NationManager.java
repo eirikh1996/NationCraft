@@ -5,10 +5,9 @@ import java.util.*;
 
 import io.github.eirikh1996.nationcraft.api.NationCraftMain;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
-import io.github.eirikh1996.nationcraft.api.objects.TextColor;
+import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
-import io.github.eirikh1996.nationcraft.core.Core;
 import io.github.eirikh1996.nationcraft.core.territory.Territory;
 import org.jetbrains.annotations.NotNull;
 

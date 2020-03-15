@@ -3,18 +3,27 @@ package io.github.eirikh1996.nationcraft.api.settlement;
 import java.io.*;
 import java.util.*;
 
+import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.api.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
+import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
+import io.github.eirikh1996.nationcraft.api.objects.text.ClickEvent;
+import io.github.eirikh1996.nationcraft.api.objects.text.HoverEvent;
+import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.core.territory.SettlementTerritoryManager;
 import io.github.eirikh1996.nationcraft.core.territory.Territory;
 import io.github.eirikh1996.nationcraft.core.territory.TerritoryManager;
 import io.github.eirikh1996.nationcraft.core.territory.TownCenter;
-import io.github.eirikh1996.nationcraft.core.utils.Direction;
+import io.github.eirikh1996.nationcraft.api.utils.Direction;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
+
+import static io.github.eirikh1996.nationcraft.core.messages.Messages.ERROR;
+import static io.github.eirikh1996.nationcraft.core.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
 final public class Settlement {
 	private String name;
@@ -23,9 +32,10 @@ final public class Settlement {
 	private TownCenter townCenter;
 	private final TerritoryManager territory;
 	private final HashMap<NCPlayer, Ranks> players;
+	private final Set<NCPlayer> invitedPlayers;
 	private boolean underSiege = false;
 	
-	public Settlement(File settlementFile) {
+	Settlement(File settlementFile) {
 		final Map data;
 		try {
 			InputStream input = new FileInputStream(settlementFile);
@@ -36,44 +46,56 @@ final public class Settlement {
 			// TODO Auto-generated catch block
 			throw new SettlementNotFoundException("Settlement file at " + settlementFile.getAbsolutePath() + " was not found");
 		}
-			name = (String) data.get("name");
-			nation = (String) data.get("nation");
-			world = (String) data.get("world");
-			Map<String, Object> tcData = (Map<String, Object>) data.get("townCenter");
-			final int tcX = (int) tcData.get("x");
-			final int tcZ = (int) tcData.get("z");
-			final ArrayList<Integer> tpCoords = (ArrayList<Integer>) tcData.get("teleportationPoint");
-			tpCoords.size();
-			String world = (String) tcData.get("world");
-			final NCLocation teleportLoc = new NCLocation(world, tpCoords.get(0), tpCoords.get(1), tpCoords.get(2));
-			townCenter = new TownCenter(tcX, tcZ, world, teleportLoc);
-			territory = new SettlementTerritoryManager(this);
-			ArrayList<ArrayList> terrList = (ArrayList<ArrayList>) data.get("territory");
-			for (ArrayList list : terrList){
-				territory.add(new Territory((String) list.get(0), (int) list.get(1), (int) list.get(2)));
+		name = (String) data.get("name");
+		nation = (String) data.get("nation");
+		world = (String) data.get("world");
+		Map<String, Object> tcData = (Map<String, Object>) data.get("townCenter");
+		final int tcX = (int) tcData.get("x");
+		final int tcZ = (int) tcData.get("z");
+		final ArrayList<Integer> tpCoords = (ArrayList<Integer>) tcData.get("teleportationPoint");
+		tpCoords.size();
+		String world = (String) tcData.get("world");
+		final NCLocation teleportLoc = new NCLocation(world, tpCoords.get(0), tpCoords.get(1), tpCoords.get(2));
+		townCenter = new TownCenter(tcX, tcZ, world, teleportLoc);
+		territory = new SettlementTerritoryManager(this);
+		ArrayList<ArrayList> terrList = (ArrayList<ArrayList>) data.get("territory");
+		for (ArrayList list : terrList){
+			territory.add(new Territory((String) list.get(0), (int) list.get(1), (int) list.get(2)));
+		}
+		players = new HashMap<>();
+		Map playerData = (Map) data.get("players");
+		for (Object obj : playerData.keySet()){
+			UUID id = UUID.fromString((String) obj);
+			Ranks rank;
+			Object val = playerData.get(obj);
+			if (val instanceof String){
+				rank = Ranks.valueOf((String) val);
+			} else {
+				rank = (Ranks) val;
 			}
-			players = new HashMap<>();
-			Map playerData = (Map) data.get("players");
-			for (Object obj : playerData.keySet()){
-				UUID id = UUID.fromString((String) obj);
-				Ranks rank;
-				Object val = playerData.get(obj);
-				if (val instanceof String){
-					rank = Ranks.valueOf((String) val);
-				} else {
-					rank = (Ranks) val;
-				}
-				players.put(PlayerManager.getInstance().getPlayer(id), rank);
+			players.put(PlayerManager.getInstance().getPlayer(id), rank);
+		}
+		invitedPlayers = new HashSet<>();
+		ArrayList players = (ArrayList) data.getOrDefault("invitedPlayers", new ArrayList<>());
+		for (Object obj : players) {
+			final NCPlayer player;
+			if (obj instanceof String) {
+				player = PlayerManager.getInstance().getPlayer(UUID.fromString((String) obj));
+			} else {
+				player = PlayerManager.getInstance().getPlayer((UUID) obj);
 			}
-		
+			invitedPlayers.add(player);
+		}
+
 	}
-	public Settlement(String name, String nation, String world, TownCenter townCenter, HashMap<NCPlayer, Ranks> players) {
+	Settlement(String name, String nation, String world, TownCenter townCenter, HashMap<NCPlayer, Ranks> players) {
 		this.name = name;
 		this.nation = nation;
 		this.world = world;
 		this.townCenter = townCenter;
 		this.players = players;
 		this.territory = new SettlementTerritoryManager(this);
+		invitedPlayers = new HashSet<>();
 	}
 	public Settlement(String name, NCPlayer creator){
 		this.name = name;
@@ -84,6 +106,7 @@ final public class Settlement {
 		players.put(creator, Ranks.MAYOR);
 		territory = new SettlementTerritoryManager(this);
 		territory.add(new Territory(creator.getLocation().getWorld(), creator.getLocation().getBlockX() >> 4, creator.getLocation().getBlockZ() >> 4));
+		invitedPlayers = new HashSet<>();
 	}
 	@Nullable
 	public static Settlement loadFromFile(@Nullable String name){
@@ -121,6 +144,87 @@ final public class Settlement {
 		return returnList;
 	}
 
+	/**
+	 *
+	 * Broadcasts a message to the members of the settlement
+	 *
+	 * @param message Message to be broadcasted
+	 */
+	public void broadcast(String message) {
+		for (NCPlayer p : players.keySet()) {
+			p.sendMessage(message);
+		}
+	}
+
+	/**
+	 *
+	 * Checks if a player is invited to join the settlement
+	 *
+	 * @param player the player to be invited
+	 * @return true if the player is invited, false otherwhise
+	 */
+
+	public boolean isInvited(@NotNull NCPlayer player) {
+		return invitedPlayers.contains(player);
+	}
+
+	/**
+	 *
+	 * Invites another player to the settlement
+	 *
+	 * @param inviter the player who invites another player
+	 * @param invitee the player being invited
+	 * @return true if player is not invited before, false otherwhise
+	 */
+
+	public boolean invite(@NotNull NCPlayer inviter, @NotNull NCPlayer invitee) {
+		if (invitedPlayers.contains(invitee)) {
+			inviter.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + invitee.getName() + " is already invited to " + name);
+			return false;
+		}
+		final String banReason = getNation().isBanned(invitee);
+		if (banReason != null) {
+			inviter.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot invite " + invitee.getName() + " since the player is banned from " + nation);
+			return false;
+		}
+		getNation().invite(invitee);
+		getNation().broadcast(NATIONCRAFT_COMMAND_PREFIX + inviter.getName() + " invited " + invitee.getName() + " to settlement " + name + " and therefore, also to " + nation);
+		ChatText text = ChatText.builder()
+				.addText(NATIONCRAFT_COMMAND_PREFIX + inviter.getName() + " invited you to join settlement " + name + " belonging to nation " + nation + " ")
+				.addText(TextColor.DARK_GREEN, "[Accept]",
+						new ClickEvent(
+								ClickEvent.Action.RUN_COMMAND,
+								"/settlement join " + name),
+						new HoverEvent(
+								HoverEvent.Action.SHOW_TEXT,
+								"Click to join " + name
+						))
+				.build();
+		invitee.sendMessage(text);
+		broadcast(inviter.getName() + " invited " + invitee.getName() + " to join " + name);
+		invitedPlayers.add(invitee);
+		return true;
+	}
+
+	/**
+	 *
+	 * De-invites a player from the settlement
+	 *
+	 * @param deinviter the player revoking the invitation
+	 * @param deinvitee the player having an invitation revoked
+	 * @return true if player is currently invited, false otherwise
+	 */
+	public boolean deinvite(@NotNull NCPlayer deinviter, @NotNull NCPlayer deinvitee) {
+		if (!invitedPlayers.contains(deinvitee)) {
+			deinviter.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + deinvitee.getName() + " is currently not invited to " + name);
+			return false;
+		}
+		deinvitee.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + deinviter.getName() + " revoked your invitation you to join settlement " + name + " belonging to nation " + nation);
+		broadcast(deinviter.getName() + " revoked " + deinvitee.getName() + "'s invitation to join " + name);
+		invitedPlayers.remove(deinvitee);
+		return true;
+	}
+
 	public NCPlayer getMayor(){
 		for (Map.Entry<NCPlayer, Ranks> entry : players.entrySet()){
 			if (!entry.getValue().equals(Ranks.MAYOR))
@@ -142,7 +246,14 @@ final public class Settlement {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
+	/**
+	 *
+	 * Sets a new town center in the settlement. Town centers acts as spawn points when a settlement member dies and as capture points
+	 * during a siege
+	 *
+	 * @param townCenter
+	 */
 	@SuppressWarnings("static-access")
 	public void setTownCenter(TownCenter townCenter) {
 		this.townCenter = townCenter;
@@ -150,11 +261,7 @@ final public class Settlement {
 
 	
 	public boolean hasTownCenter() {
-		if (townCenter == null) {
-			return false;
-		} else {
-			return true;
-		}
+		return townCenter != null;
 	}
 	public float getExposurePercent(){
 		ArrayList<Territory> surrounding = new ArrayList<>();
@@ -182,12 +289,16 @@ final public class Settlement {
 
 	}
 
+	public int getMaxTerritory() {
+		return players.size() * Settings.settlement.TerritoryPerPlayer;
+	}
+
 	public boolean isUnderSiege() {
 		return underSiege;
 	}
 
 	public void saveToFile() {
-		File settlementFile = SettlementManager.getInstance().getSettlementDir();
+		File settlementFile = new File(SettlementManager.getInstance().getSettlementDir(), name + ".settlement");
 		if (!settlementFile.exists()) {
 			try {
 				settlementFile.createNewFile();
@@ -226,9 +337,16 @@ final public class Settlement {
 			}
 	}
 
+	/**
+	 *
+	 * Gets the <code>nation</code> this settlement belongs to
+	 *
+	 * @return the nation this settlement belongs to
+	 */
 	public Nation getNation() {
 		return NationManager.getInstance().getNationByName(nation);
 	}
+
 	public String getName() {
 		return name;
 	}
@@ -240,7 +358,13 @@ final public class Settlement {
 	public TerritoryManager getTerritory() {
 		return territory;
 	}
-	
+
+	/**
+	 *
+	 * Gets the town center of this settlement
+	 *
+	 * @return the town center of this settlement
+	 */
 	public TownCenter getTownCenter() {
 		return townCenter;
 	}

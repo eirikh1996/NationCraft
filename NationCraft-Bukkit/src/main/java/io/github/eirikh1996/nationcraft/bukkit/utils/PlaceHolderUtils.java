@@ -1,7 +1,10 @@
 package io.github.eirikh1996.nationcraft.bukkit.utils;
 
+import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.api.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;
+import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
+import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.bukkit.NationCraft;
@@ -16,7 +19,7 @@ public class PlaceHolderUtils extends PlaceholderExpansion {
 
     @Override
     public String getAuthor() {
-        return "eirikh1996";
+        return String.join(", ", NationCraft.getInstance().getAuthors());
     }
 
     @Override
@@ -36,18 +39,33 @@ public class PlaceHolderUtils extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer p, String params) {
+        NationCraft.getInstance().getLogger().info(p + " " + params);
         if (p == null) {
             return "";
         }
-        if (params.equals("nation")) {
+        final NCPlayer player = PlayerManager.getInstance().getPlayer(p.getUniqueId());
+        if (params.equalsIgnoreCase("nation")) {
             final Nation pn = NationManager.getInstance().getNationByPlayer(p.getUniqueId());
             return pn != null ? pn.getName(p.getUniqueId()) : "Wilderness";
         }
 
-        if (params.equals("settlement")) {
+        if (params.equalsIgnoreCase("settlement")) {
             final Settlement ps = SettlementManager.getInstance().getSettlementByPlayer(p.getUniqueId());
             return ps != null ? ps.getName() : "No settlement";
         }
+
+        if (params.equalsIgnoreCase("power")) {
+            return String.valueOf(player.getPower());
+        }
+
+        if (params.equalsIgnoreCase("maxpower")) {
+            return String.valueOf(Settings.player.MaxPower);
+        }
+
+        if (params.equalsIgnoreCase("nationterr")) {
+            return String.valueOf(player.getNation().getTerritoryManager().size());
+        }
+
         return null;
     }
 }

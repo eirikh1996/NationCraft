@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import io.github.eirikh1996.nationcraft.api.config.Settings;
-import io.github.eirikh1996.nationcraft.api.objects.TextColor;
+import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.core.exception.NationNotFoundException;
@@ -31,6 +31,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	@NotNull private final Map<String, Boolean> flags = new HashMap<>();
 	@NotNull private final Map<NCPlayer, Ranks> players;
 	@NotNull private final Set<NCPlayer> invitedPlayers = new HashSet<>();
+	@NotNull private final Map<NCPlayer, String> bannedPlayers = new HashMap<>();
 
 	public Nation(@NotNull String name, @NotNull String description, @Nullable Settlement capital, @NotNull Set<Nation> allies, @NotNull Set<Nation> enemies, @NotNull Set<Nation> truces, @NotNull Set<Settlement> settlements, @NotNull Map<NCPlayer, Ranks> players) {
 		this.uuid = UUID.randomUUID();
@@ -80,6 +81,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		flags.putAll(NationManager.getInstance().getRegisteredFlags());
 		territoryManager = new NationTerritoryManager(this);
 		creationTimeMS = System.currentTimeMillis();
+		NationManager.getInstance().getNations().add(this);
 	}
 	/**
 	 * Constructs a nation from the data stored in each nation file
@@ -109,6 +111,13 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 			flags.put(key, (boolean) flagMap.get(key));
 		}
 		invitedPlayers.addAll(playerIDListFromObject(data.get("invitedPlayers")));
+		Map<String, String> bans = (Map<String, String>) data.getOrDefault("bannedPlayers", new HashMap<>());
+		for (String id : bans.keySet()) {
+			if (id == null) {
+				continue;
+			}
+			bannedPlayers.put(PlayerManager.getInstance().getPlayer(UUID.fromString(id)), bans.get(id));
+		}
 		players = getPlayersAndRanksFromObject(data.get("players"));
 		territoryManager = new NationTerritoryManager(this);
 		territoryManager.addAll(chunkListFromObject(data.get("territory")));
@@ -263,6 +272,53 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		else {
 			return Relation.NEUTRAL;
 		}
+	}
+
+
+	/**
+	 *
+	 * Bans a player from the nation. If the banned player is member of the nation, the player
+	 * will be removed from the nation
+	 *
+	 * @param banned The player banned from the nation
+	 * @param reason The reason for the ban
+	 * @return true if player is currently not banned. False otherwise
+	 */
+	public boolean ban(NCPlayer banned, String reason) {
+		if (bannedPlayers.containsKey(banned)) {
+			return false;
+		}
+		banned.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "You have been banned from nation " + name + " for " + reason);
+		bannedPlayers.put(banned, reason);
+		players.remove(banned);
+		return true;
+	}
+
+	/**
+	 *
+	 * Unbans a player from a nation
+	 *
+	 * @param player the player to unban
+	 * @return true if the player is currently banned from the nation, false otherwhise
+	 */
+	public boolean unban(NCPlayer player) {
+		if (!bannedPlayers.containsKey(player)) {
+			return false;
+		}
+		bannedPlayers.remove(player);
+		return true;
+	}
+
+	/**
+	 *
+	 * Checks if a player is banned from the nation
+	 *
+	 * @param player the player that could be banned
+	 * @return the ban reason if the player is banned, null otherwhise
+	 */
+	@Nullable
+	public String isBanned(NCPlayer player) {
+		return bannedPlayers.getOrDefault(player, null);
 	}
 
 
@@ -541,7 +597,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	public double getMaxPower(){
-		return Settings.PlayerMaxPower * players.size();
+		return Settings.player.MaxPower * players.size();
 	}
 	public boolean isAlliedWith(Nation alliedNation) {
 		return allies.contains(alliedNation) && alliedNation.getAllies().contains(this);
@@ -563,6 +619,14 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return players.get(p);
 	}
 
+	/**
+	 *
+	 * Gets if a nation is open for other players to join
+	 *
+	 * NOTE: If a nation is open, players banned from it cannot join.
+	 *
+	 * @return the open status of the nation
+	 */
 	public boolean isOpen(){
 		return flags.get("open");
 	}
@@ -576,8 +640,12 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		invitedPlayers.add(player);
 		return true;
 	}
-	public boolean deinvite(UUID id){
-		return invitedPlayers.remove(id);
+	public boolean deinvite(NCPlayer player){
+		return invitedPlayers.remove(player);
+	}
+
+	public boolean isInvited(NCPlayer player) {
+		return !isOpen() && invitedPlayers.contains(player);
 	}
 
 	public boolean saveToFile(){

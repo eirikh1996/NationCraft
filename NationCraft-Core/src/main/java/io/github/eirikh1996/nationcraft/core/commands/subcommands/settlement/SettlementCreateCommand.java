@@ -22,6 +22,10 @@ public class SettlementCreateCommand extends Command {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
             return;
         }
+        if (args.length == 0) {
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must specify a name");
+            return;
+        }
         NCPlayer player = (NCPlayer) sender;
         Nation testNation = NationManager.getInstance().getNationAt(player.getLocation());
         Nation pNation = NationManager.getInstance().getNationByPlayer(player);

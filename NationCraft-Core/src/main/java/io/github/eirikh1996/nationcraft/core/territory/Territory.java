@@ -6,14 +6,12 @@ import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.objects.NCVector;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
-import io.github.eirikh1996.nationcraft.core.utils.Direction;
+import io.github.eirikh1996.nationcraft.api.utils.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Objects;
-import java.util.UUID;
 
 public final class Territory implements Comparable<Territory> {
     private final int x, z;

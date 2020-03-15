@@ -1,6 +1,6 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
-import io.github.eirikh1996.nationcraft.api.objects.TextColor;
+import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;

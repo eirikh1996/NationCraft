@@ -9,16 +9,36 @@ import java.util.List;
 import java.util.Map;
 
 public class Settings {
+	public static final PlayerSettings player;
+	public static final NationSettings nation;
+	public static final SettlementSettings settlement;
+	static {
+		player = new PlayerSettings();
+		nation = new NationSettings();
+		settlement = new SettlementSettings();
+	}
+	public static class PlayerSettings {
+		public double MaxPower = 30.0;
+		public double PowerPerHour = 2.0;
+		public double InitialPower = 10.0;
+		public double PowerPerDeath = -2.0;
+		public int MaxDaysInactivity = 20;
+		public boolean RegeneratePowerOffline = false;
+		public int TeleportationWarmup = 10;
+		public int TeleportationCooldown = 60;
+		public List<String> reducePowerInWorlds = new ArrayList<>();
+	}
+	private static class NationSettings {
+
+	}
+	public static class SettlementSettings {
+		public int TerritoryPerPlayer = 10;
+
+	}
+
 
 	//Player settings
-	public static double PlayerMaxPower = 30.0;
-	public static double PlayerPowerPerHour = 2.0;
-	public static double PlayerInitialPower = 10.0;
-	public static double PlayerPowerPerDeath = -2.0;
-	public static int PlayerMaxDaysInactivity = 20;
-	public static boolean PlayerRegeneratePowerOffline = false;
-	public static int PlayerTeleportationWarmup = 10;
-	public static int PlayerTeleportationCooldown = 60;
+
 
 	//Nation settings
 	public static long NationBankMaxBalance = 1000000000;
@@ -30,7 +50,7 @@ public class Settings {
 	public static int NationDeleteAfterDays = 14;
 	public static Map<Relation, List<String>> NationForbiddenCommands = new HashMap<>();
 	@NotNull public static List<String> NationForbiddenNames = new ArrayList<>(); //Names that are forbidden to use for nations or settlements
-	public static List<String> reducePowerInWorlds = new ArrayList<>();
+
 
 
 	public static boolean Debug;

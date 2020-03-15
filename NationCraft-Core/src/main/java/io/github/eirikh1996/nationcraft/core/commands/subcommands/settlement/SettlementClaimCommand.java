@@ -33,7 +33,7 @@ public class SettlementClaimCommand extends Command {
         }
         String settlementName;
         try {
-            settlementName = radius > 0 ? args[1] : args[2];
+            settlementName = shape == Shape.SINGLE ? args[1] : args[2];
         } catch (ArrayIndexOutOfBoundsException e) {
             settlementName = "";
         }
@@ -44,7 +44,7 @@ public class SettlementClaimCommand extends Command {
             }
             settlement = SettlementManager.getInstance().getSettlementByName(settlementName);
         } else {
-            settlement = SettlementManager.getInstance().getSettlementByPlayer(player);
+            settlement = player.getSettlement();
         }
         if (settlement == null){
             if (settlementName.length() > 0){

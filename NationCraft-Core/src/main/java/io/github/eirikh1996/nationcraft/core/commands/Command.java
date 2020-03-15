@@ -15,6 +15,13 @@ public abstract class Command {
         children = new HashMap<>();
     }
 
+    protected Command(String name, String... aliases) {
+        this.name = name;
+        this.aliases = new ArrayList<>();
+        this.aliases.addAll(Arrays.asList(aliases));
+        children = new HashMap<>();
+    }
+
     protected Command(String name, List<String> aliases) {
         this.name = name;
         this.aliases = aliases;

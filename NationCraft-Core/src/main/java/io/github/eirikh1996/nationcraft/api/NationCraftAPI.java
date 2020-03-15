@@ -1,21 +1,11 @@
 package io.github.eirikh1996.nationcraft.api;
 
-import io.github.eirikh1996.nationcraft.api.events.Event;
-import io.github.eirikh1996.nationcraft.api.events.EventException;
-import io.github.eirikh1996.nationcraft.api.events.EventListener;
-import io.github.eirikh1996.nationcraft.api.events.Priority;
-import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
-import io.github.eirikh1996.nationcraft.core.commands.Command;
-import io.github.eirikh1996.nationcraft.core.commands.Executor;
-import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
+import io.github.eirikh1996.nationcraft.api.events.*;
+import io.github.eirikh1996.nationcraft.core.Core;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
 public class NationCraftAPI {
     final Thread serverThread;
@@ -28,6 +18,7 @@ public class NationCraftAPI {
     Set<Object> commandExecutors = new HashSet<>();
 
     public void registerEvent(Object listener) {
+        Core.getMain().logInfo("Registered listener " + listener.getClass().getName() + " to NationCraft API");
         listeners.add(listener);
     }
 
@@ -45,11 +36,18 @@ public class NationCraftAPI {
                     if (method.getAnnotation(EventListener.class).priority() != priority) {
                         continue;
                     }
+
                     if (!method.getParameters()[0].getType().isAssignableFrom(event.getClass())) {
                         continue;
                     }
                     if (Thread.currentThread() != serverThread && !event.isAsync()) {
                         throw new IllegalStateException(event.getClass().getName() + " cannot be fired asynchronously from another thread");
+                    }
+                    if (event instanceof Cancellable) {
+                        Cancellable can = (Cancellable) event;
+                        if (!method.getAnnotation(EventListener.class).ignoreCancelled() && can.isCancelled()) {
+                            continue;
+                        }
                     }
                     try {
                         method.invoke(listener, event);

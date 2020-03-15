@@ -4,10 +4,8 @@ import io.github.eirikh1996.nationcraft.api.NationCraftMain;
 import io.github.eirikh1996.nationcraft.core.Core;
 
 import java.util.Arrays;
-import java.util.List;
 
-import static io.github.eirikh1996.nationcraft.api.objects.TextColor.*;
-import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
+import static io.github.eirikh1996.nationcraft.api.objects.text.TextColor.*;
 
 public class NationCraftCommand extends Command {
 

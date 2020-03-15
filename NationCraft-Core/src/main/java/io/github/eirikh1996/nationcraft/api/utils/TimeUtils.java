@@ -1,4 +1,4 @@
-package io.github.eirikh1996.nationcraft.core.utils;
+package io.github.eirikh1996.nationcraft.api.utils;
 
 public class TimeUtils {
     public static int daysSince(long timestamp) {

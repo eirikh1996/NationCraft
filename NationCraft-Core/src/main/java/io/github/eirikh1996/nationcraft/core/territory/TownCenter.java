@@ -27,7 +27,7 @@ public final class TownCenter {
     }
 
     public NCVector getCenterPoint() {
-        return new NCVector(x * 15 - 7, 0, z * 15 - 7);
+        return new NCVector(x << 4, 0, z << 4);
     }
     @NotNull
     public String getWorld() {
@@ -56,7 +56,7 @@ public final class TownCenter {
     }
 
     public boolean equalsTerritory(Territory territory){
-        return getWorld() == territory.getWorld() && getX() == territory.getX() && getZ() == territory.getZ();
+        return getWorld().equals(territory.getWorld()) && getX() == territory.getX() && getZ() == territory.getZ();
     }
 
     @Override

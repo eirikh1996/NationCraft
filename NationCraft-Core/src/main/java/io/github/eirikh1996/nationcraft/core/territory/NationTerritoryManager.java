@@ -3,11 +3,9 @@ package io.github.eirikh1996.nationcraft.core.territory;
 import io.github.eirikh1996.nationcraft.api.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCVector;
-import io.github.eirikh1996.nationcraft.api.objects.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
-import io.github.eirikh1996.nationcraft.core.Core;
-import io.github.eirikh1996.nationcraft.core.utils.CollectionUtils;
-import io.github.eirikh1996.nationcraft.core.utils.Direction;
+import io.github.eirikh1996.nationcraft.api.utils.CollectionUtils;
+import io.github.eirikh1996.nationcraft.api.utils.Direction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

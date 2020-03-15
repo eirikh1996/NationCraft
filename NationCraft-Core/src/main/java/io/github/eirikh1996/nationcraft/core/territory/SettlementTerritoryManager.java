@@ -5,8 +5,8 @@ import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
-import io.github.eirikh1996.nationcraft.core.utils.CollectionUtils;
-import io.github.eirikh1996.nationcraft.core.utils.Direction;
+import io.github.eirikh1996.nationcraft.api.utils.CollectionUtils;
+import io.github.eirikh1996.nationcraft.api.utils.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +16,7 @@ import static io.github.eirikh1996.nationcraft.core.messages.Messages.ERROR;
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
 public final class SettlementTerritoryManager implements TerritoryManager {
-    private ArrayList<Territory> territoryCollection = new ArrayList<>();
+    private HashSet<Territory> territoryCollection = new HashSet<>();
     private final Settlement settlement;
 
     public SettlementTerritoryManager(Settlement settlement) {
@@ -53,7 +53,7 @@ public final class SettlementTerritoryManager implements TerritoryManager {
 
     @Override
     public void unclaimCircularTerritory(NCPlayer player, int radius) {
-        @NotNull final ArrayList<Territory> claimed = new ArrayList<>();
+        @NotNull final HashSet<Territory> claimed = new HashSet<>();
         @Nullable final Nation pNation = NationManager.getInstance().getNationByPlayer(player);
         int origX = player.getLocation().getChunkX();
         int origZ = player.getLocation().getChunkZ();
@@ -77,18 +77,12 @@ public final class SettlementTerritoryManager implements TerritoryManager {
                 claimed.add(territory);
             }
         }
-        ArrayList<Territory> filter = new ArrayList<>();
-        for (Territory territory : claimed){
-            if (settlement.getTownCenter().equals(territory)){
-                filter.add(territory);
-            }
-        }
-        territoryCollection.removeAll(CollectionUtils.filter(claimed, filter));
+        processSettlementUnclaim(claimed, player);
     }
 
     @Override
     public void claimSquareTerritory(NCPlayer player, int radius) {
-        @NotNull final ArrayList<Territory> claimed = new ArrayList<>();
+        @NotNull final HashSet<Territory> claimed = new HashSet<>();
         @Nullable final Nation pNation = NationManager.getInstance().getNationByPlayer(player);
         int origX = player.getLocation().getChunkX();
         int origZ = player.getLocation().getChunkZ();
@@ -115,29 +109,12 @@ public final class SettlementTerritoryManager implements TerritoryManager {
                 claimed.add(territory);
             }
         }
-        boolean boundersSettlement = false;
-        for (Territory territory : claimed){
-            if (!settlement.getTerritory().contains(territory) && !settlement.getTerritory().contains(territory.getRelative(Direction.NORTH)) && !settlement.getTerritory().contains(territory.getRelative(Direction.SOUTH)) && !settlement.getTerritory().contains(territory.getRelative(Direction.WEST)) && !settlement.getTerritory().contains(territory.getRelative(Direction.EAST))){
-                continue;
-            }
-            boundersSettlement = true;
-        }
-        if (!boundersSettlement){
-            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Your claim does not bounder or overlap your settlement");
-        }
-        ArrayList<Territory> filter = new ArrayList<>();
-        for (Territory territory : claimed){
-            if (territoryCollection.contains(territory) || settlement.getTownCenter().equalsTerritory(territory)){
-                filter.add(territory);
-            }
-        }
-        ArrayList<Territory> toAdd = CollectionUtils.filter(claimed, filter);
-        territoryCollection.addAll(toAdd);
+        processSettlementClaim(claimed, player);
     }
 
     @Override
     public void unclaimSquareTerritory(NCPlayer player, int radius) {
-        @NotNull final ArrayList<Territory> claimed = new ArrayList<>();
+        @NotNull final HashSet<Territory> claimed = new HashSet<>();
         @Nullable final Nation pNation = NationManager.getInstance().getNationByPlayer(player);
         int origX = player.getLocation().getChunkX();
         int origZ = player.getLocation().getChunkZ();
@@ -164,18 +141,12 @@ public final class SettlementTerritoryManager implements TerritoryManager {
                 claimed.add(territory);
             }
         }
-        ArrayList<Territory> filter = new ArrayList<>();
-        for (Territory territory : claimed){
-            if (settlement.getTownCenter().equalsTerritory(territory)){
-                filter.add(territory);
-            }
-        }
-        territoryCollection.removeAll(CollectionUtils.filter(claimed, filter));
+        processSettlementUnclaim(claimed, player);
     }
 
     @Override
     public void claimLineTerritory(NCPlayer player, int distance){
-        ArrayList<Territory> claimed = new ArrayList<>();
+        HashSet<Territory> claimed = new HashSet<>();
         int count = 0;
         while (count <= distance) {
             switch (Direction.fromYaw(player.getLocation().getYaw())) {
@@ -207,30 +178,12 @@ public final class SettlementTerritoryManager implements TerritoryManager {
             count++;
 
         }
-        boolean boundersSettlement = false;
-        for (Territory territory : claimed){
-            if (!settlement.getTerritory().contains(territory) && !settlement.getTerritory().contains(territory.getRelative(Direction.NORTH)) && !settlement.getTerritory().contains(territory.getRelative(Direction.SOUTH)) && !settlement.getTerritory().contains(territory.getRelative(Direction.WEST)) && !settlement.getTerritory().contains(territory.getRelative(Direction.EAST))){
-                continue;
-            }
-            boundersSettlement = true;
-        }
-        if (!boundersSettlement){
-            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Your claim does not bounder or overlap your settlement");
-        }
-        ArrayList<Territory> filter = new ArrayList<>();
-        for (Territory territory : claimed){
-            if (settlement.getTownCenter().equalsTerritory(territory)){
-                filter.add(territory);
-            }
-        }
-        ArrayList<Territory> toAdd = CollectionUtils.filter(claimed, filter);
-        //Call event
-        territoryCollection.addAll(toAdd);
+        processSettlementClaim(claimed, player);
     }
 
     @Override
     public void unclaimLineTerritory(NCPlayer player, int distance) {
-        ArrayList<Territory> claimed = new ArrayList<>();
+        HashSet<Territory> claimed = new HashSet<>();
         int count = 0;
         while (count <= distance) {
             switch (Direction.fromYaw(player.getLocation().getYaw())) {
@@ -262,32 +215,17 @@ public final class SettlementTerritoryManager implements TerritoryManager {
             count++;
 
         }
-        ArrayList<Territory> filter = new ArrayList<>();
-        for (Territory territory : claimed){
-            if (settlement.getTownCenter().equalsTerritory(territory)){
-                filter.add(territory);
-            }
-        }
-        territoryCollection.removeAll(CollectionUtils.filter(claimed, filter));
+        processSettlementUnclaim(claimed, player);
     }
 
     @Override
     public void claimSignleTerritory(NCPlayer player) {
-        Territory territory = new Territory(player.getLocation().getWorld(), player.getLocation().getChunkX(), player.getLocation().getChunkZ());
-        if (!settlement.getTerritory().contains(territory) && !settlement.getTerritory().contains(territory.getRelative(Direction.NORTH)) && !settlement.getTerritory().contains(territory.getRelative(Direction.SOUTH)) && !settlement.getTerritory().contains(territory.getRelative(Direction.WEST)) && !settlement.getTerritory().contains(territory.getRelative(Direction.EAST))){
-            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Your claim does not bounder or overlap your settlement");
-            return;
-        }
-        ArrayList<Territory> toAdd = new ArrayList<>();
-        toAdd.add(territory);
-        //Call event
-        territoryCollection.addAll(toAdd);
+        processSettlementClaim(CollectionUtils.fromArray(player.getLocation().getTerritory()), player);
     }
 
     @Override
     public void unclaimSignleTerritory(NCPlayer player) {
-        Territory territory = new Territory(player.getLocation().getWorld(), player.getLocation().getChunkX(), player.getLocation().getChunkZ());
-        territoryCollection.remove(territory);
+        processSettlementUnclaim(CollectionUtils.fromArray(player.getLocation().getTerritory()), player);
     }
 
     @Override
@@ -327,7 +265,7 @@ public final class SettlementTerritoryManager implements TerritoryManager {
 
     @Override
     public boolean isEmpty() {
-        return false;
+        return territoryCollection.isEmpty();
     }
 
     @NotNull
@@ -337,6 +275,10 @@ public final class SettlementTerritoryManager implements TerritoryManager {
     }
 
     private void processSettlementClaim(final Set<Territory> claimed, final NCPlayer player) {
+        if (size() + CollectionUtils.filter(claimed, territoryCollection).size() > settlement.getMaxTerritory()) {
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You have reached the maximum territory limit for your settlement");
+            return;
+        }
         boolean boundersSettlement = false;
         if (size() > 1) {
             for (Territory territory : claimed) {
@@ -354,6 +296,8 @@ public final class SettlementTerritoryManager implements TerritoryManager {
                     }
                 }
             }
+        } else {
+
         }
         if (!boundersSettlement){
             player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Your claim does not bounder or overlap your settlement");
@@ -376,6 +320,35 @@ public final class SettlementTerritoryManager implements TerritoryManager {
         }
         Collection<Territory> toAdd = CollectionUtils.filter(claimed, filter);
         //Call event
+        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %s chunks of settlement territory for " + settlement.getName()));
         territoryCollection.addAll(toAdd);
+    }
+
+    private void processSettlementUnclaim(Set<Territory> unclaimed, NCPlayer player) {
+        Set<Territory> noSettlementTerritory = new HashSet<>();
+        Map<Settlement, Set<Territory>> otherSettlementTerritory = new HashMap<>();
+        for (Territory territory : unclaimed) {
+            if (territory.getSettlement() == null) {
+                noSettlementTerritory.add(territory);
+            }
+            else if (!territory.getSettlement().equals(player.getSettlement())) {
+                if (otherSettlementTerritory.containsKey(territory.getSettlement())) {
+                    otherSettlementTerritory.get(territory.getSettlement()).add(territory);
+                } else {
+                    final HashSet<Territory> territories = new HashSet<>();
+                    territories.add(territory);
+                    otherSettlementTerritory.put(territory.getSettlement(), territories);
+                }
+            }
+        }
+        if (!otherSettlementTerritory.isEmpty()) {
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot unclaim land belonging to another settlement");
+            for (Set<Territory> territories : otherSettlementTerritory.values()) {
+                unclaimed.removeAll(territories);
+            }
+
+        }
+        unclaimed.removeAll(noSettlementTerritory);
+        territoryCollection.removeAll(unclaimed);
     }
 }

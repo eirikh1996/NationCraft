@@ -3,6 +3,7 @@ package io.github.eirikh1996.nationcraft.api;
 import io.github.eirikh1996.nationcraft.core.commands.NCBlockSender;
 import io.github.eirikh1996.nationcraft.core.commands.NCConsole;
 import io.github.eirikh1996.nationcraft.core.listener.BlockListener;
+import io.github.eirikh1996.nationcraft.core.listener.PlayerListener;
 
 import java.io.File;
 import java.util.List;
@@ -19,6 +20,7 @@ public interface NationCraftMain {
     default void registerCoreListeners() {
         final NationCraftAPI api = NationCraftAPI.getInstance();
         api.registerEvent(new BlockListener());
+        api.registerEvent(new PlayerListener());
     }
     String getVersion();
     List<String> getAuthors();

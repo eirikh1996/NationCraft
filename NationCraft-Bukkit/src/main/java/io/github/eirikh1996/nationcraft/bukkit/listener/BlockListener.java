@@ -56,7 +56,7 @@ public class BlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockIgnite(BlockIgniteEvent event) {
-        IgniteBlockEvent e = new IgniteBlockEvent(BukkitUtils.getInstance().getNCBlock(event.getIgnitingBlock()));
+        IgniteBlockEvent e = new IgniteBlockEvent(BukkitUtils.getInstance().getNCBlock(event.getBlock()));
         NationCraftAPI.getInstance().callEvent(e);
         event.setCancelled(e.isCancelled());
     }
