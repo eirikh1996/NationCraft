@@ -18,6 +18,7 @@ import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 public final class NationClaimCommand extends Command {
     public NationClaimCommand(){
         super("claim", Arrays.asList("c"));
+        argument = String.join(", ", Shape.getShapeNames()) + " [radius] [nation]";
     }
 
     @Override

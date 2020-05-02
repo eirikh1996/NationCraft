@@ -45,7 +45,7 @@ public class NationCraftAPI {
                     }
                     if (event instanceof Cancellable) {
                         Cancellable can = (Cancellable) event;
-                        if (!method.getAnnotation(EventListener.class).ignoreCancelled() && can.isCancelled()) {
+                        if (method.getAnnotation(EventListener.class).ignoreCancelled() && can.isCancelled()) {
                             continue;
                         }
                     }

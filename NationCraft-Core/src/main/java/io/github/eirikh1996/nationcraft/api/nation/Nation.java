@@ -12,6 +12,7 @@ import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.core.territory.NationTerritoryManager;
 import io.github.eirikh1996.nationcraft.core.territory.Territory;
 import io.github.eirikh1996.nationcraft.core.territory.TerritoryManager;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
@@ -408,6 +409,17 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		flags.put("pvp", state);
 	}
 
+
+	/**
+	 *
+	 * Returns {@code true} if the nation has a capital and {@code false} if not
+	 *
+	 * @return {@code true} if the nation has a capital and {@code false} if not
+	 */
+	public boolean hasCapital() {
+		return capital != null;
+	}
+
 	public boolean monstersAllowed() {
 		return flags.getOrDefault("monsters", true);
 	}
@@ -460,12 +472,17 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	/**
 	 * Get the capital of the nation
 	 * @return Nation's capital
+	 *
+	 * @see Nation#hasCapital()
+	 *
 	 */
-	@Nullable public Settlement getCapital(){ return capital; }
+	@Nullable
+	@Contract(pure = true)
+	public Settlement getCapital(){ return capital; }
 
 	/**
 	 * Set a settlement as a nation's capital
-	 * @param capital
+	 * @param capital the settlement to set as nation capital
 	 */
 	public void setCapital(@Nullable Settlement capital) { this.capital = capital; }
 
@@ -482,7 +499,9 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	public void removePlayer(NCPlayer p){
-		p.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "You left your nation");
+		if (p.isOnline()) {
+			p.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "You left your nation");
+		}
 		players.remove(p);
 		for (NCPlayer player : players.keySet()){
 			if (!player.isOnline()){
@@ -493,13 +512,8 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	public void kickPlayer(NCPlayer kicked, NCPlayer kicker){
+		broadcast(NATIONCRAFT_COMMAND_PREFIX + kicker.getName() + " kicked " + kicked.getName() + " from the nation");
 		players.remove(kicked);
-		for (NCPlayer player : players.keySet()){
-			if (!player.isOnline()){
-				continue;
-			}
-			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + kicker.getName() + " kicked " + kicked.getName() + " from the nation");
-		}
 	}
 
 	@NotNull public Set<Nation> getEnemies(){

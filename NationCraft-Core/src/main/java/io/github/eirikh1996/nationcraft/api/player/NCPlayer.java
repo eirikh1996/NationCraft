@@ -21,6 +21,7 @@ public abstract class NCPlayer implements NCCommandSender {
     protected double power;
     protected long lastActivityTime;
     protected long lastMapUpdateTime;
+    protected long lastTeleportationTime;
     protected String name;
     protected boolean autoUpdateTerritoryMap = false;
     protected int mapHeight = 20;
@@ -66,6 +67,31 @@ public abstract class NCPlayer implements NCCommandSender {
     public abstract void sendMessage(@NotNull final ChatText text);
 
     public abstract void sendActionBar(@NotNull final String text);
+    /**
+     *
+     * Teleports a player to a given location and sends a message when teleportation commences
+     *
+     * @param destination The location the player will be teleported to
+     * @param teleportMessage the message to be sent to a player when teleportation commences
+     */
+    public abstract void teleport(NCLocation destination, String preTeleportMessage, String teleportMessage);
+
+    public abstract NCLocation getLocation();
+
+    public abstract boolean isOnline();
+
+    /**
+     * Charges the player a fare
+     * @param fare The fare to charge the player
+     * @return true if the player has sufficient funds. False otherwise
+     */
+    public abstract boolean charge(double fare);
+
+    public void teleport(NCLocation destination) {
+        teleport(destination, "", "");
+    }
+
+
 
     public String getName() {
         return name;
@@ -112,17 +138,6 @@ public abstract class NCPlayer implements NCCommandSender {
         this.lastActivityTime = lastActivityTime;
         savetoFile();
     }
-
-    public abstract NCLocation getLocation();
-
-    public abstract boolean isOnline();
-
-    /**
-     * Charges the player a fare
-     * @param fare The fare to charge the player
-     * @return true if the player has sufficient funds. False otherwise
-     */
-    public abstract boolean charge(double fare);
 
     public boolean isAutoUpdateTerritoryMap() {
         return autoUpdateTerritoryMap;

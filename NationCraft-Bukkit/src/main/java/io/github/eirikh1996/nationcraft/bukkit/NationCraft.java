@@ -23,6 +23,7 @@ import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.nation.Relation;
 import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
+import mineverse.Aust1n46.chat.MineverseChat;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -34,7 +35,6 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.olivermartin.multichat.spigotbridge.MultiChatSpigot;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -131,8 +131,8 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 			getLogger().info("NationCraft did not find a compatible version of PlaceholderAPI. Disabling PlaceholderAPI integration");
 		}
 		Plugin vChat = getServer().getPluginManager().getPlugin("VentureChat");
-		if (vChat instanceof MultiChatSpigot) {
-			getLogger().info("NationCraft found a compatible version of VentureChat. Enabling PlaceholderAPI integration");
+		if (vChat instanceof MineverseChat) {
+			getLogger().info("NationCraft found a compatible version of VentureChat. Enabling VentureChat integration");
 			Settings.UseExternalChatPlugin = true;
 			getServer().getPluginManager().registerEvents(new VentureChatHook(), this);
 		}
@@ -224,6 +224,7 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		//Read config file
 		//player
 		ConfigurationSection playerSection = getConfig().getConfigurationSection("Player");
+		Settings.player.chatFormat = playerSection.getString("ChatFormat", "(%NATION%)(%SETTLEMENT%)");
 		Settings.player.MaxDaysInactivity = playerSection.getInt("MaxDaysInactivity", 25);
 		Settings.player.MaxPower = playerSection.getDouble("MaxPower", 100.0);
 		Settings.player.InitialPower = playerSection.getDouble("InitialPower", 10.0);

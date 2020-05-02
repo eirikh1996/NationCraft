@@ -1,6 +1,8 @@
 package io.github.eirikh1996.nationcraft.core.listener;
 
+import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.api.events.EventListener;
+import io.github.eirikh1996.nationcraft.api.events.player.PlayerChatEvent;
 import io.github.eirikh1996.nationcraft.api.events.player.PlayerMoveEvent;
 import io.github.eirikh1996.nationcraft.api.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;
@@ -51,5 +53,18 @@ public class PlayerListener {
         //auto update map if player is moving
     }
 
+    @EventListener
+    public void onChat(PlayerChatEvent event) {
+        if (Settings.UseExternalChatPlugin)
+            return;
+        final NCPlayer player = event.getPlayer();
+        String format = event.getFormat();
+        event.setFormat(
+                Settings.player.chatFormat
+                .replace("%NATION%", player.hasNation() ? player.getNation().getName() : "")
+                .replace("%SETTLEMENT%", player.hasSettlement() ? player.getSettlement().getName() : "")
+                + format
+        );
+    }
 
 }

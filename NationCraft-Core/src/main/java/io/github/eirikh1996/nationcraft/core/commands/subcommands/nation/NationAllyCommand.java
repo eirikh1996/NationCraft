@@ -13,6 +13,7 @@ import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 public final class NationAllyCommand extends Command {
     public NationAllyCommand(){
         super("ally", Arrays.asList("a"));
+        argument = "<nation>";
     }
 
     @Override

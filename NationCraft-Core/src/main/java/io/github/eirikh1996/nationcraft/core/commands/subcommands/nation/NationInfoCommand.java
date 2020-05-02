@@ -17,6 +17,7 @@ import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 public final class NationInfoCommand extends Command {
     public NationInfoCommand() {
         super("info", Arrays.asList("i"));
+        argument = "[nation]";
     }
 
     @Override

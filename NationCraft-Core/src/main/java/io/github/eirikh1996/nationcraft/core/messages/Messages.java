@@ -32,6 +32,7 @@ public class Messages {
 	public static String ERROR = TextColor.DARK_RED + "Error: ";
 	public static String WARNING = TextColor.YELLOW + "Warning: ";
 	public static String NATIONCRAFT_COMMAND_PREFIX = TextColor.YELLOW + "[" + TextColor.AQUA + "Nation" + TextColor.GRAY + "Craft" + TextColor.YELLOW + "] "+ TextColor.RESET;
+	public static String NOT_IN_A_NATION = "You are not in a nation";
 	public static String CLAIMED_TERRITORY = "%s claimed %d pieces of territory from %s";
 	public static String WILDERNESS = TextColor.DARK_GREEN + "Wilderness";
 	public static String MUST_BE_PLAYER = "You must be player to execute this command!";

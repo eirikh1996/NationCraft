@@ -18,6 +18,7 @@ import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 public final class NationCreateCommand extends Command {
     public NationCreateCommand(){
         super("create", Arrays.asList("c"));
+        argument = "<name>";
     }
 
     @Override

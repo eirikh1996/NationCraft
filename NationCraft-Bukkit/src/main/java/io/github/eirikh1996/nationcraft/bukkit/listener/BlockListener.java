@@ -22,22 +22,6 @@ public class BlockListener implements Listener {
         TerrainEditEvent editEvent = new TerrainEditEvent(BukkitUtils.getInstance().bukkitToNCLoc(event.getBlock().getLocation()), TerrainEditEvent.Action.BREAK_BLOCK);
         NationCraftAPI.getInstance().callEvent(editEvent);
         event.setCancelled(editEvent.isCancelled());
-        /*
-        Player p = event.getPlayer();
-        Nation foundNation = NationManager.getInstance().getNationAt(event.getBlock().getLocation());
-        Nation pNation = NationManager.getInstance().getNationByPlayer(p.getUniqueId());
-        if (foundNation == null){
-            return;
-        }
-        if (p.hasPermission("nationcraft.territory.bypass")){
-            return;
-        }
-        if (pNation != foundNation){
-            event.setCancelled(true);
-            String name = NationManager.getInstance().getColor(p,foundNation) + foundNation.getName() + ChatColor.RESET;
-            p.sendMessage(String.format("%s does not allow you to build in their territory", name));
-            return;
-        }*/
     }
 
     @EventHandler

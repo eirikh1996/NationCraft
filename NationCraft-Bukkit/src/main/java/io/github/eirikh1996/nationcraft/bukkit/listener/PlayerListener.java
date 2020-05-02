@@ -83,6 +83,7 @@ public class PlayerListener implements Listener {
 
     }
 
+    @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event){
         Player p = event.getPlayer();
         PlayerManager.getInstance().getPlayer(p.getUniqueId()).setLastActivityTime(System.currentTimeMillis());
@@ -95,13 +96,10 @@ public class PlayerListener implements Listener {
         Nation pn = NationManager.getInstance().getNationByPlayer(player.getUniqueId());
         Settlement ps = SettlementManager.getInstance().getSettlementByPlayer(player.getUniqueId());
             //Does the player have an active bed spawn location, send him there
-        Bukkit.broadcastMessage(String.valueOf(player.getBedSpawnLocation()));
 
             if (player.getBedSpawnLocation() == null) {
-                Bukkit.broadcastMessage(String.valueOf(pn));
 
                 if (ps != null) { //Else if the player is member of a settlement, send him to its town center
-                    Bukkit.broadcastMessage(String.valueOf(ps));
                     event.setRespawnLocation(BukkitUtils.getInstance().ncToBukkitLoc(ps.getTownCenter().getTeleportationPoint()));
                 } else if (pn != null && pn.getCapital() != null) {//If not member of a settlement, but member of a nation, send him to the capital's towncenter
                     event.setRespawnLocation(BukkitUtils.getInstance().ncToBukkitLoc(pn.getCapital().getTownCenter().getTeleportationPoint()));

@@ -1,5 +1,7 @@
 package io.github.eirikh1996.nationcraft.api.settlement.siege;
 
+import io.github.eirikh1996.nationcraft.core.Core;
+
 public abstract class SiegeTask implements Runnable {
     protected final Siege siege;
 
@@ -13,7 +15,7 @@ public abstract class SiegeTask implements Runnable {
             execute();
             SiegeManager.getInstance().submitCompletedTask(this);
         } catch (Throwable t){
-            //NationCraft.getInstance().getLogger().severe("Something went wrong while processing a siege on settlement " + siege.getSettlement() + " by " + siege.getAttacker().getName());
+            Core.getMain().logError("Something went wrong while processing a siege on settlement " + siege.getSettlement() + " by " + siege.getAttacker().getName());
             throw new SiegeException(null, t);
         }
 

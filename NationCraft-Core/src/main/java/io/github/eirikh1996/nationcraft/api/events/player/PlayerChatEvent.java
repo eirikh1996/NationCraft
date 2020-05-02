@@ -11,7 +11,7 @@ public class PlayerChatEvent extends PlayerEvent implements Cancellable {
     private String message;
     private Set<NCPlayer> recipients;
     public PlayerChatEvent(final NCPlayer player, String format, String message, Set<NCPlayer> recipients) {
-        super(player);
+        super(player, true);
         this.format = format;
         this.message = message;
         this.recipients = recipients;

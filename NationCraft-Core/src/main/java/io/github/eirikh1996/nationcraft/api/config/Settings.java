@@ -18,6 +18,9 @@ public class Settings {
 		settlement = new SettlementSettings();
 	}
 	public static class PlayerSettings {
+		private PlayerSettings() {
+
+		}
 		public double MaxPower = 30.0;
 		public double PowerPerHour = 2.0;
 		public double InitialPower = 10.0;
@@ -27,6 +30,7 @@ public class Settings {
 		public int TeleportationWarmup = 10;
 		public int TeleportationCooldown = 60;
 		public List<String> reducePowerInWorlds = new ArrayList<>();
+		public String chatFormat = "";
 	}
 	private static class NationSettings {
 

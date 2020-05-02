@@ -214,7 +214,7 @@ public final class NationTerritoryManager implements TerritoryManager {
             else if (nation.equals(this.nation)){
                 alreadyClaimed.add(territory);
             }
-            else if (nation.isStrongEnough()){
+            else if (nation.isStrongEnough() && !this.nation.isWarzone() && !this.nation.isSafezone()){
                 if (strongEnoughNations.containsKey(nation)){
                     strongEnoughNations.get(nation).add(territory);
                 } else {

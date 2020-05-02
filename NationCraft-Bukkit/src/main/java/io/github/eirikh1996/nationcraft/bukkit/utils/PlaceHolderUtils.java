@@ -39,7 +39,6 @@ public class PlaceHolderUtils extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer p, String params) {
-        NationCraft.getInstance().getLogger().info(p + " " + params);
         if (p == null) {
             return "";
         }

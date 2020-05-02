@@ -34,8 +34,6 @@ commands:
 permissions:
   nationcraft.nation.*:
     default: op
-    children:
-
   nationcraft.settlement.*:
      default: true
      children:
@@ -47,6 +45,8 @@ permissions:
   nationcraft.nation.join:
     default: true
   nationcraft.nation.leave:
+    default: true
+  nationcraft.nation.list:
     default: true
   nationcraft.nation.disband:
     default: true

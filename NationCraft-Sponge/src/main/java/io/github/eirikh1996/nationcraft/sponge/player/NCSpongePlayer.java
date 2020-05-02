@@ -41,6 +41,11 @@ public class NCSpongePlayer extends NCPlayer {
         p.get().sendTitle(spongetitle);
     }
 
+    @Override
+    public void teleport(NCLocation destination, String preTeleportMessage, String teleportMessage) {
+
+    }
+
 
     @Override
     public NCLocation getLocation() {

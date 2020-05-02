@@ -5,7 +5,8 @@ import java.util.*;
 
 public abstract class Command {
     protected final String name;
-    protected int index;
+    protected String argument = "";
+    protected Command parent;
     protected final List<String> aliases;
     protected final Map<String, Command> children;
 
@@ -40,6 +41,7 @@ public abstract class Command {
     }
 
     public void addChild(Command cmd) {
+        cmd.parent = this;
         children.put(cmd.getName(), cmd);
         if (cmd.getAliases().isEmpty()) {
             return;
@@ -49,12 +51,16 @@ public abstract class Command {
         }
     }
 
-    public Optional<Command> getChild(String childName) {
-        return Optional.ofNullable(children.getOrDefault(childName, null));
+    public Map<String, Command> getChildren() {
+        return children;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
+    public String getArgument() {
+        return argument;
+    }
+
+    public Optional<Command> getChild(String childName) {
+        return Optional.ofNullable(children.getOrDefault(childName, null));
     }
 
     public List<String> getTabCompletions(final NCCommandSender sender, final String[] args) {

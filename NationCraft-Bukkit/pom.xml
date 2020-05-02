@@ -45,7 +45,6 @@
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
             <version>1.15.2-R0.1-SNAPSHOT</version><!--change this value depending on the version or use LATEST-->
-            <type>jar</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -77,13 +76,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>xyz.olivermartin</groupId>
-            <artifactId>MultiChat</artifactId>
-            <version>LATEST</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../libs/multichat-1.7.5.jar</systemPath>
-        </dependency>
-        <dependency>
             <groupId>mineverse.Aust1n46</groupId>
             <artifactId>VentureChat</artifactId>
             <version>LATEST</version>
@@ -92,6 +84,7 @@
         </dependency>
     </dependencies>
     <build>
+        <finalName>NationCraft-Bukkit</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
