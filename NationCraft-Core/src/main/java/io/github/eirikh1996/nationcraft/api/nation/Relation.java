@@ -21,4 +21,8 @@ public enum Relation {
     public static Relation getRelation(String id) {
         return BY_NAME.get(id);
     }
+
+    public String capitalizedName() {
+        return name().charAt(0) + name().substring(1).toLowerCase();
+    }
 }

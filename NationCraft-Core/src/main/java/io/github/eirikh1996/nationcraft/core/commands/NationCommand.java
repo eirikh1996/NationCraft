@@ -15,6 +15,7 @@ public class NationCommand extends Command {
 		addChild(new NationAllyCommand());
 		addChild(new NationClaimCommand());
 		addChild(new NationCreateCommand());
+		addChild(new NationFlagCommand());
 		addChild(new NationHelpCommand());
 		addChild(new NationHomeCommand());
 		addChild(new NationInfoCommand());

@@ -3,7 +3,9 @@ package io.github.eirikh1996.nationcraft.bukkit.listener;
 import com.SirBlobman.combatlogx.api.utility.ICombatManager;
 import com.earth2me.essentials.Essentials;
 import io.github.eirikh1996.nationcraft.api.NationCraftAPI;
+import io.github.eirikh1996.nationcraft.api.config.NationSettings;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
+import io.github.eirikh1996.nationcraft.api.nation.Relation;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
@@ -83,12 +85,7 @@ public class PlayerListener implements Listener {
 
     }
 
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event){
-        Player p = event.getPlayer();
-        PlayerManager.getInstance().getPlayer(p.getUniqueId()).setLastActivityTime(System.currentTimeMillis());
 
-    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerRespawn(PlayerRespawnEvent event){
@@ -114,7 +111,7 @@ public class PlayerListener implements Listener {
         Player p = event.getPlayer();
         String command = event.getMessage().substring(1).toLowerCase();
         Nation pNation = NationManager.getInstance().getNationByPlayer(p.getUniqueId());
-        Nation nationAtTerritory = NationManager.getInstance().getNationAt(BukkitUtils.getInstance().bukkitToNCLoc(p.getLocation()));
+        Nation nationAtTerritory = BukkitUtils.getInstance().bukkitToNCLoc(p.getLocation()).getNation();
         if (command.startsWith("home") && NationCraft.getInstance().getEssentialsPlugin() != null){
             String[] parts = command.split(" ");
             String homeName;
@@ -131,18 +128,18 @@ public class PlayerListener implements Listener {
                 return;
             }
 
-            Nation tp = NationManager.getInstance().getNationAt(BukkitUtils.getInstance().bukkitToNCLoc(home));
+            Nation tp = BukkitUtils.getInstance().bukkitToNCLoc(home).getNation();
             if (tp != null && !tp.equals(pNation)){
                 ess.getUser(p.getUniqueId()).getHomes().remove(homeName);
                 p.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + String.format("Your home %s was removed as it was set in the territory of %s", homeName, tp.getName(pNation)));
             }
         }
-        boolean isInEnemyTerritory = false;
         if (pNation != null) {
-            List<String> forbiddenCommands = Settings.NationForbiddenCommands.getOrDefault(pNation.getRelationTo(nationAtTerritory), Collections.emptyList());
+            Relation rel = pNation.getRelationTo(nationAtTerritory);
+            List<String> forbiddenCommands = NationSettings.ForbiddenCommands.getOrDefault(rel, Collections.emptyList());
             if (forbiddenCommands.contains(command) && !p.hasPermission("nationcraft.territory.cmdbypass")) {
                 event.setCancelled(true);
-                p.sendMessage(Messages.ERROR + String.format("You are not allowed to use command /%s in enemy territory!", command));
+                p.sendMessage(Messages.ERROR + String.format("You are not allowed to use command /%s in %s territory!", command, rel.name().toLowerCase()));
             }
         }
     }

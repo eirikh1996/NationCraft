@@ -7,13 +7,22 @@ Player:
   RegenerateOffline: false
   TeleportationWarmup: 10
   TeleportationCooldown: 60
+World:
+  PowerGainEnabled:
+    - world
+    - world_the_nether
+    - world_the_end
+  PowerLossEnabled:
+    - world
+    - world_the_nether
+    - world_the_end
 Nation:
   BankMaxBalance: 1000000000
   MaxAllies: -1
   MaxTruces: -1
   MaxPlayers: 50
   MinimumRequiredPlayers: 5
-  DeleteAfterDays: 14 #Number of days to delete a nation after its member count falls below minimum required players
+  DeleteAfterDays: 14 #Number of days to delete a nation after its member count falls below minimum required players or nation lacks a capital
   ForbiddenNames: #Names that are forbidden to use for nations or settlements
   ForbiddenCommands:
       Enemy:
@@ -24,7 +33,7 @@ Nation:
         - tpa
         - home
         - warp
-  Ranks:
+  Ranks: #Default
     Leader:
       priority: 1
       symbol: '**'
@@ -43,13 +52,20 @@ Nation:
       permissions: []
 
   RelationColors:
-    Wilderness: DARK_GREEN
-    Enemy: RED
-    Neutral: WHITE
-    Ally: DARK_PURPLE
-    Truce: LIGHT_PURPLE
-    Own: GREEN
-
+    WILDERNESS: DARK_GREEN
+    ENEMY: RED
+    NEUTRAL: WHITE
+    ALLY: DARK_PURPLE
+    TRUCE: LIGHT_PURPLE
+    OWN: GREEN
+    WARZONE: DARK_RED
+    SAFEZONE: GOLD
+  DisableDamageFor: #Relations to disable damage for
+    - OWN
+    - ALLY
+    - TRUCE
+  DamageReductionPercentage:
+    ENEMY: 50.0
 Settlement:
   MinimumDistance: 4
   TerritoryPerPlayer: 10

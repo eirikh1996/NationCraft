@@ -54,8 +54,8 @@ public class SettlementClaimCommand extends Command {
             }
             return;
         }
-        Nation pNation = NationManager.getInstance().getNationByPlayer(player);
-        Nation locNation = NationManager.getInstance().getNationAt(player.getLocation());
+        Nation pNation = player.getNation();
+        Nation locNation = player.getLocation().getNation();
         if (locNation != pNation){
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You can only claim for your settlement within the territory of your own nation");
             return;

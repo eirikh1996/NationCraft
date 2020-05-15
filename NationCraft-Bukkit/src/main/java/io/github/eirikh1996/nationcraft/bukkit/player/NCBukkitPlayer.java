@@ -151,9 +151,7 @@ public class NCBukkitPlayer extends NCPlayer {
     @Override
     public NCLocation getLocation() {
         Player p = Bukkit.getPlayer(playerID);
-        if (p == null)
-            throw new IllegalStateException("Cannot get location of an offline player");
-        return BukkitUtils.getInstance().bukkitToNCLoc(p.getLocation());
+        return p == null ? lastOnlineLocation : BukkitUtils.getInstance().bukkitToNCLoc(p.getLocation());
     }
 
     @Override
@@ -174,6 +172,11 @@ public class NCBukkitPlayer extends NCPlayer {
         }
         eco.withdrawPlayer(op, fare);
         return true;
+
+    }
+
+    @Override
+    public void setLastOnlineLocation(NCLocation lastOnlineLocation) {
 
     }
 

@@ -27,6 +27,7 @@ public abstract class NCPlayer implements NCCommandSender {
     protected int mapHeight = 20;
     protected boolean adminMode = false;
     protected final List<String> previousNames = new ArrayList<>();
+    protected NCLocation lastOnlineLocation;
     public NCPlayer(UUID playerID, String name){
         this.name = name;
         this.playerID = playerID;
@@ -260,6 +261,10 @@ public abstract class NCPlayer implements NCCommandSender {
 
     public void setLastMapUpdateTime(long lastMapUpdateTime) {
         this.lastMapUpdateTime = lastMapUpdateTime;
+    }
+
+    public void setLastOnlineLocation(NCLocation lastOnlineLocation) {
+        this.lastOnlineLocation = lastOnlineLocation;
     }
 
     public abstract void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut);

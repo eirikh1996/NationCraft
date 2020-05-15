@@ -260,14 +260,14 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		if (otherNation == this){
 			return Relation.OWN;
 		}
-		else if (allies.contains(otherNation) && otherNation.getAllies().contains(name)){
+		else if (allies.contains(otherNation) && otherNation.getAllies().contains(this)){
 			return Relation.ALLY;
 		}
-		else if (enemies.contains(otherNation) || otherNation.getEnemies().contains(name)){
+		else if (enemies.contains(otherNation) || otherNation.getEnemies().contains(this)){
 			return Relation.ENEMY;
-		} else if (otherNation.getName().equalsIgnoreCase("Warzone")){
+		} else if (isWarzone()){
 			return Relation.WARZONE;
-		} else if (otherNation.getName().equalsIgnoreCase("Safezone")){
+		} else if (isSafezone()){
 			return Relation.SAFEZONE;
 		}
 		else {
@@ -324,7 +324,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 
 
 	/**
-	 *
+	 * Gets the name of this nation
 	 * @return The name of a nation
 	 */
 	@NotNull public String getName() {
@@ -401,6 +401,10 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return players.containsKey(player);
 	}
 
+	/**
+	 * Gets if PvP is allowed in this nation's territory
+	 * @return true if PvP is allowed, otherwise false
+	 */
 	public boolean pvpAllowed() {
 		return flags.getOrDefault("pvp", true);
 	}
@@ -425,7 +429,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	public boolean fireSpreadAllowed() {
-		return flags.getOrDefault("firespread", true);
+		return getFlag("firespread");
 	}
 
 	public void setMonstersAllowed(boolean state) {
@@ -433,9 +437,13 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	public boolean getFlag(String flag) {
-		if (!flags.containsKey(flag))
+		if (!NationManager.getInstance().getRegisteredFlags().containsKey(flag))
 			throw new IllegalArgumentException(flag + " is not a valid nation flag");
-		return flags.get(flag);
+		return flags.getOrDefault(flag, NationManager.getInstance().getRegisteredFlags().get(flag));
+	}
+
+	public boolean hasFlag(String flag) {
+		return flags.containsKey(flag);
 	}
 
 	/**
@@ -450,9 +458,18 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 			throw new IllegalArgumentException("Nation flag " + flag + " is not registered");
 		}
 		flags.put(flag, state);
+		saveToFile();
 	}
 	public boolean isWarzone(){
 		return flags.getOrDefault("warzone", false);
+	}
+
+	public boolean powergainAllowed() {
+		return getFlag("powergain");
+	}
+
+	public boolean powerlossAllowed() {
+		return getFlag("powerloss");
 	}
 
 	public void setWarzone(boolean state) {

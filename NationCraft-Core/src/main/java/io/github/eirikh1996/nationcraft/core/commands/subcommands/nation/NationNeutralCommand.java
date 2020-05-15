@@ -28,10 +28,10 @@ public final class NationNeutralCommand extends Command {
         NationManager nMgr = NationManager.getInstance();
         Nation ownNation = nMgr.getNationByPlayer(player); //sender's own nation
         Nation neutralNation = nMgr.getNationByName(args[0]); //nation to ally
-        if (ownNation.getAllies().contains(neutralNation.getName())) {
+        if (ownNation.getAllies().contains(neutralNation)) {
             ownNation.removeAlly(neutralNation);
             //if the sender's nation is on the neutral nations enemy list
-            if (neutralNation.getEnemies().contains(ownNation.getName())) {
+            if (neutralNation.getEnemies().contains(ownNation)) {
                 for (NCPlayer p : neutralNation.getPlayers().keySet()) {
                     if (!p.isOnline()) {
                         continue;
@@ -43,7 +43,7 @@ public final class NationNeutralCommand extends Command {
                 sender.sendMessage(neutralNation.getName() + " is now a neutral nation");
             }
             //&& !neutralNation.getAllies().contains(ownNation.getName())
-        } else if (ownNation.getEnemies().contains(neutralNation.getName())) {
+        } else if (ownNation.getEnemies().contains(neutralNation)) {
             ownNation.removeEnemy(neutralNation);
 
         } else {

@@ -9,12 +9,14 @@ public class CommandProcessEvent extends Event implements Cancellable {
 
     private final NCCommandSender sender;
     private final Command command;
+    private final String[] args;
 
     private boolean cancelled = false;
 
-    public CommandProcessEvent(NCCommandSender sender, Command command) {
+    public CommandProcessEvent(NCCommandSender sender, Command command, String[] args) {
         this.sender = sender;
         this.command = command;
+        this.args = args;
     }
 
     public Command getCommand() {
@@ -33,5 +35,9 @@ public class CommandProcessEvent extends Event implements Cancellable {
 
     public NCCommandSender getSender() {
         return sender;
+    }
+
+    public String[] getArgs() {
+        return args;
     }
 }

@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.api.NationCraftAPI;
+import io.github.eirikh1996.nationcraft.api.config.NationSettings;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.api.events.nation.NationCreateEvent;
 import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
@@ -50,7 +51,7 @@ public final class NationCreateCommand extends Command {
             sender.sendMessage(Messages.ERROR + "You must leave your current nation before you can create one!");
             return;
         }
-        if (Settings.NationCreateCost > 0 && !player.charge(Settings.NationCreateCost)) {
+        if (NationSettings.CreateCost > 0 && !player.charge(NationSettings.CreateCost)) {
 
             return;
         }

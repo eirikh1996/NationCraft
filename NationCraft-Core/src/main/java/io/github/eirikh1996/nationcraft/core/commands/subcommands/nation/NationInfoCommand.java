@@ -31,7 +31,7 @@ public final class NationInfoCommand extends Command {
         if (args.length == 0) {
             n = NationManager.getInstance().getNationByPlayer(player.getPlayerID());
         } else {
-            n = NationManager.getInstance().getNationByName(name);
+            n = NationManager.getInstance().getNationByName(args[0]);
         }
         if (n == null) {
             sender.sendMessage(Messages.ERROR + "Nation does not exist!");

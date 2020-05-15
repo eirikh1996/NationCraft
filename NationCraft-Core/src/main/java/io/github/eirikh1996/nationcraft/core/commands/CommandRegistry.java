@@ -46,7 +46,7 @@ public class CommandRegistry implements Iterable<Command> {
         }
         final Command cmd = registeredCommands.get(commandName);
         //Call event
-        final CommandProcessEvent event = new CommandProcessEvent(sender, cmd);
+        final CommandProcessEvent event = new CommandProcessEvent(sender, cmd, args);
         NationCraftAPI.getInstance().callEvent(event);
         if (event.isCancelled())
             return;

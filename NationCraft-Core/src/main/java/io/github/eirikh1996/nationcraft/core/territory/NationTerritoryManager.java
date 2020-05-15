@@ -206,10 +206,16 @@ public final class NationTerritoryManager implements TerritoryManager {
         Set<Territory> alreadyClaimed = new HashSet<>();
         HashMap<Nation, Set<Territory>> strongEnoughNations = new HashMap<>();
         HashMap<Nation, Set<Territory>> overclaimedTerritories = new HashMap<>();
+        Set<Territory> settlementLand = new HashSet<>();
         for (Territory territory : claimed){
             Nation nation = territory.getNation();
+            //Ignore territories not belonging to a nation
             if (nation == null){
                 continue;
+            }
+            //If there is a settlement on the land, do not overclaim them, they can be taken through sieges
+            else if (territory.getSettlement() != null) {
+                settlementLand.add(territory);
             }
             else if (nation.equals(this.nation)){
                 alreadyClaimed.add(territory);
@@ -241,6 +247,10 @@ public final class NationTerritoryManager implements TerritoryManager {
         if (!alreadyClaimed.isEmpty()){
             player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "Your nation already owns this land");
             filter.addAll(alreadyClaimed);
+        }
+        if (!settlementLand.isEmpty()) {
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "Settlement land cannot be overclaimed. Use /settlement siege to conquer settlements");
+            filter.addAll(settlementLand);
         }
         if (!overclaimedTerritories.isEmpty()){
             for (Nation overclaimed : overclaimedTerritories.keySet()){

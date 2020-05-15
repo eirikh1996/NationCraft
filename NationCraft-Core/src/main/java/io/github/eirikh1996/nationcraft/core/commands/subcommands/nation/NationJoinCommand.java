@@ -1,5 +1,6 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
+import io.github.eirikh1996.nationcraft.api.config.NationSettings;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
@@ -47,7 +48,7 @@ public final class NationJoinCommand extends Command {
             }
             return;
         }
-        if (nation.getPlayers().keySet().size() >= Settings.NationMaxPlayers) {
+        if (nation.getPlayers().keySet().size() >= NationSettings.MaxPlayers) {
             sender.sendMessage(Messages.ERROR + "Nation " + nation.getName() + " is full! Join another nation, or create your own.");
             return;
         }

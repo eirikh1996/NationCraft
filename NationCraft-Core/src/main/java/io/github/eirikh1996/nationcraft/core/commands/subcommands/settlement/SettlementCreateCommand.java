@@ -27,7 +27,7 @@ public class SettlementCreateCommand extends Command {
             return;
         }
         NCPlayer player = (NCPlayer) sender;
-        Nation testNation = NationManager.getInstance().getNationAt(player.getLocation());
+        Nation testNation = player.getLocation().getNation();
         Nation pNation = NationManager.getInstance().getNationByPlayer(player);
         Settlement existing = SettlementManager.getInstance().getSettlementByName(args[0]);
         if (pNation == null){//Reject attempts to create new settlement if settlement doesn't exist

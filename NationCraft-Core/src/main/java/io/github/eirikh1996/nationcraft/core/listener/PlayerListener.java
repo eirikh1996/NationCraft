@@ -22,8 +22,8 @@ public class PlayerListener {
         NCLocation from = event.getOrigin();
         NCLocation to = event.getDestination();
 
-        @Nullable Nation fromN = NationManager.getInstance().getNationAt(from);
-        @Nullable Nation toN = NationManager.getInstance().getNationAt(to);
+        @Nullable Nation fromN = from.getNation();
+        @Nullable Nation toN = to.getNation();
         if (player.isAutoUpdateTerritoryMap()) {
 
             if (from.getTerritory() != to.getTerritory()) {

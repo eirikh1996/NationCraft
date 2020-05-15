@@ -6,12 +6,15 @@ import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
 public class NationWarCommand extends Command {
 
     public NationWarCommand() {
-        super("war");
+        super("war", "enemy");
     }
 
     @Override
@@ -42,17 +45,16 @@ public class NationWarCommand extends Command {
             pNation.removeAlly(enemy);
         }
         pNation.addEnemy(enemy);
-        for (NCPlayer p : pNation.getPlayers().keySet()){
-            if (!p.isOnline()){
-                continue;
-            }
-            p.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + String.format("%s is now a hostile nation", enemy.getName(pNation)));
+        pNation.broadcast(NATIONCRAFT_COMMAND_PREFIX + String.format("%s is now a hostile nation", enemy.getName(pNation)));
+        enemy.broadcast(NATIONCRAFT_COMMAND_PREFIX + String.format("%s is now a hostile nation", pNation.getName(enemy)));
+    }
+
+    @Override
+    public List<String> getTabCompletions(NCCommandSender sender, String[] args) {
+        List<String> completions = new ArrayList<>();
+        for (Nation n : NationManager.getInstance()) {
+            completions.add(n.getName());
         }
-        for (NCPlayer p : enemy.getPlayers().keySet()){
-            if (!p.isOnline()){
-                continue;
-            }
-            p.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + String.format("%s is now a hostile nation", pNation.getName(enemy)));
-        }
+        return completions;
     }
 }

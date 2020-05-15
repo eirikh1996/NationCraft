@@ -83,7 +83,7 @@ public class Messages {
 		List<String> allyList = new ArrayList<>();
 		if (!n.getAllies().isEmpty()){
 			for (Nation ally : n.getAllies()){
-				if (ally.isAlliedWith(n)){
+				if (ally.isAlliedWith(n) || ally == n){
 					continue;
 				}
 				allyList.add(ally.getName());
@@ -96,7 +96,7 @@ public class Messages {
 			}
 		}
 		for (Nation enemy : NationManager.getInstance()){
-			if (enemyList.contains(enemy.getName()) || !enemy.isAtWarWith(n)){
+			if (enemyList.contains(enemy.getName()) || !enemy.isAtWarWith(n) || enemy == n){
 				continue;
 			}
 			enemyList.add(enemy.getName());

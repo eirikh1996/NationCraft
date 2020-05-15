@@ -4,6 +4,8 @@ import com.SirBlobman.combatlogx.api.ICombatLogX;
 import com.earth2me.essentials.Essentials;
 import io.github.eirikh1996.nationcraft.api.NationCraftAPI;
 import io.github.eirikh1996.nationcraft.api.NationCraftMain;
+import io.github.eirikh1996.nationcraft.api.config.NationSettings;
+import io.github.eirikh1996.nationcraft.api.config.WorldSettings;
 import io.github.eirikh1996.nationcraft.bukkit.hooks.chat.VentureChatHook;
 import io.github.eirikh1996.nationcraft.bukkit.objects.NCBukkitConsole;
 import io.github.eirikh1996.nationcraft.bukkit.player.BukkitPlayerManager;
@@ -235,21 +237,43 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		Settings.player.TeleportationWarmup = playerSection.getInt("TeleportationWarmup", 10);
 		Settings.player.TeleportationCooldown = playerSection.getInt("TeleportationCooldown", 60);
 
+		//world
+		ConfigurationSection worldSection = getConfig().getConfigurationSection("World");
+		WorldSettings.powerGainEnabled = worldSection.getStringList("PowerGainEnabled");
+		WorldSettings.powerLossEnabled = worldSection.getStringList("PowerLossEnabled");
 		//nation
 		ConfigurationSection nationSection = getConfig().getConfigurationSection("Nation");
-		Settings.NationBankMaxBalance = nationSection.getLong("BankMaxBalance", 1000000000);
-		Settings.NationMaxAllies = nationSection.getInt("MaxAllies", -1);
-		Settings.NationMaxTruces = nationSection.getInt("MaxTruces", -1);
-		Settings.NationMaxPlayers = nationSection.getInt("MaxPlayers", 50);
-		Settings.NationCreateCost = nationSection.getInt("CreateCost",1000);
-		Settings.NationMinimumRequiredPlayers = nationSection.getInt("MinimumRequiredPlayers", 5);
-		Settings.NationDeleteAfterDays = nationSection.getInt("DeleteAfterDays", 14);
-		Settings.NationForbiddenNames.addAll(nationSection.getStringList("ForbiddenNames"));
+		NationSettings.BankMaxBalance = nationSection.getLong("BankMaxBalance", 1000000000);
+		NationSettings.MaxAllies = nationSection.getInt("MaxAllies", -1);
+		NationSettings.MaxTruces = nationSection.getInt("MaxTruces", -1);
+		NationSettings.MaxPlayers = nationSection.getInt("MaxPlayers", 50);
+		NationSettings.CreateCost = nationSection.getInt("CreateCost",1000);
+		NationSettings.MinimumRequiredPlayers = nationSection.getInt("MinimumRequiredPlayers", 5);
+		NationSettings.DeleteAfterDays = nationSection.getInt("DeleteAfterDays", 14);
+		NationSettings.ForbiddenNames.addAll(nationSection.getStringList("ForbiddenNames"));
 		final ConfigurationSection forbiddenCommands = nationSection.getConfigurationSection("ForbiddenCommands");
-		for (Relation rel : Relation.values()) {
-			String key = rel.name().replace(rel.name().substring(1), rel.name().substring(1).toLowerCase());
-			List<String> values = forbiddenCommands.getStringList(key);
-			Settings.NationForbiddenCommands.put(rel, values);
+		for (String s : forbiddenCommands.getValues(true).keySet()) {
+			Relation rel = Relation.getRelationIgnoreCase(s);
+			if (rel == null) {
+				getLogger().severe(s + " is not a valid relation value");
+				continue;
+			}
+			List<String> values = (List<String>) forbiddenCommands.getValues(true).get(s);
+			NationSettings.ForbiddenCommands.put(rel, values);
+		}
+		final ConfigurationSection damageReductionPercentage = nationSection.getConfigurationSection("DamageReductionPercentage");
+		for (String s : damageReductionPercentage.getValues(true).keySet()) {
+			final Relation rel = Relation.getRelationIgnoreCase(s);
+			if (rel == null) {
+				getLogger().severe(s + " is not a valid relation value");
+				continue;
+			}
+			double val = (double) damageReductionPercentage.getValues(true).get(s);
+			NationSettings.DamageReductionPercentage.put(rel, val);
+		}
+		final List<String> disableDamageFor = nationSection.getStringList("DisableDamageFor");
+		for (String str : disableDamageFor) {
+			NationSettings.DisableDamageFor.add(Relation.getRelationIgnoreCase(str));
 		}
 
 		//settlements
@@ -261,9 +285,9 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 
 		if (economy == null){
 			getLogger().info("NationCraft did not find a compatible version of Vault. Disabling Vault integration");
-			Settings.NationBankMaxBalance = 0;
+			NationSettings.BankMaxBalance = 0;
 		} else {
-			Settings.NationBankMaxBalance = nationSection.getLong("BankMaxBalance", 1000000000);
+			NationSettings.BankMaxBalance = nationSection.getLong("BankMaxBalance", 1000000000);
 		}
 	}
 

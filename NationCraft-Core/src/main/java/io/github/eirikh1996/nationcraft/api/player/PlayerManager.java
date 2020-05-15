@@ -2,6 +2,7 @@ package io.github.eirikh1996.nationcraft.api.player;
 
 import io.github.eirikh1996.nationcraft.api.NationCraftMain;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
+import io.github.eirikh1996.nationcraft.api.config.WorldSettings;
 import io.github.eirikh1996.nationcraft.api.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.nation.Ranks;
@@ -113,6 +114,13 @@ public abstract class PlayerManager implements Runnable, Iterable<NCPlayer> {
                 continue;
             }
             if (!Settings.player.RegeneratePowerOffline && !player.isOnline()){
+                continue;
+            }
+            if (!WorldSettings.powerGainEnabled.contains(player.getWorld())) {
+                continue;
+            }
+            Nation locN = player.getLocation().getNation();
+            if (locN != null && !locN.powergainAllowed()) {
                 continue;
             }
             double power = player.getPower();

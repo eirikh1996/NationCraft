@@ -10,11 +10,9 @@ import java.util.Map;
 
 public class Settings {
 	public static final PlayerSettings player;
-	public static final NationSettings nation;
 	public static final SettlementSettings settlement;
 	static {
 		player = new PlayerSettings();
-		nation = new NationSettings();
 		settlement = new SettlementSettings();
 	}
 	public static class PlayerSettings {
@@ -32,9 +30,6 @@ public class Settings {
 		public List<String> reducePowerInWorlds = new ArrayList<>();
 		public String chatFormat = "";
 	}
-	private static class NationSettings {
-
-	}
 	public static class SettlementSettings {
 		public int TerritoryPerPlayer = 10;
 
@@ -44,16 +39,7 @@ public class Settings {
 	//Player settings
 
 
-	//Nation settings
-	public static long NationBankMaxBalance = 1000000000;
-	public static int NationCreateCost;
-	public static int NationMaxAllies = -1;
-	public static int NationMaxTruces = -1;
-	public static int NationMaxPlayers = 50;
-	public static int NationMinimumRequiredPlayers = 5;
-	public static int NationDeleteAfterDays = 14;
-	public static Map<Relation, List<String>> NationForbiddenCommands = new HashMap<>();
-	@NotNull public static List<String> NationForbiddenNames = new ArrayList<>(); //Names that are forbidden to use for nations or settlements
+
 
 
 

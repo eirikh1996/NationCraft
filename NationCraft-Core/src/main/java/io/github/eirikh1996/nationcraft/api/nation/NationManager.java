@@ -23,8 +23,13 @@ public class NationManager implements Runnable, Iterable<Nation> {
 	private NationManager(){
 		nations = new HashSet<>();
 		registeredFlags.put("pvp", true);
+		registeredFlags.put("powergain", true);
+		registeredFlags.put("powerloss", true);
 		registeredFlags.put("monsters", true);
 		registeredFlags.put("open", false);
+		registeredFlags.put("explosions", true);
+		registeredFlags.put("firespread", true);
+		registeredFlags.put("endergrief", false);
 		registeredFlags.put("safezone", false);
 		registeredFlags.put("warzone", false);
 	}
@@ -100,21 +105,6 @@ public class NationManager implements Runnable, Iterable<Nation> {
 			}
 		}
 		return null;
-	}
-
-	public Nation getNationAt(NCLocation location){
-		Nation returnNation = null;
-		for (Nation nation : nations){
-			for (Territory terr : nation.getTerritoryManager()){
-				if (!terr.contains(location))
-					continue;
-				returnNation = nation;
-				break;
-			}
-			if (returnNation == nation)
-				break;
-		}
-		return returnNation;
 	}
 
 	public Nation getNationAt(Territory territory){
