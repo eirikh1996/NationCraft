@@ -1,19 +1,26 @@
 package io.github.eirikh1996.nationcraft.api.objects.text;
 
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * Represents a hover event for chat text components
+ */
 public class HoverEvent {
 
-    private final Action action;
-    private final String value;
+    @NotNull private final Action action;
+    @NotNull private final String value;
 
-    public HoverEvent(Action action, String value) {
+    public HoverEvent(@NotNull Action action, @NotNull String value) {
         this.action = action;
         this.value = value;
     }
 
+    @NotNull
     public String getValue() {
         return value;
     }
 
+    @NotNull
     public Action getAction() {
         return action;
     }

@@ -3,14 +3,17 @@ package io.github.eirikh1996.nationcraft.api.nation;
 import java.io.*;
 import java.util.*;
 
+import io.github.eirikh1996.nationcraft.api.NationCraftAPI;
 import io.github.eirikh1996.nationcraft.api.NationCraftMain;
-import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
+import io.github.eirikh1996.nationcraft.api.events.nation.NationCreateEvent;
 import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
-import io.github.eirikh1996.nationcraft.core.territory.Territory;
+import io.github.eirikh1996.nationcraft.api.territory.Territory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import static io.github.eirikh1996.nationcraft.core.messages.Messages.ERROR;
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
 public class NationManager implements Runnable, Iterable<Nation> {
@@ -46,6 +49,8 @@ public class NationManager implements Runnable, Iterable<Nation> {
 
 	public void loadNations(){
 		nations.addAll(getNationsFromFile());
+		createSafezone();
+		createWarzone();
 	}
 
 	public Map<String, Boolean> getRegisteredFlags() {
@@ -200,20 +205,27 @@ public class NationManager implements Runnable, Iterable<Nation> {
 		return returnColor;
 	}
 
-	public boolean createSafezone(){
+	private void createSafezone(){
 
-		Nation safezone = new Nation("Safezone","Free from PvP and monsters");
+		Nation safezone = getNationByName("Safezone");
+		if (safezone != null) {
+			return;
+		}
+		safezone = new Nation("Safezone","Free from PvP and monsters");
 		safezone.setSafezone(true);
 		safezone.setPvPAllowed(false);
 		safezone.setMonstersAllowed(false);
-		return safezone.saveToFile();
+		addNation(safezone);
 	}
 
-	public boolean createWarzone(){
-
-		Nation warzone = new Nation("Warzone","Not the safest place to be!");
+	private void createWarzone(){
+		Nation warzone = getNationByName("Warzone");
+		if (warzone != null) {
+			return;
+		}
+		warzone = new Nation("Warzone","Not the safest place to be!");
 		warzone.setWarzone(true);
-		return warzone.saveToFile();
+		addNation(warzone);
 	}
 
 	public static NationManager getInstance(){
@@ -242,6 +254,28 @@ public class NationManager implements Runnable, Iterable<Nation> {
         processNationCleanup();
     }
 
+	/**
+	 * Creates a new nation and returns the resulting nation if creation succeeds
+	 * @param name The name of the nation
+	 * @param founder The founder of the nation
+	 * @return the created nation if creation succeeds, and null if it fails
+	 */
+	@Nullable
+    public Nation createNation(String name, @NotNull NCPlayer founder) {
+		Nation n = new Nation(name, founder);
+		if (getNationByName(name) != null) {
+			founder.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "A nation called " + name + " already exists");
+			return null;
+		}
+		final NationCreateEvent event = new NationCreateEvent(n, founder);
+		NationCraftAPI.getInstance().callEvent(event);
+		if (event.isCancelled()) {
+			return null;
+		}
+		addNation(n);
+		return n;
+	}
+
     private void processNationCleanup() {
 	    if (nations.isEmpty())
 	        return;
@@ -259,4 +293,9 @@ public class NationManager implements Runnable, Iterable<Nation> {
 
         }
     }
+
+	public void addNation(Nation newNation) {
+		nations.add(newNation);
+		newNation.saveToFile();
+	}
 }

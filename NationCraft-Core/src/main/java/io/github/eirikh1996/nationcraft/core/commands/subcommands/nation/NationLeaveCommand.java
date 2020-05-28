@@ -30,6 +30,5 @@ public final class NationLeaveCommand extends Command {
             return;
         }
         nation.removePlayer(player);
-        nation.saveToFile();
     }
 }

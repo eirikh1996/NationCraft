@@ -6,7 +6,7 @@ import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.api.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;
-import io.github.eirikh1996.nationcraft.core.territory.Territory;
+import io.github.eirikh1996.nationcraft.api.territory.Territory;
 
 import java.util.*;
 
@@ -68,7 +68,6 @@ public final class NationUnclaimCommand extends Command {
         } else if (shape == Shape.ALL){
             nation.getTerritoryManager().unclaimAll(player);
         }
-        nation.saveToFile();
     }
 
     @Override

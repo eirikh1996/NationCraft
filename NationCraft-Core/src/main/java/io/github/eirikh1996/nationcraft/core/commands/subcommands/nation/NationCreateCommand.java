@@ -55,16 +55,10 @@ public final class NationCreateCommand extends Command {
 
             return;
         }
-        Nation newNation = new Nation(args[0], player);
-        //Call event
-        NationCreateEvent event = new NationCreateEvent(newNation, player);
-        NationCraftAPI.getInstance().callEvent(event);
-        if (event.isCancelled()) {
-            sender.sendMessage("Cancelled: " + event.isCancelled());
+        Nation newNation = NationManager.getInstance().createNation(name, player);
+        if (newNation == null) {
             return;
         }
-        sender.sendMessage("You successfully created a new nation named " + TextColor.GREEN + args[0]);
-        NationManager.getInstance().getNations().add(newNation);
-        newNation.saveToFile();
+        sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "You successfully created a new nation named " + TextColor.GREEN + args[0]);
     }
 }

@@ -1,4 +1,4 @@
-package io.github.eirikh1996.nationcraft.core.territory;
+package io.github.eirikh1996.nationcraft.api.territory;
 
 import io.github.eirikh1996.nationcraft.api.objects.NCVector;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
@@ -314,13 +314,13 @@ public final class SettlementTerritoryManager implements TerritoryManager {
                 player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You can only claim settlements on lands of your own nation");
                 return;
             }
-            if (territoryCollection.contains(territory) || settlement.getTownCenter().equals(territory)){
+            if (territoryCollection.contains(territory) || settlement.getTownCenter().equalsTerritory(territory)){
                 filter.add(territory);
             }
         }
         Collection<Territory> toAdd = CollectionUtils.filter(claimed, filter);
         //Call event
-        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %s chunks of settlement territory for " + settlement.getName()));
+        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %s chunks of settlement territory for ", toAdd.size()) + settlement.getName());
         territoryCollection.addAll(toAdd);
     }
 

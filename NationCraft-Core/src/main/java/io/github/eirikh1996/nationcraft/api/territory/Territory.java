@@ -1,4 +1,4 @@
-package io.github.eirikh1996.nationcraft.core.territory;
+package io.github.eirikh1996.nationcraft.api.territory;
 
 import io.github.eirikh1996.nationcraft.api.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;

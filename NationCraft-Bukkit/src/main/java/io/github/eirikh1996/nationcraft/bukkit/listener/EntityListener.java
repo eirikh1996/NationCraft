@@ -9,6 +9,8 @@ import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.bukkit.utils.BukkitUtils;
+import io.github.eirikh1996.nationcraft.core.Core;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -54,17 +56,18 @@ public class EntityListener implements Listener {
                 if (NationSettings.DisableDamageFor.contains(rel)) {
                     damager.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("You cannot harm players in %s nation", rel.name().toLowerCase()));
                     event.setCancelled(true);
+                    return;
                 }
             }
-            else if (atDamageeLoc == ncDamagee.getNation() && ncDamagee.hasNation()) {
+            if (atDamageeLoc == ncDamagee.getNation() && ncDamagee.hasNation()) {
                 Relation rel = ncDamagee.getNation().getRelationTo(ncDamager.getNation());
                 double percent = NationSettings.DamageReductionPercentage.getOrDefault(rel, 0.0);
                 if (percent == 0.0) {
                     return;
                 }
                 double damage = event.getDamage();
-                damage = damage * (percent / 100.0);
-                damagee.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("%s damage reduced by .2%f percent", rel.capitalizedName(), percent));
+                damage = damage - (damage * (percent / 100.0));
+                damagee.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("%s damage reduced by %.2f percent", rel.capitalizedName(), percent));
                 event.setDamage(damage);
             }
 

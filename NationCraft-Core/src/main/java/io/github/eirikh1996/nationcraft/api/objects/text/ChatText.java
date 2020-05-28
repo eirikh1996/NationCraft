@@ -5,6 +5,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents chat text that can be sent to a player
+ */
 public class ChatText implements Comparable<ChatText> {
     private final List<ChatTextComponent> textComponents;
 
@@ -25,7 +28,10 @@ public class ChatText implements Comparable<ChatText> {
         return json;
     }
 
-
+    /**
+     * Gets the builder for the <code>ChatText</code>
+     * @return
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -40,6 +46,7 @@ public class ChatText implements Comparable<ChatText> {
         protected Builder() {
 
         }
+
         public Builder addText(ChatTextComponent component) {
             textList.add(component);
             return this;
@@ -60,13 +67,13 @@ public class ChatText implements Comparable<ChatText> {
             return this;
         }
 
-        public Builder addText(TextStyle style, String text) {
-            textList.add(new ChatTextComponent(style, text));
+        public Builder addText(String text, TextStyle... styles) {
+            textList.add(new ChatTextComponent(text, styles));
             return this;
         }
 
-        public Builder addText(TextColor color, TextStyle style, String text) {
-            textList.add(new ChatTextComponent(color, style, text));
+        public Builder addText(TextColor color,  String text, TextStyle... styles) {
+            textList.add(new ChatTextComponent(color, text, styles));
             return this;
         }
 
@@ -80,13 +87,13 @@ public class ChatText implements Comparable<ChatText> {
             return this;
         }
 
-        public Builder addText(TextStyle style, String text, ClickEvent clickEvent) {
-            textList.add(new ChatTextComponent(style, text, clickEvent));
+        public Builder addText(String text, ClickEvent clickEvent, TextStyle... styles) {
+            textList.add(new ChatTextComponent(text, clickEvent, styles));
             return this;
         }
 
-        public Builder addText(TextColor color, TextStyle style, String text, ClickEvent clickEvent) {
-            textList.add(new ChatTextComponent(color, style, text, clickEvent));
+        public Builder addText(TextColor color, String text, ClickEvent clickEvent, TextStyle... styles) {
+            textList.add(new ChatTextComponent(color, text, clickEvent, styles));
             return this;
         }
 
@@ -100,13 +107,13 @@ public class ChatText implements Comparable<ChatText> {
             return this;
         }
 
-        public Builder addText(TextStyle style, String text, HoverEvent hoverEvent) {
-            textList.add(new ChatTextComponent(style, text, hoverEvent));
+        public Builder addText(String text, HoverEvent hoverEvent, TextStyle... styles) {
+            textList.add(new ChatTextComponent(text, hoverEvent, styles));
             return this;
         }
 
-        public Builder addText(TextColor color, TextStyle style, String text, HoverEvent hoverEvent) {
-            textList.add(new ChatTextComponent(color, style, text, hoverEvent));
+        public Builder addText(TextColor color, String text, HoverEvent hoverEvent, TextStyle... styles) {
+            textList.add(new ChatTextComponent(color, text, hoverEvent, styles));
             return this;
         }
 
@@ -120,13 +127,13 @@ public class ChatText implements Comparable<ChatText> {
             return this;
         }
 
-        public Builder addText(TextStyle style, String text, ClickEvent clickEvent, HoverEvent hoverEvent) {
-            textList.add(new ChatTextComponent(style, text, clickEvent, hoverEvent));
+        public Builder addText(String text, ClickEvent clickEvent, HoverEvent hoverEvent, TextStyle... styles) {
+            textList.add(new ChatTextComponent(text, clickEvent, hoverEvent, styles));
             return this;
         }
 
-        public Builder addText(TextColor color, TextStyle style, String text, ClickEvent clickEvent, HoverEvent hoverEvent) {
-            textList.add(new ChatTextComponent(color, style, text, clickEvent, hoverEvent));
+        public Builder addText(TextColor color, String text, ClickEvent clickEvent, HoverEvent hoverEvent, TextStyle... styles) {
+            textList.add(new ChatTextComponent(color, text, clickEvent, hoverEvent, styles));
             return this;
         }
 
@@ -142,8 +149,8 @@ public class ChatText implements Comparable<ChatText> {
                 if (component.getColor() != null) {
                     ret += component.getColor().toString();
                 }
-                if (component.getStyle() != null) {
-                    ret += component.getStyle().toString();
+                if (component.getStyles() != null) {
+                    ret += component.getStyles().toString();
                 }
                 ret += component.getText();
             }

@@ -25,6 +25,7 @@ public class NationCommand extends Command {
 		addChild(new NationLeaveCommand());
 		addChild(new NationListCommand());
 		addChild(new NationNeutralCommand());
+		addChild(new NationTruceCommand());
 		addChild(new NationUnclaimCommand());
 		addChild(new NationWarCommand());
 	}

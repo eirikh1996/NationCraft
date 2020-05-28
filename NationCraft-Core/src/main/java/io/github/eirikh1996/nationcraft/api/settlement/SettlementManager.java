@@ -9,7 +9,7 @@ import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
-import io.github.eirikh1996.nationcraft.core.territory.Territory;
+import io.github.eirikh1996.nationcraft.api.territory.Territory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

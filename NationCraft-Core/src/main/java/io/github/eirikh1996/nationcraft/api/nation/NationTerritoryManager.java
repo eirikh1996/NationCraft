@@ -1,9 +1,9 @@
-package io.github.eirikh1996.nationcraft.core.territory;
+package io.github.eirikh1996.nationcraft.api.nation;
 
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCVector;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
+import io.github.eirikh1996.nationcraft.api.territory.Territory;
+import io.github.eirikh1996.nationcraft.api.territory.TerritoryManager;
 import io.github.eirikh1996.nationcraft.api.utils.CollectionUtils;
 import io.github.eirikh1996.nationcraft.api.utils.Direction;
 import org.jetbrains.annotations.NotNull;
@@ -13,11 +13,11 @@ import java.util.*;
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.ERROR;
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
-public final class NationTerritoryManager implements TerritoryManager {
+final class NationTerritoryManager implements TerritoryManager {
     private Collection<Territory> territoryCollection = new HashSet<>();
     private final Nation nation;
 
-    public NationTerritoryManager(Nation nation) {
+    NationTerritoryManager(Nation nation) {
         this.nation = nation;
     }
 
@@ -273,6 +273,7 @@ public final class NationTerritoryManager implements TerritoryManager {
         }
         player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %d chunks of land from §2Wilderness", fromWilderness.size()));
         territoryCollection.addAll(fromWilderness);
+        nation.saveToFile();
     }
 
     private void processTerritoryUnclaim(Collection<Territory> unclaimed, NCPlayer player) {
@@ -322,5 +323,6 @@ public final class NationTerritoryManager implements TerritoryManager {
         }
         player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Unclaimed %d chunks of land from %s", toWilderness.size(), nation.getName()));
         territoryCollection.removeAll(toWilderness);
+        nation.saveToFile();
     }
 }

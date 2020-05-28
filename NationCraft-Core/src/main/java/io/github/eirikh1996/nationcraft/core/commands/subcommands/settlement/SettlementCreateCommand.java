@@ -48,11 +48,8 @@ public class SettlementCreateCommand extends Command {
         Settlement newSettlement = new Settlement(args[0], player);
         if (pNation.getCapital() == null){
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + args[0] + "has been assigned as capital of " + pNation.getName() + ". You can change this by using /settlement setcapital");
-            pNation.setCapital(newSettlement);
-
-            pNation.saveToFile();
         }
-        pNation.getSettlements().add(newSettlement);
+        pNation.addSettlement(newSettlement);
         newSettlement.saveToFile();
     }
 }

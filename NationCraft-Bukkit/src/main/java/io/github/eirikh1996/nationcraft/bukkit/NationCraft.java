@@ -6,6 +6,7 @@ import io.github.eirikh1996.nationcraft.api.NationCraftAPI;
 import io.github.eirikh1996.nationcraft.api.NationCraftMain;
 import io.github.eirikh1996.nationcraft.api.config.NationSettings;
 import io.github.eirikh1996.nationcraft.api.config.WorldSettings;
+import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.bukkit.hooks.chat.VentureChatHook;
 import io.github.eirikh1996.nationcraft.bukkit.objects.NCBukkitConsole;
 import io.github.eirikh1996.nationcraft.bukkit.player.BukkitPlayerManager;
@@ -71,28 +72,6 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		}
 		else {
 			getLogger().info(String.format("Loaded %d nation files", NationManager.getInstance().getNations().size()));
-		}
-		getLogger().info(nManager.getNations().toString());
-		boolean szCreated = false;
-		boolean wzCreated = false;
-		File szFile = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations/safezone.nation");
-		File wzFile = new File(NationCraft.getInstance().getDataFolder().getAbsolutePath() + "/nations/warzone.nation");
-		if (!szFile.exists()){
-			szCreated = nManager.createSafezone();
-			if (szCreated)
-				getLogger().info("Safezone file created.");
-			else
-				getLogger().warning("Safezone failed to create file!");
-		}
-		if (!wzFile.exists()){
-			wzCreated = nManager.createWarzone();
-			if (wzCreated)
-			getLogger().info("Warzone file created.");
-			else
-			getLogger().warning("Warzone failed to create file!");
-		}
-		if (wzCreated || szCreated){
-			nManager.reload();
 		}
 		getServer().getScheduler().runTaskTimerAsynchronously(this, nManager, 0, 20);
 
@@ -274,6 +253,10 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		final List<String> disableDamageFor = nationSection.getStringList("DisableDamageFor");
 		for (String str : disableDamageFor) {
 			NationSettings.DisableDamageFor.add(Relation.getRelationIgnoreCase(str));
+		}
+		final ConfigurationSection relColors = nationSection.getConfigurationSection("RelationColors");
+		for (String key : relColors.getValues(true).keySet()) {
+			NationSettings.RelationColors.put(Relation.getRelationIgnoreCase(key), TextColor.getColorIgnoreCase((String) relColors.getValues(true).get(key)));
 		}
 
 		//settlements

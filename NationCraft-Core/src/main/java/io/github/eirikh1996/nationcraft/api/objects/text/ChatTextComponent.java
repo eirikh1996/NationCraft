@@ -7,13 +7,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents each individual component of a <code>ChatText</code>
+ */
 public class ChatTextComponent {
 
     @Nullable
     private ClickEvent clickEvent;
     @Nullable private HoverEvent hoverEvent;
     @Nullable private TextColor color;
-    @Nullable private TextStyle style;
+    @Nullable private TextStyle[] styles;
     @NotNull
     private final String text;
 
@@ -21,8 +24,8 @@ public class ChatTextComponent {
         this.text = text;
     }
 
-    public ChatTextComponent(@Nullable TextStyle style, @NotNull String text) {
-        this.style = style;
+    public ChatTextComponent(@NotNull String text, @Nullable TextStyle... styles ) {
+        this.styles = styles;
         this.text = text;
     }
 
@@ -31,9 +34,9 @@ public class ChatTextComponent {
         this.text = text;
     }
 
-    public ChatTextComponent(@Nullable TextColor color, @Nullable TextStyle style, @NotNull String text) {
+    public ChatTextComponent(@Nullable TextColor color, @NotNull String text, @Nullable TextStyle... styles) {
         this.color = color;
-        this.style = style;
+        this.styles = styles;
         this.text = text;
     }
 
@@ -42,9 +45,9 @@ public class ChatTextComponent {
         this.text = text;
     }
 
-    public ChatTextComponent(@Nullable TextStyle style, @NotNull String text, @Nullable ClickEvent clickEvent) {
+    public ChatTextComponent(@NotNull String text, @Nullable ClickEvent clickEvent , @Nullable TextStyle... styles) {
         this.clickEvent = clickEvent;
-        this.style = style;
+        this.styles = styles;
         this.text = text;
     }
 
@@ -54,10 +57,10 @@ public class ChatTextComponent {
         this.text = text;
     }
 
-    public ChatTextComponent(@Nullable TextColor color, @Nullable TextStyle style, @NotNull String text, @Nullable ClickEvent clickEvent) {
+    public ChatTextComponent(@Nullable TextColor color, @NotNull String text, @Nullable ClickEvent clickEvent, @Nullable TextStyle... styles) {
         this.clickEvent = clickEvent;
         this.color = color;
-        this.style = style;
+        this.styles = styles;
         this.text = text;
     }
 
@@ -66,9 +69,9 @@ public class ChatTextComponent {
         this.text = text;
     }
 
-    public ChatTextComponent(@Nullable TextStyle style, @NotNull String text, @Nullable HoverEvent hoverEvent) {
+    public ChatTextComponent(@NotNull String text, @Nullable HoverEvent hoverEvent, @Nullable TextStyle... styles) {
         this.hoverEvent = hoverEvent;
-        this.style = style;
+        this.styles = styles;
         this.text = text;
     }
 
@@ -78,10 +81,10 @@ public class ChatTextComponent {
         this.text = text;
     }
 
-    public ChatTextComponent(@Nullable TextColor color, @Nullable TextStyle style, @NotNull String text, @Nullable HoverEvent hoverEvent) {
+    public ChatTextComponent(@Nullable TextColor color, @NotNull String text, @Nullable HoverEvent hoverEvent, @Nullable TextStyle... styles) {
         this.hoverEvent = hoverEvent;
         this.color = color;
-        this.style = style;
+        this.styles = styles;
         this.text = text;
     }
 
@@ -91,10 +94,10 @@ public class ChatTextComponent {
         this.text = text;
     }
 
-    public ChatTextComponent(@Nullable TextStyle style, @NotNull String text, @Nullable ClickEvent clickEvent, @Nullable HoverEvent hoverEvent) {
+    public ChatTextComponent(@NotNull String text, @Nullable ClickEvent clickEvent, @Nullable HoverEvent hoverEvent, @Nullable TextStyle... styles) {
         this.hoverEvent = hoverEvent;
         this.clickEvent = clickEvent;
-        this.style = style;
+        this.styles = styles;
         this.text = text;
     }
 
@@ -105,11 +108,11 @@ public class ChatTextComponent {
         this.text = text;
     }
 
-    public ChatTextComponent(@Nullable TextColor color, @Nullable TextStyle style, @NotNull String text, @Nullable ClickEvent clickEvent, @Nullable HoverEvent hoverEvent) {
+    public ChatTextComponent(@Nullable TextColor color, @NotNull String text, @Nullable ClickEvent clickEvent, @Nullable HoverEvent hoverEvent, @Nullable TextStyle... styles) {
         this.hoverEvent = hoverEvent;
         this.clickEvent = clickEvent;
         this.color = color;
-        this.style = style;
+        this.styles = styles;
         this.text = text;
     }
 
@@ -141,12 +144,12 @@ public class ChatTextComponent {
     }
 
     @Nullable
-    public TextStyle getStyle() {
-        return style;
+    public TextStyle[] getStyles() {
+        return styles;
     }
 
-    public void setStyle(@Nullable TextStyle style) {
-        this.style = style;
+    public void setStyles(@Nullable TextStyle[] styles) {
+        this.styles = styles;
     }
 
     @NotNull
@@ -154,15 +157,21 @@ public class ChatTextComponent {
         return text;
     }
 
+    /**
+     * Gets a JSON representation of this <code>ChatTextComponent</code>
+     * @return JSON representation of chat text component
+     */
     public String json() {
         String json = "{";
         json += "\"text\":\"";
         json += text.replace("\\", "\\\\");
         json += "\"";
-        if (style != null) {
-            json += ",\"";
-            json += style.name().toLowerCase();
-            json += "\":\"true\",";
+        if (styles != null) {
+            for (TextStyle style : styles) {
+                json += ",\"";
+                json += style.name().toLowerCase();
+                json += "\":\"true\",";
+            }
         }
         if (color != null) {
             json += ",\"";

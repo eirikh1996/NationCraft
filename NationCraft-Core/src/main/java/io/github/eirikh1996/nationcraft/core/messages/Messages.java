@@ -2,8 +2,10 @@ package io.github.eirikh1996.nationcraft.core.messages;
 
 
 import io.github.eirikh1996.nationcraft.api.NationCraftMain;
+import io.github.eirikh1996.nationcraft.api.config.NationSettings;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;
+import io.github.eirikh1996.nationcraft.api.nation.Relation;
 import io.github.eirikh1996.nationcraft.api.objects.NCVector;
 import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
 import io.github.eirikh1996.nationcraft.api.objects.text.ChatTextComponent;
@@ -14,7 +16,7 @@ import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.core.commands.NCConsole;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
-import io.github.eirikh1996.nationcraft.core.territory.Territory;
+import io.github.eirikh1996.nationcraft.api.territory.Territory;
 import io.github.eirikh1996.nationcraft.api.utils.Compass;
 import io.github.eirikh1996.nationcraft.api.utils.Direction;
 
@@ -67,8 +69,9 @@ public class Messages {
 		log.sendMessage(TextColor.AQUA + "|  \\|/    \\|  | \\--/ |  \\| " + TextColor.GRAY + "\\-- |  \\/    \\|    | ");
 		log.sendMessage("");
 	}
-	public static void nationInfo(Nation n, NCPlayer p, TextColor color) {
+	public static void nationInfo(Nation n, NCPlayer p) {
 		String name = n.getName();
+		TextColor color = n.getColor(p);
 		String description = n.getDescription();
 		String capital = n.getCapital() != null ? n.getCapital().getName(): "None";
 		ArrayList<String> settlementNames = new ArrayList<>();
@@ -83,7 +86,7 @@ public class Messages {
 		List<String> allyList = new ArrayList<>();
 		if (!n.getAllies().isEmpty()){
 			for (Nation ally : n.getAllies()){
-				if (ally.isAlliedWith(n) || ally == n){
+				if (!ally.isAlliedWith(n) || ally == n){
 					continue;
 				}
 				allyList.add(ally.getName());
@@ -92,7 +95,7 @@ public class Messages {
 		List<String> enemyList = new ArrayList<>();
 		if (!n.getEnemies().isEmpty()){
 			for (Nation enemy : n.getEnemies()){
-				enemyList.add(n.getName());
+				enemyList.add(enemy.getName());
 			}
 		}
 		for (Nation enemy : NationManager.getInstance()){
@@ -102,6 +105,12 @@ public class Messages {
 			enemyList.add(enemy.getName());
 		}
 		List<String> truceList = new ArrayList<>();
+		for (Nation truce : NationManager.getInstance()) {
+			if (truce == n || !truce.isTrucedWith(n)) {
+				continue;
+			}
+			truceList.add(n.getName());
+		}
 
 		Map<NCPlayer, Ranks> playerList = n.getPlayers();
 		Set<String> onlinePlayers = new HashSet<>();
@@ -125,9 +134,9 @@ public class Messages {
 			p.sendMessage(TextColor.YELLOW + "Territory: " + (n.isStrongEnough() ? TextColor.GREEN : TextColor.RED) + n.getTerritoryManager().size());
 			p.sendMessage(TextColor.YELLOW + "Power: " + (n.getPower() >= n.getTerritoryManager().size() ? (n.getPower() == n.getTerritoryManager().size() ? TextColor.YELLOW :TextColor.GREEN) : TextColor.RED) + n.getPower());
 			p.sendMessage(TextColor.YELLOW + "Maximum strength: " + n.getMaxPower());
-			p.sendMessage(TextColor.YELLOW + "Allies: " + TextColor.DARK_PURPLE + allyList.toString());
-			p.sendMessage(TextColor.YELLOW + "Truces: " + TextColor.LIGHT_PURPLE + truceList.toString());
-			p.sendMessage(TextColor.YELLOW + "Enemies: " + TextColor.RED + enemyList.toString());
+			p.sendMessage(TextColor.YELLOW + "Allies: " + NationSettings.RelationColors.getOrDefault(Relation.ALLY, TextColor.DARK_PURPLE) + (allyList.isEmpty() ? "None" : String.join(", ", allyList)));
+			p.sendMessage(TextColor.YELLOW + "Truces: " + NationSettings.RelationColors.getOrDefault(Relation.TRUCE, TextColor.LIGHT_PURPLE) + (truceList.isEmpty() ? "None" : String.join(", ", truceList)));
+			p.sendMessage(TextColor.YELLOW + "Enemies: " + NationSettings.RelationColors.getOrDefault(Relation.ENEMY, TextColor.RED) + (enemyList.isEmpty() ? "None" : String.join(", ", enemyList)));
 			p.sendMessage(TextColor.YELLOW + "Players online: " + color + String.join(", ", onlinePlayers));
 			p.sendMessage(TextColor.YELLOW + "Players offline: " + color + String.join(", ", offlinePlayers));
 		}

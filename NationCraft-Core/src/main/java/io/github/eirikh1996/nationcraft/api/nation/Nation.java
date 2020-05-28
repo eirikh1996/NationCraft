@@ -3,15 +3,16 @@ package io.github.eirikh1996.nationcraft.api.nation;
 import java.io.*;
 import java.util.*;
 
+import io.github.eirikh1996.nationcraft.api.config.NationSettings;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
+import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
 import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.core.exception.NationNotFoundException;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
-import io.github.eirikh1996.nationcraft.core.territory.NationTerritoryManager;
-import io.github.eirikh1996.nationcraft.core.territory.Territory;
-import io.github.eirikh1996.nationcraft.core.territory.TerritoryManager;
+import io.github.eirikh1996.nationcraft.api.territory.Territory;
+import io.github.eirikh1996.nationcraft.api.territory.TerritoryManager;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,22 +35,6 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	@NotNull private final Set<NCPlayer> invitedPlayers = new HashSet<>();
 	@NotNull private final Map<NCPlayer, String> bannedPlayers = new HashMap<>();
 
-	public Nation(@NotNull String name, @NotNull String description, @Nullable Settlement capital, @NotNull Set<Nation> allies, @NotNull Set<Nation> enemies, @NotNull Set<Nation> truces, @NotNull Set<Settlement> settlements, @NotNull Map<NCPlayer, Ranks> players) {
-		this.uuid = UUID.randomUUID();
-		this.name = name;
-		originalName = name;
-		this.description = description;
-		this.capital = capital;
-		this.allies = allies;
-		this.enemies = enemies;
-		this.settlements = settlements;
-		this.truces = truces;
-		this.players = players;
-		territoryManager = new NationTerritoryManager(this);
-		creationTimeMS = System.currentTimeMillis();
-		NationManager.getInstance().getNations().add(this);
-	}
-
 	Nation(@NotNull String name, @NotNull String description){
 		this.uuid = UUID.randomUUID();
 		this.name = name;
@@ -67,7 +52,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		NationManager.getInstance().getNations().add(this);
 	}
 
-	public Nation(@NotNull String name, NCPlayer leader){
+	Nation(@NotNull String name, NCPlayer leader){
 		this.uuid = UUID.randomUUID();
 		this.name = name;
 		originalName = name;
@@ -82,13 +67,12 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		flags.putAll(NationManager.getInstance().getRegisteredFlags());
 		territoryManager = new NationTerritoryManager(this);
 		creationTimeMS = System.currentTimeMillis();
-		NationManager.getInstance().getNations().add(this);
 	}
 	/**
 	 * Constructs a nation from the data stored in each nation file
 	 * @param nationFile The nation file's path
 	 */
-	public Nation(File nationFile) {
+	Nation(File nationFile) {
 		final Map data;
 		try {
 			InputStream input = new FileInputStream(nationFile);
@@ -103,10 +87,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		originalName = (String) data.get("originalName");
 		description = (String) data.get("description");
 		capital = Settlement.loadFromFile((String) data.get("capital"));
-		allies = nationListFromObject("allies");
-		enemies = nationListFromObject("enemies");
-		truces = nationListFromObject("truces");
-		settlements = settlementListFromObject("settlements");
+
 		Map<String, Object> flagMap = (Map<String, Object>) data.get("flags");
 		for (String key : flagMap.keySet()) {
 			flags.put(key, (boolean) flagMap.get(key));
@@ -123,6 +104,22 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		territoryManager = new NationTerritoryManager(this);
 		territoryManager.addAll(chunkListFromObject(data.get("territory")));
 		creationTimeMS = (long) data.get("creationTimeMS");
+		allies = new HashSet<>();
+		enemies = new HashSet<>();
+		truces = new HashSet<>();
+		settlements = new HashSet<>();
+		new Timer().schedule(
+				new TimerTask() {
+					@Override
+					public void run() {
+						allies.addAll(nationListFromObject(data.get("allies")));
+						enemies.addAll(nationListFromObject(data.get("enemies")));
+						truces.addAll(nationListFromObject(data.get("truces")));
+						settlements.addAll(settlementListFromObject(data.get("settlements")));
+					}
+				},
+				3000
+		);
 	}
 	private Set<Nation> nationListFromObject(Object obj){
 		HashSet<Nation> returnList = new HashSet<>();
@@ -245,7 +242,19 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 
 	public void broadcast(@NotNull final String message) {
 		for (NCPlayer player : players.keySet()) {
+			if (!player.isOnline()) {
+				continue;
+			}
 			player.sendMessage(message);
+		}
+	}
+
+	public void broadcast(ChatText text) {
+		for (NCPlayer player : players.keySet()) {
+			if (!player.isOnline()) {
+				continue;
+			}
+			player.sendMessage(text);
 		}
 	}
 
@@ -337,25 +346,36 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 
 	public TextColor getColor(@Nullable Nation other) {
 		if (isSafezone()){
-			return TextColor.GOLD;
+			return NationSettings.RelationColors.getOrDefault(Relation.SAFEZONE, TextColor.GOLD);
 		}
 		else if (isWarzone()){
-			return TextColor.DARK_RED;
+			return NationSettings.RelationColors.getOrDefault(Relation.WARZONE, TextColor.DARK_RED);
 		}
 		else if (other == null){
-			return TextColor.WHITE;
+			return NationSettings.RelationColors.getOrDefault(Relation.NEUTRAL, TextColor.WHITE);
 		}
 		else if (this.equals(other)){
-			return TextColor.GREEN;
+			return NationSettings.RelationColors.getOrDefault(Relation.OWN, TextColor.GREEN);
 		}
 		else if (isAlliedWith(other)){
-			return TextColor.DARK_PURPLE;
+			return NationSettings.RelationColors.getOrDefault(Relation.ALLY, TextColor.DARK_PURPLE);
 		}
 		else if (isAtWarWith(other)){
-			return TextColor.RED;
+			return NationSettings.RelationColors.getOrDefault(Relation.ENEMY, TextColor.RED);
 		}
-		return TextColor.WHITE;
+		else if (isTrucedWith(other)) {
+			return NationSettings.RelationColors.getOrDefault(Relation.TRUCE, TextColor.LIGHT_PURPLE);
+		} else {
+			return NationSettings.RelationColors.getOrDefault(Relation.NEUTRAL, TextColor.WHITE);
+		}
+
 	}
+
+	/**
+	 * Returns the name of a nation colored depending on relation to other nation
+	 * @param other A nation other than this nation
+	 * @return
+	 */
 
 	public String getName(Nation other){
 		String ret = "" + getColor(other);
@@ -508,11 +528,31 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	public boolean addAlly(Nation ally){
-		return allies.add(ally);
+		if (ally.isSafezone() || ally.isWarzone()) {
+			throw new IllegalArgumentException("Relations cannot be set with warzones or safezones");
+		}
+		enemies.remove(ally);
+		truces.remove(ally);
+		boolean added = allies.add(ally);
+		saveToFile();
+		return added;
 	}
 
 	public boolean removeAlly(Nation ally){
-		return allies.remove(ally);
+		if (ally.isSafezone() || ally.isWarzone()) {
+			throw new IllegalArgumentException("Relations cannot be set with warzones or safezones");
+		}
+		boolean removed = allies.remove(ally);
+		saveToFile();
+		return removed;
+	}
+
+	public void addSettlement(Settlement settlement) {
+		if (capital == null) {
+			capital = settlement;
+		}
+		settlements.add(settlement);
+		saveToFile();
 	}
 
 	public void removePlayer(NCPlayer p){
@@ -526,23 +566,37 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 			}
 			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + p.getName() + " left your nation");
 		}
+		saveToFile();
 	}
 
 	public void kickPlayer(NCPlayer kicked, NCPlayer kicker){
 		broadcast(NATIONCRAFT_COMMAND_PREFIX + kicker.getName() + " kicked " + kicked.getName() + " from the nation");
 		players.remove(kicked);
+		saveToFile();
 	}
 
 	@NotNull public Set<Nation> getEnemies(){
-		return enemies;
+		return Collections.unmodifiableSet(enemies);
 	}
 
 	public boolean addEnemy(Nation enemy){
-		return enemies.add(enemy);
+		if (enemy.isSafezone() || enemy.isWarzone()) {
+			throw new IllegalArgumentException("Relations cannot be set with warzones or safezones");
+		}
+		allies.remove(enemy);
+		truces.remove(enemy);
+		boolean updated = enemies.add(enemy);
+		saveToFile();
+		return updated;
 	}
 
 	public boolean removeEnemy(Nation enemy){
-		return enemies.remove(enemy);
+		if (enemy.isSafezone() || enemy.isWarzone()) {
+			throw new IllegalArgumentException("Relations cannot be set with warzones or safezones");
+		}
+		boolean updated = enemies.remove(enemy);
+		saveToFile();
+		return updated;
 	}
 
 	@NotNull public Set<Settlement> getSettlements() { return settlements; }
@@ -630,16 +684,31 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	public double getMaxPower(){
 		return Settings.player.MaxPower * players.size();
 	}
+
+	/**
+	 *
+	 * @param alliedNation
+	 * @return
+	 */
 	public boolean isAlliedWith(Nation alliedNation) {
 		return allies.contains(alliedNation) && alliedNation.getAllies().contains(this);
 	}
 
 	public boolean isTrucedWith(Nation truce) {
-		return truces.contains(truce) && truce.getTruces().contains(this);
+		return truces.contains(truce) && (truce.getTruces().contains(this) || truce.getAllies().contains(this));
 	}
 
+	/**
+	 * Gets if this nation is at war with another nation
+	 * @param enemyNation The nation this nation might be at war with
+	 * @return true if either this or the other nation has declared war, otherwise false
+	 */
 	public boolean isAtWarWith(Nation enemyNation) {
 		return enemies.contains(enemyNation) || enemyNation.getEnemies().contains(this);
+	}
+
+	public boolean isInTruceWith(Nation truce) {
+		return truces.contains(truce) && (truce.truces.contains(this) || truce.allies.contains(this));
 	}
 
 	@NotNull
@@ -664,14 +733,15 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 
 	@NotNull
 	public Set<NCPlayer> getInvitedPlayers() {
-		return invitedPlayers;
+		return Collections.unmodifiableSet(invitedPlayers);
 	}
 
 	public boolean invite(NCPlayer player){
-		invitedPlayers.add(player);
-		return true;
+		saveToFile();
+		return invitedPlayers.add(player);
 	}
 	public boolean deinvite(NCPlayer player){
+		saveToFile();
 		return invitedPlayers.remove(player);
 	}
 
@@ -679,7 +749,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return !isOpen() && invitedPlayers.contains(player);
 	}
 
-	public boolean saveToFile(){
+	boolean saveToFile(){
         File f = new File(NationManager.getInstance().getNationDir(), getName().toLowerCase() + ".nation");
         if (!f.exists()){
             try {
@@ -794,6 +864,21 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 
 	@NotNull
 	public Set<Nation> getTruces() {
-		return truces;
+		return Collections.unmodifiableSet(truces);
+	}
+
+	public void removeTruce(Nation truce) {
+		truces.remove(truce);
+		saveToFile();
+	}
+
+	public void addTruce(Nation truce) {
+		if (truce.isSafezone() || truce.isWarzone()) {
+			throw new IllegalArgumentException("Relations cannot be set with warzones or safezones");
+		}
+		enemies.remove(truce);
+		allies.remove(truce);
+		truces.add(truce);
+		saveToFile();
 	}
 }

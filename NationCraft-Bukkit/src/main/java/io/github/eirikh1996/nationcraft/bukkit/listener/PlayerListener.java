@@ -1,6 +1,5 @@
 package io.github.eirikh1996.nationcraft.bukkit.listener;
 
-import com.SirBlobman.combatlogx.api.utility.ICombatManager;
 import com.earth2me.essentials.Essentials;
 import io.github.eirikh1996.nationcraft.api.NationCraftAPI;
 import io.github.eirikh1996.nationcraft.api.config.NationSettings;
@@ -10,17 +9,12 @@ import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.bukkit.NationCraft;
-import io.github.eirikh1996.nationcraft.bukkit.player.BukkitPlayerManager;
 import io.github.eirikh1996.nationcraft.bukkit.utils.BukkitUtils;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
 import io.github.eirikh1996.nationcraft.api.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
-import io.github.eirikh1996.nationcraft.core.territory.Territory;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,7 +22,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;

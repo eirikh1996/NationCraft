@@ -54,3 +54,7 @@ permissions:
     default: true
   nationcraft.nation.war:
     default: true
+  nationcraft.nation.ally:
+    default: true
+  nationcraft.nation.truce:
+    default: true

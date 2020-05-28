@@ -37,7 +37,11 @@ public class NationWarCommand extends Command {
         else if (enemy == null){
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + String.format("Nation %s does not exist", args[0]));
             return;
-        } else if (pNation.isAtWarWith(enemy)){
+        } //Do not set relation wish with sender's own nation
+        else if (pNation == enemy) {
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot set relation to your own nation!");
+            return;
+        }else if (pNation.isAtWarWith(enemy)){
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + String.format("Your nation is already at war with %s", args[0]));
             return;
         }
@@ -50,9 +54,15 @@ public class NationWarCommand extends Command {
     }
 
     @Override
-    public List<String> getTabCompletions(NCCommandSender sender, String[] args) {
+    public List<String> getTabCompletions(final NCCommandSender sender, final String[] args) {
         List<String> completions = new ArrayList<>();
+        if (!(sender instanceof NCPlayer)) {
+            return completions;
+        }
+        NCPlayer player = (NCPlayer) sender;
         for (Nation n : NationManager.getInstance()) {
+            if (n.equals(player.getNation()))
+                continue;
             completions.add(n.getName());
         }
         return completions;

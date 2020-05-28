@@ -67,7 +67,6 @@ public final class NationClaimCommand extends Command {
         } else if (shape.equals(Shape.LINE)) {
             nation.getTerritoryManager().claimLineTerritory(player, radius);
         }
-        nation.saveToFile();
     }
 
     @Override

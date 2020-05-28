@@ -1,5 +1,8 @@
 package io.github.eirikh1996.nationcraft.api.objects.text;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum  TextColor {
     BLACK("§0"),
     DARK_BLUE("§1"),
@@ -19,6 +22,13 @@ public enum  TextColor {
     WHITE("§f"),
     RESET("§r");
 
+    private static final Map<String, TextColor> BY_NAME = new HashMap<>();
+
+    static {
+        for (TextColor color : values()) {
+            BY_NAME.put(color.name(), color);
+        }
+    }
 
     private final String colorChar;
 
@@ -31,6 +41,14 @@ public enum  TextColor {
             str = str.replace(color.toString(), "");
         }
         return str;
+    }
+
+    public static TextColor getColor(String str) {
+        return BY_NAME.get(str);
+    }
+
+    public static TextColor getColorIgnoreCase(String str) {
+        return getColor(str.toUpperCase());
     }
 
     @Override

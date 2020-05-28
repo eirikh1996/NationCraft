@@ -2,9 +2,7 @@ package io.github.eirikh1996.nationcraft.api.objects;
 
 import io.github.eirikh1996.nationcraft.api.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
-import io.github.eirikh1996.nationcraft.core.territory.Territory;
-
-import java.util.UUID;
+import io.github.eirikh1996.nationcraft.api.territory.Territory;
 
 public class NCLocation {
     private final String world;

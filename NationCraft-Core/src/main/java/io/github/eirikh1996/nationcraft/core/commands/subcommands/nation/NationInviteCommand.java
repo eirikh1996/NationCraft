@@ -61,7 +61,6 @@ public final class NationInviteCommand extends Command {
             return;
         }
         n.invite(np);
-        n.saveToFile();
     }
 
     @Override

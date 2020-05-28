@@ -5,7 +5,7 @@ import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
-import io.github.eirikh1996.nationcraft.core.territory.TownCenter;
+import io.github.eirikh1996.nationcraft.api.territory.TownCenter;
 
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 

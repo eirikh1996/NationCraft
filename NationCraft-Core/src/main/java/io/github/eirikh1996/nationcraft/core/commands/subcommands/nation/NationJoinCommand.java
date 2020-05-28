@@ -58,6 +58,5 @@ public final class NationJoinCommand extends Command {
         } else {
             sender.sendMessage(String.format("You are already a member of %s", nation.getName()));
         }
-        nation.saveToFile();
     }
 }

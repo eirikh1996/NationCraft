@@ -37,8 +37,7 @@ public final class NationInfoCommand extends Command {
             sender.sendMessage(Messages.ERROR + "Nation does not exist!");
             return;
         }
-        TextColor color = NationManager.getInstance().getColor(player, n);
-        Messages.nationInfo(n, player, color);
+        Messages.nationInfo(n, player);
     }
 
     @Override
