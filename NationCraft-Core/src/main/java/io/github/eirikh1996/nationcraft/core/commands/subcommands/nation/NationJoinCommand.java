@@ -1,13 +1,12 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.api.config.NationSettings;
-import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 
 import java.util.Arrays;
 

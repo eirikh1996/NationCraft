@@ -1,4 +1,4 @@
-package io.github.eirikh1996.nationcraft.api.settlement.siege;
+package io.github.eirikh1996.nationcraft.core.settlement.siege;
 
 import io.github.eirikh1996.nationcraft.core.Core;
 

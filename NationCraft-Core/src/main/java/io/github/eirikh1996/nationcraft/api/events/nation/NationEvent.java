@@ -1,7 +1,7 @@
 package io.github.eirikh1996.nationcraft.api.events.nation;
 
 import io.github.eirikh1996.nationcraft.api.events.Event;
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
 
 public abstract class NationEvent extends Event {
     private final Nation nation;

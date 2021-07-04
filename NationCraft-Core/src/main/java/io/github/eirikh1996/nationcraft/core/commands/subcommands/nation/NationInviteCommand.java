@@ -9,9 +9,9 @@ import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
-import io.github.eirikh1996.nationcraft.api.nation.Ranks;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.NationManager;
+import io.github.eirikh1996.nationcraft.core.nation.Ranks;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,11 +1,11 @@
-package io.github.eirikh1996.nationcraft.api.settlement;
+package io.github.eirikh1996.nationcraft.core.settlement;
 
 import java.io.File;
 import java.util.*;
 
 import io.github.eirikh1996.nationcraft.api.NationCraftMain;
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;

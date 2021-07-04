@@ -1,4 +1,4 @@
-package io.github.eirikh1996.nationcraft.api.nation;
+package io.github.eirikh1996.nationcraft.core.nation;
 
 import java.io.*;
 import java.util.*;
@@ -8,7 +8,7 @@ import io.github.eirikh1996.nationcraft.api.NationCraftMain;
 import io.github.eirikh1996.nationcraft.api.events.nation.NationCreateEvent;
 import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
-import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.territory.Territory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

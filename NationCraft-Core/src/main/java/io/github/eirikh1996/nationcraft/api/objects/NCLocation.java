@@ -1,7 +1,7 @@
 package io.github.eirikh1996.nationcraft.api.objects;
 
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.territory.Territory;
 
 public class NCLocation {

@@ -1,12 +1,10 @@
 package io.github.eirikh1996.nationcraft.api.config;
 
-import io.github.eirikh1996.nationcraft.api.nation.Relation;
+import io.github.eirikh1996.nationcraft.core.nation.Relation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Settings {
 	public static final PlayerSettings player;

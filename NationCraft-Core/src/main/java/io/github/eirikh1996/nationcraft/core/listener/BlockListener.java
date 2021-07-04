@@ -3,7 +3,7 @@ package io.github.eirikh1996.nationcraft.core.listener;
 import io.github.eirikh1996.nationcraft.api.events.EventListener;
 import io.github.eirikh1996.nationcraft.api.events.block.BurnBlockEvent;
 import io.github.eirikh1996.nationcraft.api.events.block.IgniteBlockEvent;
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
 
 public class BlockListener {
 

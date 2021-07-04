@@ -6,8 +6,8 @@ import io.github.eirikh1996.nationcraft.core.claiming.Shape;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,11 +33,11 @@ public final class NationClaimCommand extends Command {
         try {
             radius = Integer.parseInt(args[1]);
         } catch (Exception e) {
-            radius = 0;
+            radius = 1;
         }
         String nationName;
         try {
-            nationName = radius > 0 ? args[2] : args[1];
+            nationName = radius > 1 ? args[2] : args[1];
         } catch (ArrayIndexOutOfBoundsException e) {
             nationName = "";
         }

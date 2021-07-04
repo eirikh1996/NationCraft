@@ -1,7 +1,7 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
 import io.github.eirikh1996.nationcraft.api.objects.text.ClickEvent;
 import io.github.eirikh1996.nationcraft.api.objects.text.HoverEvent;

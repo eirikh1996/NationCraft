@@ -1,4 +1,4 @@
-package io.github.eirikh1996.nationcraft.api.nation;
+package io.github.eirikh1996.nationcraft.core.nation;
 
 import java.util.HashMap;
 import java.util.Map;

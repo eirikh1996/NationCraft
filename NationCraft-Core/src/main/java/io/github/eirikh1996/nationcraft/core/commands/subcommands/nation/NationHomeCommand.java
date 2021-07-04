@@ -1,10 +1,9 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.api.config.Settings;
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
-import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 

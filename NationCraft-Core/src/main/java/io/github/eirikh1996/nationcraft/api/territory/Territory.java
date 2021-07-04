@@ -1,11 +1,11 @@
 package io.github.eirikh1996.nationcraft.api.territory;
 
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.objects.NCVector;
-import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
-import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
+import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.api.utils.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

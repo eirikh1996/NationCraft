@@ -1,11 +1,11 @@
 package io.github.eirikh1996.nationcraft.api.player;
 
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
-import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
-import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
+import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.core.chat.ChatMode;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;

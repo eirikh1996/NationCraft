@@ -1,16 +1,13 @@
 package io.github.eirikh1996.nationcraft.bukkit.listener;
 
 import io.github.eirikh1996.nationcraft.api.config.NationSettings;
-import io.github.eirikh1996.nationcraft.api.config.Settings;
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
-import io.github.eirikh1996.nationcraft.api.nation.Relation;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.NationManager;
+import io.github.eirikh1996.nationcraft.core.nation.Relation;
 import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.bukkit.utils.BukkitUtils;
-import io.github.eirikh1996.nationcraft.core.Core;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

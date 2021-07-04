@@ -1,7 +1,7 @@
 package io.github.eirikh1996.nationcraft.api.events.nation;
 
 import io.github.eirikh1996.nationcraft.api.events.Cancellable;
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 
 public class NationCreateEvent extends NationEvent implements Cancellable {

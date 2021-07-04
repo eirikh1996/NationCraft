@@ -1,11 +1,11 @@
-package io.github.eirikh1996.nationcraft.api.settlement;
+package io.github.eirikh1996.nationcraft.core.settlement;
 
 import java.io.*;
 import java.util.*;
 
 import io.github.eirikh1996.nationcraft.api.config.Settings;
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
 import io.github.eirikh1996.nationcraft.api.objects.text.ClickEvent;

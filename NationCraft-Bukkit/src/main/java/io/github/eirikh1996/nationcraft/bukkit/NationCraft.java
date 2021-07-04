@@ -22,13 +22,12 @@ import io.github.eirikh1996.nationcraft.core.commands.CommandRegistry;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.core.commands.NCConsole;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
-import io.github.eirikh1996.nationcraft.api.nation.Relation;
-import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
+import io.github.eirikh1996.nationcraft.core.nation.NationManager;
+import io.github.eirikh1996.nationcraft.core.nation.Relation;
+import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import mineverse.Aust1n46.chat.MineverseChat;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -39,11 +38,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 

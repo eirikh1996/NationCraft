@@ -1,4 +1,4 @@
-package io.github.eirikh1996.nationcraft.api.nation;
+package io.github.eirikh1996.nationcraft.core.nation;
 
 import io.github.eirikh1996.nationcraft.api.objects.NCVector;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
@@ -26,7 +26,6 @@ final class NationTerritoryManager implements TerritoryManager {
         HashSet<Territory> claimed = new HashSet<>();
         int cx = player.getLocation().getBlockX() >> 4;
         int cz = player.getLocation().getBlockZ() >> 4;
-
         for (int x = cx - radius; x <= cx + radius; x++){
             for (int z = cz - radius; z <= cz + radius; z++){
                 NCVector distance = new NCVector(cx - x, 0 , cz - z);

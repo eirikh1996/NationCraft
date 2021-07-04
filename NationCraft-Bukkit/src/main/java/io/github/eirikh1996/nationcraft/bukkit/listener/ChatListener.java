@@ -1,18 +1,11 @@
 package io.github.eirikh1996.nationcraft.bukkit.listener;
 
-import com.earth2me.essentials.Essentials;
-import com.earth2me.essentials.User;
 import io.github.eirikh1996.nationcraft.api.NationCraftAPI;
 import io.github.eirikh1996.nationcraft.api.events.player.PlayerChatEvent;
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
-import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
-import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
-import io.github.eirikh1996.nationcraft.bukkit.NationCraft;
-import io.github.eirikh1996.nationcraft.core.chat.ChatMode;
-import org.bukkit.entity.Player;
+import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

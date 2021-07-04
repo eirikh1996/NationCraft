@@ -1,12 +1,12 @@
 package io.github.eirikh1996.nationcraft.bukkit.utils;
 
 import io.github.eirikh1996.nationcraft.api.config.Settings;
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
-import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
-import io.github.eirikh1996.nationcraft.api.settlement.SettlementManager;
+import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.bukkit.NationCraft;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;

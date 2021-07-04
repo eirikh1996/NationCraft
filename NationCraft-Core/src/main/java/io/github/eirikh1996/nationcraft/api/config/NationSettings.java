@@ -1,6 +1,6 @@
 package io.github.eirikh1996.nationcraft.api.config;
 
-import io.github.eirikh1996.nationcraft.api.nation.Relation;
+import io.github.eirikh1996.nationcraft.core.nation.Relation;
 import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import org.jetbrains.annotations.NotNull;
 

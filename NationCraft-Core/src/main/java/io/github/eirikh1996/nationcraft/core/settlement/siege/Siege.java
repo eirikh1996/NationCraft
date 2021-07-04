@@ -1,8 +1,8 @@
-package io.github.eirikh1996.nationcraft.api.settlement.siege;
+package io.github.eirikh1996.nationcraft.core.settlement.siege;
 
-import io.github.eirikh1996.nationcraft.api.nation.Nation;
-import io.github.eirikh1996.nationcraft.api.nation.NationManager;
-import io.github.eirikh1996.nationcraft.api.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.core.nation.Nation;
+import io.github.eirikh1996.nationcraft.core.nation.NationManager;
+import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
 
 public class Siege {
     private final Settlement settlement;
