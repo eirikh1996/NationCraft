@@ -9,6 +9,7 @@ import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.core.chat.ChatMode;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
@@ -65,9 +66,15 @@ public abstract class NCPlayer implements NCCommandSender {
 
     }
 
-    public abstract void sendMessage(@NotNull final ChatText text);
+    public abstract void sendMessage(@NotNull final Component text);
 
-    public abstract void sendActionBar(@NotNull final String text);
+    @Deprecated
+    public void sendActionBar(@NotNull final String text) {
+        sendActionBar(Component.text(text));
+    }
+
+    public abstract void sendActionBar(@NotNull Component text);
+
     /**
      *
      * Teleports a player to a given location and sends a message when teleportation commences

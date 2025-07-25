@@ -2,6 +2,7 @@ package io.github.eirikh1996.nationcraft.api.config;
 
 import io.github.eirikh1996.nationcraft.core.nation.Relation;
 import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -19,5 +20,5 @@ public class NationSettings {
     @NotNull public static Set<Relation> DisableDamageFor = new HashSet<>();
     @NotNull public static Map<Relation, List<String>> ForbiddenCommands = new HashMap<>();
     @NotNull public static List<String> ForbiddenNames = new ArrayList<>(); //Names that are forbidden to use for nations or settlements
-    @NotNull public static Map<Relation, TextColor> RelationColors = new HashMap<>();
+    @NotNull public static Map<Relation, NamedTextColor> RelationColors = new HashMap<>();
 }

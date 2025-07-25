@@ -26,6 +26,7 @@ import static io.github.eirikh1996.nationcraft.core.messages.Messages.ERROR;
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
 final public class Settlement {
+	private final UUID uuid;
 	private String name;
 	private final String world;
 	private String nation;
@@ -46,6 +47,7 @@ final public class Settlement {
 			// TODO Auto-generated catch block
 			throw new SettlementNotFoundException("Settlement file at " + settlementFile.getAbsolutePath() + " was not found");
 		}
+		uuid = UUID.fromString((String) data.get("uuid"));
 		name = (String) data.get("name");
 		nation = (String) data.get("nation");
 		world = (String) data.get("world");
@@ -89,6 +91,7 @@ final public class Settlement {
 
 	}
 	Settlement(String name, String nation, String world, TownCenter townCenter, HashMap<NCPlayer, Ranks> players) {
+		this.uuid = UUID.randomUUID();
 		this.name = name;
 		this.nation = nation;
 		this.world = world;
@@ -98,6 +101,7 @@ final public class Settlement {
 		invitedPlayers = new HashSet<>();
 	}
 	public Settlement(String name, NCPlayer creator){
+		this.uuid = UUID.randomUUID();
 		this.name = name;
 		nation = NationManager.getInstance().getNationByPlayer(creator.getPlayerID()).getName();
 		world = creator.getLocation().getWorld();
@@ -377,7 +381,11 @@ final public class Settlement {
 		this.nation = name;
 	}
 
-	private class SettlementNotFoundException extends RuntimeException{
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    private class SettlementNotFoundException extends RuntimeException{
 		public SettlementNotFoundException(String s){
 			super(s);
 		}

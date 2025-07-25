@@ -24,6 +24,10 @@ public class CommandRegistry implements Iterable<Command> {
         }
     }
 
+    public Map<String, Command> getRegisteredCommands() {
+        return registeredCommands;
+    }
+
     public void registerDefaultCommands() {
         register(new ChatModeCommand());
         register(new NationCraftCommand());

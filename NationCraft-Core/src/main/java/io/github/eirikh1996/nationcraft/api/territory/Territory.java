@@ -1,5 +1,6 @@
 package io.github.eirikh1996.nationcraft.api.territory;
 
+import io.github.eirikh1996.nationcraft.api.objects.Serializable;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
@@ -11,9 +12,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
-public final class Territory implements Comparable<Territory> {
+public final class Territory implements Comparable<Territory>, Serializable {
     private final int x, z;
     private final String world;
 
@@ -166,5 +169,26 @@ public final class Territory implements Comparable<Territory> {
         i += (getZ() - o.getZ());
         i += (getWorld().compareTo(o.getWorld()));
         return i;
+    }
+
+    @Override
+    public Map<String, Object> serialize() {
+        final Map<String, Object> serialized = new HashMap<>();
+        serialized.put("x", x);
+        serialized.put("z", z);
+        serialized.put("world", world);
+        Nation nation = NationManager.getInstance().getNationAt(this);
+        if (nation != null) {
+            serialized.put("nation", nation.getUuid());
+        }
+        Settlement settlement = SettlementManager.getInstance().getSettlementAt(this);
+        if (settlement != null) {
+            serialized.put("settlement", settlement.getUuid());
+        }
+        return serialized;
+    }
+
+    public static Territory deserialize(Map<String, Object> data) {
+        return new Territory((String) data.get("world"), (Integer) data.get("x"), (Integer) data.get("z"));
     }
 }

@@ -1,14 +1,12 @@
 package io.github.eirikh1996.nationcraft.sponge.player;
 
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
-import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.ClickAction;
-import org.spongepowered.api.text.format.TextFormat;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.text.title.Title;
 
@@ -21,7 +19,7 @@ public class NCSpongePlayer extends NCPlayer {
     }
 
     @Override
-    public void sendMessage(@NotNull ChatText text) {
+    public void sendMessage(@NotNull Component text) {
         final Optional<Player> p = Sponge.getServer().getPlayer(playerID);
         if (!p.isPresent()) {
             return;

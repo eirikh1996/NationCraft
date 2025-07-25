@@ -115,7 +115,7 @@ public class NationManager implements Runnable, Iterable<Nation> {
 	public Nation getNationAt(Territory territory){
 		Nation returnNation = null;
 		for (Nation nation : this){
-			if (nation.getTerritoryManager().contains(territory)){
+			if (nation.getTerritory().contains(territory)){
 				returnNation = nation;
 				break;
 			}
@@ -170,6 +170,16 @@ public class NationManager implements Runnable, Iterable<Nation> {
 		Nation returnNation = null;
 		for (Nation n : nations){
 			if (n.getName().equalsIgnoreCase(name)){
+				returnNation = n;
+			}
+		}
+		return returnNation;
+	}
+
+	public Nation getNationByUUID(UUID nationUUID) {
+		Nation returnNation = null;
+		for (Nation n : nations){
+			if (n.getUuid() == nationUUID){
 				returnNation = n;
 			}
 		}

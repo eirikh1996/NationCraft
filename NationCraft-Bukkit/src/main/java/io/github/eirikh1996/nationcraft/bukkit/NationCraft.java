@@ -1,12 +1,13 @@
 package io.github.eirikh1996.nationcraft.bukkit;
 
-import com.SirBlobman.combatlogx.api.ICombatLogX;
 import com.earth2me.essentials.Essentials;
+import com.github.sirblobman.combatlogx.api.ICombatLogX;
 import io.github.eirikh1996.nationcraft.api.NationCraftAPI;
 import io.github.eirikh1996.nationcraft.api.NationCraftMain;
 import io.github.eirikh1996.nationcraft.api.config.NationSettings;
 import io.github.eirikh1996.nationcraft.api.config.WorldSettings;
 import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
+import io.github.eirikh1996.nationcraft.api.territory.TerritoryManager;
 import io.github.eirikh1996.nationcraft.bukkit.hooks.chat.VentureChatHook;
 import io.github.eirikh1996.nationcraft.bukkit.objects.NCBukkitConsole;
 import io.github.eirikh1996.nationcraft.bukkit.player.BukkitPlayerManager;
@@ -33,14 +34,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.lang.reflect.Field;
+import java.util.*;
 
 public class NationCraft extends JavaPlugin implements NationCraftMain {
 	private static Economy economy;
@@ -59,6 +60,7 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 
 
 		SettlementManager.initialize(this);
+		TerritoryManager.getInstance().initialize(this);
 		Messages.initialize(this);
 		NationManager nManager = NationManager.getInstance();
 		nManager.loadNations();
@@ -154,7 +156,21 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		instance = this;
 		api = NationCraftAPI.getInstance();
 		commandRegistry = new CommandRegistry();
-		Core.initialize(this);
+		commandRegistry.registerDefaultCommands();
+		Map<String, Map<String, Object>> newCommandMap = new HashMap<>(getDescription().getCommands());
+		commandRegistry.getRegisteredCommands().forEach((str, cmd) -> {
+			final Map<String, Object> serializedCommand = new HashMap<>();
+			serializedCommand.put("aliases", cmd.getAliases());
+			newCommandMap.put(str, serializedCommand);
+		});
+        try {
+            final Field commandsField = PluginDescriptionFile.class.getDeclaredField("commands");
+			commandsField.setAccessible(true);
+			commandsField.set(getDescription(), newCommandMap);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        Core.initialize(this);
 	}
 	
 	public static synchronized NationCraft getInstance() {
@@ -293,6 +309,8 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 	public List<String> getAuthors() {
 		return getDescription().getAuthors();
 	}
+
+
 
 	@Override
 	public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String label, @NotNull String[] args) {

@@ -2,12 +2,11 @@ package io.github.eirikh1996.nationcraft.bukkit.player;
 
 import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
-import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
-import io.github.eirikh1996.nationcraft.api.utils.ReflectionUtils;
 import io.github.eirikh1996.nationcraft.bukkit.NationCraft;
 import io.github.eirikh1996.nationcraft.bukkit.utils.BukkitUtils;
 import io.github.eirikh1996.nationcraft.core.chat.ChatMode;
+import net.kyori.adventure.text.Component;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -17,10 +16,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 
-import static io.github.eirikh1996.nationcraft.api.utils.ReflectionUtils.*;
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.ERROR;
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
@@ -42,69 +39,19 @@ public class NCBukkitPlayer extends NCPlayer {
     }
 
     @Override
-    public void sendMessage(@NotNull ChatText text) {
+    public void sendMessage(@NotNull Component text) {
         final Player p = Bukkit.getPlayer(playerID);
         if (p == null)
             throw new IllegalStateException("Player " + playerID + " is not online!");
-        Class<?> iChatBaseComponentClass;
-        Class<?> chatSerializer;
-        Class<?> packet;
-        Object packetPlayOutChat;
-        Object playerConnection;
-        Object iChatBaseComponent;
-        Object nmsPlayer;
-        try {
-            packet = ReflectionUtils.getClass(NMS_PACKAGE + "Packet");
-            nmsPlayer = getMethod(p.getClass(), "getHandle").invoke(p);
-            iChatBaseComponentClass = ReflectionUtils.getClass(NMS_PACKAGE + "IChatBaseComponent");
-            chatSerializer = ReflectionUtils.getClass(NMS_PACKAGE + "IChatBaseComponent$ChatSerializer");
-            iChatBaseComponent = ReflectionUtils.getMethod(chatSerializer, "a", String.class).invoke(null, text.json());
-            packetPlayOutChat = ReflectionUtils.getClass(NMS_PACKAGE + "PacketPlayOutChat").getConstructor(iChatBaseComponentClass).newInstance(iChatBaseComponent);
-            playerConnection = ReflectionUtils.getField(nmsPlayer.getClass(), "playerConnection").get(nmsPlayer);
-            ReflectionUtils.getMethod(playerConnection.getClass(), "sendPacket", packet).invoke(playerConnection, packetPlayOutChat);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException | InstantiationException | NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-
-
+        p.sendMessage(text);
     }
 
     @Override
-    public void sendActionBar(@NotNull String text) {
+    public void sendActionBar(@NotNull Component text) {
         final Player p = Bukkit.getPlayer(playerID);
         if (p == null)
             throw new IllegalStateException("Player " + playerID + " is not online!");
-        final String jsonText = "{\"text\":\"" + text + "\"}";
-        Class<?> iChatBaseComponentClass;
-        Class<?> chatSerializer;
-        Class<?> packet;
-        Object packetPlayOutChat;
-        Object playerConnection;
-        Object iChatBaseComponent;
-        Object nmsPlayer;
-        try {
-            packet = ReflectionUtils.getClass(NMS_PACKAGE + "Packet");
-            nmsPlayer = getMethod(p.getClass(), "getHandle").invoke(p);
-            iChatBaseComponentClass = ReflectionUtils.getClass(NMS_PACKAGE + "IChatBaseComponent");
-            chatSerializer = ReflectionUtils.getClass(NMS_PACKAGE + "IChatBaseComponent$ChatSerializer");
-            iChatBaseComponent = ReflectionUtils.getMethod(chatSerializer, "a", String.class).invoke(null, jsonText);
-            if (Integer.parseInt(getServerVersion().split("_")[1]) >= 12) {
-                Class<?> chatMessageType = ReflectionUtils.getClass(NMS_PACKAGE + "ChatMessageType");
-                Object gameInfo = chatMessageType.getEnumConstants()[2];
-                packetPlayOutChat = ReflectionUtils.getClass(NMS_PACKAGE + "PacketPlayOutChat").getConstructor(
-                        iChatBaseComponentClass,
-                        chatMessageType).newInstance(iChatBaseComponent, gameInfo);
-            } else {
-                packetPlayOutChat = ReflectionUtils.getClass(NMS_PACKAGE + "PacketPlayOutChat").getConstructor(
-                        iChatBaseComponentClass,
-                        byte.class
-                ).newInstance(iChatBaseComponent, (byte) 2);
-            }
-            playerConnection = ReflectionUtils.getField(nmsPlayer.getClass(), "playerConnection").get(nmsPlayer);
-            ReflectionUtils.getMethod(playerConnection.getClass(), "sendPacket", packet).invoke(playerConnection, packetPlayOutChat);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        p.sendActionBar(text);
 
     }
 

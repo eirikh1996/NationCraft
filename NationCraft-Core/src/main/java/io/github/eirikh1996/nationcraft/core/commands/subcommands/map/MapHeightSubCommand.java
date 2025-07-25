@@ -8,8 +8,8 @@ import java.util.Arrays;
 
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
-public class HeightSubCommand extends Command {
-    public HeightSubCommand() {
+public class MapHeightSubCommand extends Command {
+    public MapHeightSubCommand() {
         super("height", Arrays.asList("h", "size", "s"));
     }
 

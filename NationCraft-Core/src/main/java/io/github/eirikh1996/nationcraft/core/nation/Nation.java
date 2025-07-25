@@ -6,13 +6,15 @@ import java.util.*;
 import io.github.eirikh1996.nationcraft.api.config.NationSettings;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
-import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.core.exception.NationNotFoundException;
 import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.territory.Territory;
 import io.github.eirikh1996.nationcraft.api.territory.TerritoryManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +31,6 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	@Nullable private Settlement capital;
 	@NotNull private final Set<Nation> allies, enemies, truces;
 	@NotNull private final Set<Settlement> settlements;
-	@NotNull private final TerritoryManager territoryManager;
 	@NotNull private final Map<String, Boolean> flags = new HashMap<>();
 	@NotNull private final Map<NCPlayer, Ranks> players;
 	@NotNull private final Set<NCPlayer> invitedPlayers = new HashSet<>();
@@ -47,7 +48,6 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		this.settlements = new HashSet<>();
 		this.players = new HashMap<>();
 		flags.putAll(NationManager.getInstance().getRegisteredFlags());
-		territoryManager = new NationTerritoryManager(this);
 		creationTimeMS = System.currentTimeMillis();
 		NationManager.getInstance().getNations().add(this);
 	}
@@ -65,7 +65,6 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		this.players = new HashMap<>();
 		players.put(leader, Ranks.LEADER);
 		flags.putAll(NationManager.getInstance().getRegisteredFlags());
-		territoryManager = new NationTerritoryManager(this);
 		creationTimeMS = System.currentTimeMillis();
 	}
 	/**
@@ -101,8 +100,6 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 			bannedPlayers.put(PlayerManager.getInstance().getPlayer(UUID.fromString(id)), bans.get(id));
 		}
 		players = getPlayersAndRanksFromObject(data.get("players"));
-		territoryManager = new NationTerritoryManager(this);
-		territoryManager.addAll(chunkListFromObject(data.get("territory")));
 		creationTimeMS = (long) data.get("creationTimeMS");
 		allies = new HashSet<>();
 		enemies = new HashSet<>();
@@ -249,7 +246,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		}
 	}
 
-	public void broadcast(ChatText text) {
+	public void broadcast(TextComponent text) {
 		for (NCPlayer player : players.keySet()) {
 			if (!player.isOnline()) {
 				continue;
@@ -340,33 +337,33 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return name;
 	}
 
-	public TextColor getColor(@NotNull NCPlayer player) {
+	public NamedTextColor getColor(@NotNull NCPlayer player) {
 		return getColor(player.getNation());
 	}
 
-	public TextColor getColor(@Nullable Nation other) {
+	public NamedTextColor getColor(@Nullable Nation other) {
 		if (isSafezone()){
-			return NationSettings.RelationColors.getOrDefault(Relation.SAFEZONE, TextColor.GOLD);
+			return NationSettings.RelationColors.getOrDefault(Relation.SAFEZONE, NamedTextColor.GOLD);
 		}
 		else if (isWarzone()){
-			return NationSettings.RelationColors.getOrDefault(Relation.WARZONE, TextColor.DARK_RED);
+			return NationSettings.RelationColors.getOrDefault(Relation.WARZONE, NamedTextColor.DARK_RED);
 		}
 		else if (other == null){
-			return NationSettings.RelationColors.getOrDefault(Relation.NEUTRAL, TextColor.WHITE);
+			return NationSettings.RelationColors.getOrDefault(Relation.NEUTRAL, NamedTextColor.WHITE);
 		}
 		else if (this.equals(other)){
-			return NationSettings.RelationColors.getOrDefault(Relation.OWN, TextColor.GREEN);
+			return NationSettings.RelationColors.getOrDefault(Relation.OWN, NamedTextColor.GREEN);
 		}
 		else if (isAlliedWith(other)){
-			return NationSettings.RelationColors.getOrDefault(Relation.ALLY, TextColor.DARK_PURPLE);
+			return NationSettings.RelationColors.getOrDefault(Relation.ALLY, NamedTextColor.DARK_PURPLE);
 		}
 		else if (isAtWarWith(other)){
-			return NationSettings.RelationColors.getOrDefault(Relation.ENEMY, TextColor.RED);
+			return NationSettings.RelationColors.getOrDefault(Relation.ENEMY, NamedTextColor.RED);
 		}
 		else if (isTrucedWith(other)) {
-			return NationSettings.RelationColors.getOrDefault(Relation.TRUCE, TextColor.LIGHT_PURPLE);
+			return NationSettings.RelationColors.getOrDefault(Relation.TRUCE, NamedTextColor.LIGHT_PURPLE);
 		} else {
-			return NationSettings.RelationColors.getOrDefault(Relation.NEUTRAL, TextColor.WHITE);
+			return NationSettings.RelationColors.getOrDefault(Relation.NEUTRAL, NamedTextColor.WHITE);
 		}
 
 	}
@@ -377,19 +374,17 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	 * @return
 	 */
 
-	public String getName(Nation other){
-		String ret = "" + getColor(other);
-		ret += getName();
-		ret += TextColor.RESET;
-		return ret;
+
+	public TextComponent getName(Nation other){
+        return Component.text(getName(), getColor(other));
 	}
 
-	public String getName(UUID playerID) {
+	public TextComponent getName(UUID playerID) {
 		Nation pNation = NationManager.getInstance().getNationByPlayer(playerID);
 		return getName(pNation);
 	}
 
-	public String getName(NCPlayer player) {;
+	public TextComponent getName(NCPlayer player) {;
 		return getName(player.getNation());
 	}
 
@@ -602,8 +597,8 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	@NotNull public Set<Settlement> getSettlements() { return settlements; }
 
 	@NotNull
-	public TerritoryManager getTerritoryManager() {
-		return territoryManager;
+	public Collection<Territory> getTerritory() {
+		return TerritoryManager.getInstance().getTerritoryByNation(this);
 	}
 
 	@NotNull public Map<NCPlayer, Ranks> getPlayers(){
@@ -666,11 +661,11 @@ final public class Nation implements Comparable<Nation>, Cloneable {
     }
 
 	public boolean isStrongEnough(){
-		return isSafezone() || isWarzone() || getPower() >= (double) getTerritoryManager().size();
+		return isSafezone() || isWarzone() || getPower() >= (double) getTerritory().size();
 	}
 
-	public int getPower(){
-		int strength = 0;
+	public double getPower(){
+		double strength = 0.0;
 		for (NCPlayer player : players.keySet()){
 			strength += player.getPower();
 		}
@@ -796,15 +791,6 @@ final public class Nation implements Comparable<Nation>, Cloneable {
             	}
             }
 
-            writer.println("territory:");
-            if (!getTerritoryManager().isEmpty()) {
-                for (Territory t : getTerritoryManager()) {
-                	if (t == null){
-                		continue;
-					}
-                    writer.println("- [" + t.getWorld() + ", " + t.getX() + ", " + t.getZ() + "]");
-                }
-            }
             writer.println("flags:");
             for (String flag : flags.keySet()) {
             	writer.println("   " + flag + ": " + flags.get(flag));

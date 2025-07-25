@@ -1,7 +1,8 @@
 package io.github.eirikh1996.nationcraft.core.commands;
 
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
-import io.github.eirikh1996.nationcraft.core.commands.subcommands.map.HeightSubCommand;
+import io.github.eirikh1996.nationcraft.core.commands.subcommands.map.MapHeightSubCommand;
+import io.github.eirikh1996.nationcraft.core.commands.subcommands.map.MapHelpSubCommand;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
 
 import java.util.Arrays;
@@ -10,19 +11,22 @@ public class MapCommand extends Command {
 
     MapCommand() {
         super("map");
-        addChild(new HeightSubCommand());
+        addChild(new MapHeightSubCommand());
+        addChild(new MapHelpSubCommand());
     }
 
     @Override
     public void execute(NCCommandSender sender, String[] args) {
         long startTime = System.currentTimeMillis();
-        if (!(sender instanceof NCPlayer)){
+        if (!(sender instanceof NCPlayer p)){
             sender.sendMessage(Messages.ERROR + Messages.MUST_BE_PLAYER);
             return;
         }
-        NCPlayer p = (NCPlayer) sender;
         if (args.length == 0) {
             Messages.generateTerritoryMap(p);
+            return;
+        }
+        if (!children.containsKey(args[0])) {
             return;
         }
         children.get(args[0]).execute(sender, Arrays.copyOfRange(args, 1, args.length));

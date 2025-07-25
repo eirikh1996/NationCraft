@@ -3,6 +3,7 @@ package io.github.eirikh1996.nationcraft.api.objects.text;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public enum  TextColor {
     BLACK("§0"),
     DARK_BLUE("§1"),

@@ -22,6 +22,8 @@ import io.github.eirikh1996.nationcraft.api.utils.Direction;
 
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.Ranks;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -127,7 +129,7 @@ public class Messages {
 			Collections.sort(allyList);
 			Collections.sort(truceList);
 			Collections.sort(enemyList);
-			p.sendMessage(TextColor.YELLOW + "------------------{ Nation:" + color + " " + name + TextColor.YELLOW +  " }-----------------");
+			p.sendMessage(Component.text("------------------{ Nation:", NamedTextColor.YELLOW).append(Component.text(" " + name, color))  + TextColor.YELLOW +  " }-----------------");
 			p.sendMessage(TextColor.YELLOW + "Description: " + color + description);
 			p.sendMessage(TextColor.YELLOW + "Capital: " + capital);
 			p.sendMessage(TextColor.YELLOW + "Settlements: " + TextColor.GREEN + String.join(", ", settlementNames));
