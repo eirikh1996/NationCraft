@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.bukkit.objects;
 
 import io.github.eirikh1996.nationcraft.core.commands.NCConsole;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.ConsoleCommandSender;
 
 public class NCBukkitConsole implements NCConsole {
@@ -10,6 +11,12 @@ public class NCBukkitConsole implements NCConsole {
     public NCBukkitConsole(ConsoleCommandSender console) {
         this.console = console;
     }
+
+    @Override
+    public void sendMessage(Component text) {
+        console.sendMessage(text);
+    }
+
     @Override
     public void sendMessage(String message) {
         console.sendMessage(message);

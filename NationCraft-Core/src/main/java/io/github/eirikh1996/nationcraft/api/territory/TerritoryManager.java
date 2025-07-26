@@ -22,20 +22,56 @@ public class TerritoryManager implements Iterable<Territory> {
     private TerritoryManager() {
 
     }
+    public void addNationTerritory(Nation nation, Territory... newTerritory) {
+        addNationTerritory(nation, newTerritory);
+    }
+
+    public void removeNationTerritory(Nation nation, Collection<Territory> oldTerritory) {
+        if (!nationTerritoryMap.containsKey(nation)) {
+            return;
+        }
+        Collection<Territory> currentTerritory = nationTerritoryMap.get(nation);
+        currentTerritory.removeAll(oldTerritory);
+        if (currentTerritory.isEmpty()) {
+            nationTerritoryMap.remove(nation);
+        } else {
+            nationTerritoryMap.put(nation, currentTerritory);
+        }
+        saveToFile();
+    }
+
     public void addNationTerritory(Nation nation, Collection<Territory> newTerritory) {
         if (nationTerritoryMap.containsKey(nation)) {
             Collection<Territory> currentTerritory = nationTerritoryMap.get(nation);
             currentTerritory.addAll(newTerritory);
             nationTerritoryMap.put(nation, currentTerritory);
-            return;
+        } else {
+            nationTerritoryMap.put(nation, newTerritory);
         }
-        nationTerritoryMap.put(nation, newTerritory);
         saveToFile();
     }
 
     public void addSettlementTerritory(Settlement settlement, Collection<Territory> newTerritory) {
         if (settlementTerritoryMap.containsKey(settlement)) {
+            Collection<Territory> currentTerritory = settlementTerritoryMap.get(settlement);
+            currentTerritory.addAll(newTerritory);
+            settlementTerritoryMap.put(settlement, currentTerritory);
+        } else {
+            settlementTerritoryMap.put(settlement, newTerritory);
+        }
+        saveToFile();
+    }
 
+    public void removeSettlementTerritory(Settlement settlement, Collection<Territory> oldTerritory) {
+        if (!settlementTerritoryMap.containsKey(settlement)) {
+            return;
+        }
+        Collection<Territory> currentTerritory = settlementTerritoryMap.get(settlement);
+        currentTerritory.removeAll(oldTerritory);
+        if (currentTerritory.isEmpty()) {
+            settlementTerritoryMap.remove(settlement);
+        } else {
+            settlementTerritoryMap.put(settlement, currentTerritory);
         }
         saveToFile();
     }
@@ -99,20 +135,6 @@ public class TerritoryManager implements Iterable<Territory> {
             throw new RuntimeException(e);
         }
     }
-    /*
-    void claimCircularTerritory(NCPlayer player, int radius);
-    void unclaimCircularTerritory(NCPlayer player, int radius);
-    void claimSquareTerritory(NCPlayer player, int radius);
-    void unclaimSquareTerritory(NCPlayer player, int radius);
-    void claimLineTerritory(NCPlayer player, int distance);
-    void unclaimLineTerritory(NCPlayer player, int distance);
-    void claimSignleTerritory(NCPlayer player);
-    void unclaimSignleTerritory(NCPlayer player);
-    void unclaimAll(NCPlayer player);
-    boolean add(Territory territory);
-    boolean addAll(Collection<? extends Territory> territories);
-    boolean remove(Territory territory);
-    boolean removeAll(Collection<? extends Territory> territories);*/
     public int size() {
         return territory.size();
     }
@@ -135,6 +157,7 @@ public class TerritoryManager implements Iterable<Territory> {
 
     public void initialize(NationCraftMain plugin) {
         this.plugin = plugin;
+        loadFromFile();
     }
 
 

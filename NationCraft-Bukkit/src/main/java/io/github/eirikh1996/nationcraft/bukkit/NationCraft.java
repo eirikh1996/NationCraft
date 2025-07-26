@@ -28,6 +28,7 @@ import io.github.eirikh1996.nationcraft.core.nation.Relation;
 import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import mineverse.Aust1n46.chat.MineverseChat;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -51,6 +52,8 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 	private static NationCraftAPI api;
 	private static CommandRegistry commandRegistry;
 	private static NationCraft instance;
+
+	private NCBukkitConsole console;
 
 	public void onEnable() {
 		long start = System.currentTimeMillis();
@@ -153,6 +156,7 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 
 	@Override
 	public void onLoad() {
+		console = new NCBukkitConsole(getServer().getConsoleSender());
 		instance = this;
 		api = NationCraftAPI.getInstance();
 		commandRegistry = new CommandRegistry();
@@ -267,7 +271,7 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		}
 		final ConfigurationSection relColors = nationSection.getConfigurationSection("RelationColors");
 		for (String key : relColors.getValues(true).keySet()) {
-			NationSettings.RelationColors.put(Relation.getRelationIgnoreCase(key), TextColor.getColorIgnoreCase((String) relColors.getValues(true).get(key)));
+			NationSettings.RelationColors.put(Relation.getRelationIgnoreCase(key), NamedTextColor.NAMES.value((String) relColors.getValues(true).get(key)));
 		}
 
 		//settlements
@@ -292,7 +296,7 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 
 	@Override
 	public NCConsole getConsole() {
-		return new NCBukkitConsole(getServer().getConsoleSender());
+		return console;
 	}
 
 	@Override

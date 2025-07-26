@@ -1,164 +1,42 @@
 package io.github.eirikh1996.nationcraft.api.utils;
 
-import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
-import io.github.eirikh1996.nationcraft.api.objects.text.HoverEvent;
-import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.UUID;
 
 public class Compass {
     private final Direction direction;
     private final UUID id;
-    private final ChatText[] lines;
+    private final TextComponent[] lines;
     public Compass(Direction direction) {
         id = UUID.randomUUID();
         this.direction = direction;
-        lines = new ChatText[3];
-        switch (direction){
-            case NORTH:
-                lines[0] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "\\ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-West"))
-                        .addText(TextColor.DARK_RED, "N", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North"))
-                        .addText(TextColor.YELLOW, " /" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-East"))
-                        .build();
-                lines[1] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "W ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "West"))
-                        .addText(TextColor.YELLOW, "O")
-                        .addText(TextColor.YELLOW, " E" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "East"))
-                        .build();
-                lines[2] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "/ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-West"))
-                        .addText(TextColor.YELLOW, "S", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South"))
-                        .addText(TextColor.YELLOW, " \\" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-East"))
-                        .build();
-                break;
-            case NORTH_EAST:
-                lines[0] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "\\ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-West"))
-                        .addText(TextColor.YELLOW, "N", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North"))
-                        .addText(TextColor.DARK_RED, " /" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-East"))
-                        .build();
-                lines[1] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "W ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "West"))
-                        .addText(TextColor.YELLOW, "O")
-                        .addText(TextColor.YELLOW, " E" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "East"))
-                        .build();
-                lines[2] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "/ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-West"))
-                        .addText(TextColor.YELLOW, "S", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South"))
-                        .addText(TextColor.YELLOW, " \\" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-East"))
-                        .build();
-                break;
-            case EAST:
-                lines[0] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "\\ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-West"))
-                        .addText(TextColor.YELLOW, "N", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North"))
-                        .addText(TextColor.YELLOW, " /" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-East"))
-                        .build();
-                lines[1] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "W ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "West"))
-                        .addText(TextColor.YELLOW, "O")
-                        .addText(TextColor.DARK_RED, " E" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "East"))
-                        .build();
-                lines[2] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "/ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-West"))
-                        .addText(TextColor.YELLOW, "S", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South"))
-                        .addText(TextColor.YELLOW, " \\" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-East"))
-                        .build();
-                break;
-            case SOUTH_EAST:
-                lines[0] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "\\ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-West"))
-                        .addText(TextColor.YELLOW, "N", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North"))
-                        .addText(TextColor.YELLOW, " /" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-East"))
-                        .build();
-                lines[1] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "W ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "West"))
-                        .addText(TextColor.YELLOW, "O")
-                        .addText(TextColor.YELLOW, " E" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "East"))
-                        .build();
-                lines[2] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "/ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-West"))
-                        .addText(TextColor.YELLOW, "S", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South"))
-                        .addText(TextColor.DARK_RED, " \\" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-East"))
-                        .build();
-                break;
-            case SOUTH:
-                lines[0] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "\\ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-West"))
-                        .addText(TextColor.YELLOW, "N", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North"))
-                        .addText(TextColor.YELLOW, " /" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-East"))
-                        .build();
-                lines[1] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "W ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "West"))
-                        .addText(TextColor.YELLOW, "O")
-                        .addText(TextColor.YELLOW, " E" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "East"))
-                        .build();
-                lines[2] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "/ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-West"))
-                        .addText(TextColor.DARK_RED, "S", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South"))
-                        .addText(TextColor.YELLOW, " \\" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-East"))
-                        .build();
-                break;
-            case SOUTH_WEST:
-                lines[0] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "\\ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-West"))
-                        .addText(TextColor.YELLOW, "N", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North"))
-                        .addText(TextColor.YELLOW, " /" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-East"))
-                        .build();
-                lines[1] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "W ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "West"))
-                        .addText(TextColor.YELLOW, "O")
-                        .addText(TextColor.YELLOW, " E" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "East"))
-                        .build();
-                lines[2] = ChatText.builder()
-                        .addText(TextColor.DARK_RED, "/ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-West"))
-                        .addText(TextColor.YELLOW, "S", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South"))
-                        .addText(TextColor.YELLOW, " \\" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-East"))
-                        .build();
-                break;
-            case WEST:
-                lines[0] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "\\ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-West"))
-                        .addText(TextColor.YELLOW, "N", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North"))
-                        .addText(TextColor.YELLOW, " /" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-East"))
-                        .build();
-                lines[1] = ChatText.builder()
-                        .addText(TextColor.DARK_RED, "W ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "West"))
-                        .addText(TextColor.YELLOW, "O")
-                        .addText(TextColor.YELLOW, " E" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "East"))
-                        .build();
-                lines[2] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "/ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-West"))
-                        .addText(TextColor.YELLOW, "S", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South"))
-                        .addText(TextColor.YELLOW, " \\" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-East"))
-                        .build();
-                break;
-            case NORTH_WEST:
-                lines[0] = ChatText.builder()
-                        .addText(TextColor.DARK_RED, "\\ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-West"))
-                        .addText(TextColor.YELLOW, "N", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North"))
-                        .addText(TextColor.YELLOW, " /" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "North-East"))
-                        .build();
-                lines[1] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "W ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "West"))
-                        .addText(TextColor.YELLOW, "O")
-                        .addText(TextColor.YELLOW, " E" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "East"))
-                        .build();
-                lines[2] = ChatText.builder()
-                        .addText(TextColor.YELLOW, "/ ", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-West"))
-                        .addText(TextColor.YELLOW, "S", new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South"))
-                        .addText(TextColor.YELLOW, " \\" + TextColor.RESET, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "South-East"))
-                        .build();
-                break;
-        }
+        lines = new TextComponent[3];
+        lines[0] = Component.text()
+                .append(Component.text("\\ ", direction == Direction.NORTH_WEST ? NamedTextColor.DARK_RED : NamedTextColor.YELLOW).hoverEvent(HoverEvent.showText(Component.text("North-West"))))
+                .append(Component.text("N", direction == Direction.NORTH ? NamedTextColor.DARK_RED : NamedTextColor.YELLOW).hoverEvent(HoverEvent.showText(Component.text("North"))))
+                .append(Component.text("/ ", direction == Direction.NORTH_EAST ? NamedTextColor.DARK_RED : NamedTextColor.YELLOW).hoverEvent(HoverEvent.showText(Component.text("North-East"))))
+                .build();
+        lines[1] = Component.text()
+                .append(Component.text("W ", direction == Direction.WEST ? NamedTextColor.DARK_RED : NamedTextColor.YELLOW).hoverEvent(HoverEvent.showText(Component.text("West"))))
+                .append(Component.text("O ", NamedTextColor.YELLOW))
+                .append(Component.text("E ", direction == Direction.EAST ? NamedTextColor.DARK_RED : NamedTextColor.YELLOW).hoverEvent(HoverEvent.showText(Component.text("East"))))
+                .build();
+        lines[2] = Component.text()
+                .append(Component.text("/ ", direction == Direction.SOUTH_WEST ? NamedTextColor.DARK_RED : NamedTextColor.YELLOW).hoverEvent(HoverEvent.showText(Component.text("South-West"))))
+                .append(Component.text("N", direction == Direction.SOUTH ? NamedTextColor.DARK_RED : NamedTextColor.YELLOW).hoverEvent(HoverEvent.showText(Component.text("South"))))
+                .append(Component.text("\\ ", direction == Direction.SOUTH_EAST ? NamedTextColor.DARK_RED : NamedTextColor.YELLOW).hoverEvent(HoverEvent.showText(Component.text("South-East"))))
+                .build();
     }
 
-    public ChatText[] getLines() {
+    public TextComponent[] getLines() {
         return lines;
     }
 
-    public ChatText getLine(int index){
+    public TextComponent getLine(int index){
         return lines[index];
     }
 

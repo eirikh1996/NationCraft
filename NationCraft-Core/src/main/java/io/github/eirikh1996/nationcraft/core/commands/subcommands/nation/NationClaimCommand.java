@@ -57,16 +57,7 @@ public final class NationClaimCommand extends Command {
             sender.sendMessage(Messages.ERROR + "You are not in a nation!");
             return;
         }
-
-        if (shape == Shape.SINGLE) {
-            nation.getTerritoryManager().claimSignleTerritory(player);
-        } else if (shape == Shape.CIRCLE) {
-            nation.getTerritoryManager().claimCircularTerritory(player, radius);
-        } else if (shape.equals(Shape.SQUARE)) {
-            nation.getTerritoryManager().claimSquareTerritory(player, radius);
-        } else if (shape.equals(Shape.LINE)) {
-            nation.getTerritoryManager().claimLineTerritory(player, radius);
-        }
+        nation.claimTerritory(player, shape, radius);
     }
 
     @Override

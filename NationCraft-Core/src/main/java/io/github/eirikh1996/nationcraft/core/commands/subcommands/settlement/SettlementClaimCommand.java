@@ -60,15 +60,6 @@ public class SettlementClaimCommand extends Command {
             return;
         }
 
-        if (shape.equals(Shape.CIRCLE)){
-            settlement.getTerritory().claimCircularTerritory(player, radius);
-        } else if (shape.equals(Shape.SQUARE)){
-            settlement.getTerritory().claimSquareTerritory(player, radius);
-        } else if (shape.equals(Shape.LINE)){
-            settlement.getTerritory().claimLineTerritory(player, radius);
-        } else {
-            settlement.getTerritory().claimSignleTerritory(player);
-        }
-        settlement.saveToFile();
+        settlement.claimTerritory(player, shape, radius);
     }
 }

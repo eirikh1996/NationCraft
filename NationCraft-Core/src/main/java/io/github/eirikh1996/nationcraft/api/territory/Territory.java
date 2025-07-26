@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.api.territory;
 
 import io.github.eirikh1996.nationcraft.api.objects.Serializable;
+import io.github.eirikh1996.nationcraft.core.claiming.Shape;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
@@ -98,6 +99,78 @@ public final class Territory implements Comparable<Territory>, Serializable {
         return null;
     }
 
+    public Collection<Territory> adjacent(Shape shape, int radius) {
+        final Collection<Territory> adjacentTerritory = new HashSet<>();
+        if (shape == Shape.ALL || shape == Shape.LINE) {
+            throw new IllegalArgumentException("Argument shape must be either SINGLE, SQUARE or CIRCLE");
+        }
+        if (shape == Shape.SINGLE) {
+            adjacentTerritory.add(this);
+            return adjacentTerritory;
+        }
+        if (radius < 1) {
+            throw new IllegalArgumentException("Argument radius cannot be less than 1");
+        }
+        radius--;
+        for (int adjX = getX() - radius; adjX <= getX() + radius; adjX++) {
+            for (int adjZ = getZ() - radius; adjZ <= getZ() + radius; adjZ++) {
+                Territory t = new Territory(getWorld(), adjX, adjZ);
+                if (shape == Shape.CIRCLE && (int) Math.sqrt(Math.pow(t.getX() - getX(), 2) + Math.pow(t.getZ() - getZ(), 2)) > radius) {
+                    continue;
+                }
+                adjacentTerritory.add(t);
+            }
+        }
+        return adjacentTerritory;
+    }
+
+    public Collection<Territory> line(Direction direction, int distance) {
+        Collection<Territory> line = new HashSet<>();
+        distance--;
+        switch (direction) {
+            case NORTH -> {
+                for (int lz = getZ(); lz >= getZ() - distance; lz--) {
+                    line.add(new Territory(getWorld(), getX(), lz));
+                }
+            }
+            case NORTH_EAST -> {
+                for (int i = 0; i <= distance ; i++) {
+                    line.add(new Territory(getWorld(), getX() + i, getZ() - i));
+                }
+            }
+            case NORTH_WEST -> {
+                for (int i = 0; i <= distance ; i++) {
+                    line.add(new Territory(getWorld(), getX() - i, getZ() - i));
+                }
+            }
+            case SOUTH -> {
+                for (int lz = getZ(); lz <= getZ() + distance; lz++) {
+                    line.add(new Territory(getWorld(), getX(), lz));
+                }
+            }
+            case SOUTH_EAST -> {
+                for (int i = 0; i <= distance ; i++) {
+                    line.add(new Territory(getWorld(), getX() + i, getZ() + i));
+                }
+            }
+            case SOUTH_WEST -> {
+                for (int i = 0; i <= distance ; i++) {
+                    line.add(new Territory(getWorld(), getX() - i, getZ() + i));
+                }
+            }
+            case WEST -> {
+                for (int lx = getX(); lx >= getX() - distance; lx--) {
+                    line.add(new Territory(getWorld(), lx, getZ()));
+                }
+            }
+            case EAST -> {
+                for (int lx = getX(); lx <= getX() + distance; lx++) {
+                    line.add(new Territory(getWorld(), lx, getZ()));
+                }
+            }
+        }
+        return line;
+    }
 
 
     /**

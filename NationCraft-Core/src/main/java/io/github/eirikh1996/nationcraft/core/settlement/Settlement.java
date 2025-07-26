@@ -2,22 +2,24 @@ package io.github.eirikh1996.nationcraft.core.settlement;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import io.github.eirikh1996.nationcraft.api.config.Settings;
+import io.github.eirikh1996.nationcraft.core.claiming.Shape;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
-import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
-import io.github.eirikh1996.nationcraft.api.objects.text.ClickEvent;
-import io.github.eirikh1996.nationcraft.api.objects.text.HoverEvent;
-import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
-import io.github.eirikh1996.nationcraft.api.territory.SettlementTerritoryManager;
 import io.github.eirikh1996.nationcraft.api.territory.Territory;
 import io.github.eirikh1996.nationcraft.api.territory.TerritoryManager;
 import io.github.eirikh1996.nationcraft.api.territory.TownCenter;
 import io.github.eirikh1996.nationcraft.api.utils.Direction;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
@@ -31,7 +33,6 @@ final public class Settlement {
 	private final String world;
 	private String nation;
 	private TownCenter townCenter;
-	private final TerritoryManager territory;
 	private final HashMap<NCPlayer, Ranks> players;
 	private final Set<NCPlayer> invitedPlayers;
 	private boolean underSiege = false;
@@ -41,7 +42,7 @@ final public class Settlement {
 		try {
 			InputStream input = new FileInputStream(settlementFile);
 			Yaml yaml = new Yaml();
-			data = (Map) yaml.load(input);
+			data = yaml.load(input);
 			input.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -59,11 +60,6 @@ final public class Settlement {
 		String world = (String) tcData.get("world");
 		final NCLocation teleportLoc = new NCLocation(world, tpCoords.get(0), tpCoords.get(1), tpCoords.get(2));
 		townCenter = new TownCenter(tcX, tcZ, world, teleportLoc);
-		territory = new SettlementTerritoryManager(this);
-		ArrayList<ArrayList> terrList = (ArrayList<ArrayList>) data.get("territory");
-		for (ArrayList list : terrList){
-			territory.add(new Territory((String) list.get(0), (int) list.get(1), (int) list.get(2)));
-		}
 		players = new HashMap<>();
 		Map playerData = (Map) data.get("players");
 		for (Object obj : playerData.keySet()){
@@ -97,7 +93,6 @@ final public class Settlement {
 		this.world = world;
 		this.townCenter = townCenter;
 		this.players = players;
-		this.territory = new SettlementTerritoryManager(this);
 		invitedPlayers = new HashSet<>();
 	}
 	public Settlement(String name, NCPlayer creator){
@@ -108,8 +103,6 @@ final public class Settlement {
 		townCenter = new TownCenter(creator.getLocation().getBlockX() >> 4, creator.getLocation().getBlockZ() >> 4, world, creator.getLocation());
 		players = new HashMap<>();
 		players.put(creator, Ranks.MAYOR);
-		territory = new SettlementTerritoryManager(this);
-		territory.add(new Territory(creator.getLocation().getWorld(), creator.getLocation().getBlockX() >> 4, creator.getLocation().getBlockZ() >> 4));
 		invitedPlayers = new HashSet<>();
 	}
 	@Nullable
@@ -154,7 +147,20 @@ final public class Settlement {
 	 *
 	 * @param message Message to be broadcasted
 	 */
+	@Deprecated
 	public void broadcast(String message) {
+		for (NCPlayer p : players.keySet()) {
+			p.sendMessage(message);
+		}
+	}
+
+	/**
+	 *
+	 * Broadcasts a message to the members of the settlement
+	 *
+	 * @param message Message to be broadcasted
+	 */
+	public void broadcast(TextComponent message) {
 		for (NCPlayer p : players.keySet()) {
 			p.sendMessage(message);
 		}
@@ -193,17 +199,13 @@ final public class Settlement {
 		}
 		getNation().invite(invitee);
 		getNation().broadcast(NATIONCRAFT_COMMAND_PREFIX + inviter.getName() + " invited " + invitee.getName() + " to settlement " + name + " and therefore, also to " + nation);
-		ChatText text = ChatText.builder()
-				.addText(NATIONCRAFT_COMMAND_PREFIX + inviter.getName() + " invited you to join settlement " + name + " belonging to nation " + nation + " ")
-				.addText(TextColor.DARK_GREEN, "[Accept]",
-						new ClickEvent(
-								ClickEvent.Action.RUN_COMMAND,
-								"/settlement join " + name),
-						new HoverEvent(
-								HoverEvent.Action.SHOW_TEXT,
-								"Click to join " + name
-						))
-				.build();
+		TextComponent text = NATIONCRAFT_COMMAND_PREFIX
+				.append(Component.text(inviter.getName() + " invited you to join settlement " + name + " belonging to nation " + nation + " "))
+				.append(Component
+								.text("[Accept]", NamedTextColor.GREEN)
+								.clickEvent(ClickEvent.runCommand("/settlement join " + name))
+						.hoverEvent(HoverEvent.showText(Component.text("Click to join " + name)))
+				);
 		invitee.sendMessage(text);
 		broadcast(inviter.getName() + " invited " + invitee.getName() + " to join " + name);
 		invitedPlayers.add(invitee);
@@ -236,6 +238,26 @@ final public class Settlement {
 			return entry.getKey();
 		}
 		return null;
+	}
+
+	public void claimTerritory(NCPlayer player, Shape shape, int radius) {
+		Collection<Territory> claims;
+		Territory origin = player.getLocation().getTerritory();
+		if (shape == Shape.LINE) {
+			claims = origin.line(Direction.fromYaw(player.getLocation().getYaw()), radius);
+		} else if (shape == Shape.ALL) {
+			throw new IllegalArgumentException("Invalid shape " + shape);
+		} else if (shape == Shape.SINGLE) {
+			claims = new HashSet<>();
+			claims.add(origin);
+		} else {
+			claims = player.getLocation().getTerritory().adjacent(shape, radius);
+		}
+		claims.removeIf(claim -> getTerritory().contains(claim));
+		if (claims.size() + getTerritory().size() > getMaxTerritory()) {
+			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("You cannot claim more territory for your settlement")));
+		}
+		TerritoryManager.getInstance().addSettlementTerritory(this, claims);
 	}
 
 	
@@ -294,7 +316,7 @@ final public class Settlement {
 	}
 
 	public int getMaxTerritory() {
-		return players.size() * Settings.settlement.TerritoryPerPlayer;
+		return players.size() * (Settings.settlement.TerritoryPerPlayer + (getNation() != null ? Settings.settlement.NationTerritoryBonus : 0));
 	}
 
 	public boolean isUnderSiege() {
@@ -359,8 +381,8 @@ final public class Settlement {
 		return players;
 	}
 	
-	public TerritoryManager getTerritory() {
-		return territory;
+	public Collection<Territory> getTerritory() {
+		return TerritoryManager.getInstance().getTerritoryBySettlement(this);
 	}
 
 	/**

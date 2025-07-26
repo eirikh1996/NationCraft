@@ -30,6 +30,7 @@ public class Settings {
 	}
 	public static class SettlementSettings {
 		public int TerritoryPerPlayer = 10;
+		public int NationTerritoryBonus = 10;
 
 	}
 

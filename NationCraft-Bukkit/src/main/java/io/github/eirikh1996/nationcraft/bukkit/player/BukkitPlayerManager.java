@@ -11,11 +11,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.UUID;
 
-public class BukkitPlayerManager extends PlayerManager implements Listener {
+public class BukkitPlayerManager extends PlayerManager<Player> implements Listener {
     private BukkitPlayerManager() {
         NationCraft.getInstance().getServer().getPluginManager().registerEvents(this, NationCraft.getInstance());
     }
@@ -68,10 +69,7 @@ public class BukkitPlayerManager extends PlayerManager implements Listener {
     }
 
     @Override
-    public <P> NCPlayer getPlayer(P player) {
-        if (!(player instanceof Player)) {
-            throw new IllegalStateException();
-        }
+    public NCPlayer getPlayer(@NotNull Player player) {
         return getPlayer(((Player) player).getUniqueId());
     }
 }

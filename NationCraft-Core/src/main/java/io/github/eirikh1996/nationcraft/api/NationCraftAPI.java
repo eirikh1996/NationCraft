@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.api;
 
 import io.github.eirikh1996.nationcraft.api.events.*;
+import io.github.eirikh1996.nationcraft.api.events.listener.NCListener;
 import io.github.eirikh1996.nationcraft.core.Core;
 
 import java.lang.reflect.Method;
@@ -14,15 +15,15 @@ public class NationCraftAPI {
     private NationCraftAPI() {
         serverThread = Thread.currentThread();
     }
-    Set<Object> listeners = new HashSet<>();
+    Set<NCListener> listeners = new HashSet<>();
     Set<Object> commandExecutors = new HashSet<>();
 
-    public void registerEvent(Object listener) {
+    public void registerEvent(NCListener listener) {
         Core.getMain().logInfo("Registered listener " + listener.getClass().getName() + " to NationCraft API");
         listeners.add(listener);
     }
 
-    public void unregisterEvent(Object listener) {
+    public void unregisterEvent(NCListener listener) {
         listeners.remove(listener);
     }
 

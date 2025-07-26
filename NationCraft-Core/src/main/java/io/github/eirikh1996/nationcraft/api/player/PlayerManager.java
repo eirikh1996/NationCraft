@@ -18,7 +18,7 @@ import java.util.*;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public abstract class PlayerManager implements Runnable, Iterable<NCPlayer> {
+public abstract class PlayerManager<P> implements Runnable, Iterable<NCPlayer> {
     protected static Map<UUID, NCPlayer> players = new HashMap<>();
     protected static PlayerManager instance;
     protected static File playersDir;
@@ -66,7 +66,7 @@ public abstract class PlayerManager implements Runnable, Iterable<NCPlayer> {
         return players.get(uuid);
     }
 
-    public abstract <P> NCPlayer getPlayer(P player);
+    public abstract NCPlayer getPlayer(P player);
 
     @Nullable
     public NCPlayer getPlayer(String name) {

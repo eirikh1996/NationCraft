@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.bukkit.objects;
 
 import io.github.eirikh1996.nationcraft.core.commands.NCBlockSender;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.BlockCommandSender;
 
 public class NCBukkitBlockSender implements NCBlockSender {
@@ -10,6 +11,12 @@ public class NCBukkitBlockSender implements NCBlockSender {
     public NCBukkitBlockSender(BlockCommandSender sender) {
         this.sender = sender;
     }
+
+    @Override
+    public void sendMessage(Component text) {
+        sender.sendMessage(text);
+    }
+
     @Override
     public void sendMessage(String message) {
         sender.sendMessage(message);

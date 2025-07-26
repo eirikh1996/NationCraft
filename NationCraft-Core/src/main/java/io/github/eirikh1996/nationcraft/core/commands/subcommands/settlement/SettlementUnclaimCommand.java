@@ -54,16 +54,6 @@ public class SettlementUnclaimCommand extends Command {
             return;
         }
 
-        if (shape.equals(Shape.CIRCLE)){
-            settlement.getTerritory().unclaimCircularTerritory(player, radius);
-        } else if (shape.equals(Shape.SQUARE)){
-            settlement.getTerritory().unclaimSquareTerritory(player, radius);
-        } else if (shape.equals(Shape.LINE)){
-            settlement.getTerritory().unclaimLineTerritory(player, radius);
-        } else if (shape.equals(Shape.ALL)){
-            settlement.getTerritory().unclaimAll(player);
-        } else {
-            settlement.getTerritory().unclaimSignleTerritory(player);
-        }
+        settlement;
     }
 }

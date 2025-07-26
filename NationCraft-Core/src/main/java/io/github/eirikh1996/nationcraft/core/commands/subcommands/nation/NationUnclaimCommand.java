@@ -57,17 +57,7 @@ public final class NationUnclaimCommand extends Command {
             return;
         }
 
-        if (shape == null || shape == Shape.SINGLE) {
-            nation.getTerritoryManager().remove(new Territory(player.getLocation().getWorld(), player.getLocation().getBlockX() >> 4 , player.getLocation().getBlockZ() >> 4));
-        } else if (shape == Shape.CIRCLE){
-            nation.getTerritoryManager().unclaimCircularTerritory(player, radius);
-        } else if (shape == Shape.SQUARE){
-            nation.getTerritoryManager().unclaimSquareTerritory(player, radius);
-        } else if (shape == Shape.LINE){
-            nation.getTerritoryManager().unclaimLineTerritory(player, radius);
-        } else if (shape == Shape.ALL){
-            nation.getTerritoryManager().unclaimAll(player);
-        }
+        nation.unclaimTerritory(player, shape, radius);
     }
 
     @Override

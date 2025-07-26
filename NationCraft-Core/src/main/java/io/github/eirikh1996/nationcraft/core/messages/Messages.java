@@ -9,7 +9,6 @@ import io.github.eirikh1996.nationcraft.core.nation.Relation;
 import io.github.eirikh1996.nationcraft.api.objects.NCVector;
 import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
 import io.github.eirikh1996.nationcraft.api.objects.text.ChatTextComponent;
-import io.github.eirikh1996.nationcraft.api.objects.text.HoverEvent;
 import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
@@ -23,7 +22,10 @@ import io.github.eirikh1996.nationcraft.api.utils.Direction;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.Ranks;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +37,11 @@ public class Messages {
 	public static NationCraftMain main;
 	public static String ERROR = TextColor.DARK_RED + "Error: ";
 	public static String WARNING = TextColor.YELLOW + "Warning: ";
-	public static String NATIONCRAFT_COMMAND_PREFIX = TextColor.YELLOW + "[" + TextColor.AQUA + "Nation" + TextColor.GRAY + "Craft" + TextColor.YELLOW + "] "+ TextColor.RESET;
+	public static TextComponent NATIONCRAFT_COMMAND_PREFIX = Component
+			.text("[", NamedTextColor.YELLOW)
+			.append(Component.text("Nation", NamedTextColor.AQUA))
+			.append(Component.text("Craft", NamedTextColor.GRAY))
+			.append(Component.text("] ", NamedTextColor.YELLOW));
 	public static String NOT_IN_A_NATION = "You are not in a nation";
 	public static String CLAIMED_TERRITORY = "%s claimed %d pieces of territory from %s";
 	public static String WILDERNESS = TextColor.DARK_GREEN + "Wilderness";
@@ -56,6 +62,12 @@ public class Messages {
 		MARKERS.add(11,"£");
 		MARKERS.add(12,"<");
 		MARKERS.add(13,">");
+		MARKERS.add(14,"{");
+		MARKERS.add(15, "}");
+		MARKERS.add(16, "[");
+		MARKERS.add(17, "]");
+		MARKERS.add(18, "A");
+
 
 
 	}
@@ -73,7 +85,7 @@ public class Messages {
 	}
 	public static void nationInfo(Nation n, NCPlayer p) {
 		String name = n.getName();
-		TextColor color = n.getColor(p);
+		NamedTextColor color = n.getColor(p);
 		String description = n.getDescription();
 		String capital = n.getCapital() != null ? n.getCapital().getName(): "None";
 		ArrayList<String> settlementNames = new ArrayList<>();
@@ -129,19 +141,20 @@ public class Messages {
 			Collections.sort(allyList);
 			Collections.sort(truceList);
 			Collections.sort(enemyList);
-			p.sendMessage(Component.text("------------------{ Nation:", NamedTextColor.YELLOW).append(Component.text(" " + name, color))  + TextColor.YELLOW +  " }-----------------");
-			p.sendMessage(TextColor.YELLOW + "Description: " + color + description);
-			p.sendMessage(TextColor.YELLOW + "Capital: " + capital);
-			p.sendMessage(TextColor.YELLOW + "Settlements: " + TextColor.GREEN + String.join(", ", settlementNames));
-			p.sendMessage(TextColor.YELLOW + "Territory: " + (n.isStrongEnough() ? TextColor.GREEN : TextColor.RED) + n.getTerritoryManager().size());
-			p.sendMessage(TextColor.YELLOW + "Power: " + (n.getPower() >= n.getTerritoryManager().size() ? (n.getPower() == n.getTerritoryManager().size() ? TextColor.YELLOW :TextColor.GREEN) : TextColor.RED) + n.getPower());
-			p.sendMessage(TextColor.YELLOW + "Maximum strength: " + n.getMaxPower());
-			p.sendMessage(TextColor.YELLOW + "Allies: " + NationSettings.RelationColors.getOrDefault(Relation.ALLY, TextColor.DARK_PURPLE) + (allyList.isEmpty() ? "None" : String.join(", ", allyList)));
-			p.sendMessage(TextColor.YELLOW + "Truces: " + NationSettings.RelationColors.getOrDefault(Relation.TRUCE, TextColor.LIGHT_PURPLE) + (truceList.isEmpty() ? "None" : String.join(", ", truceList)));
-			p.sendMessage(TextColor.YELLOW + "Enemies: " + NationSettings.RelationColors.getOrDefault(Relation.ENEMY, TextColor.RED) + (enemyList.isEmpty() ? "None" : String.join(", ", enemyList)));
-			p.sendMessage(TextColor.YELLOW + "Players online: " + color + String.join(", ", onlinePlayers));
-			p.sendMessage(TextColor.YELLOW + "Players offline: " + color + String.join(", ", offlinePlayers));
-		}
+			final TextComponent nationInfo = Component.text("------------------{ Nation: ", NamedTextColor.YELLOW).append(Component.text(name, color)).append(Component.text(" }-----------------", NamedTextColor.YELLOW));
+			nationInfo.appendNewline().append(Component.text("Description: ", NamedTextColor.YELLOW).append(Component.text(description, color)));
+			nationInfo.appendNewline().append(Component.text("Capital: " + capital, NamedTextColor.YELLOW));
+			nationInfo.appendNewline().append(Component.text("Settlements: ", NamedTextColor.YELLOW).append(Component.text(String.join(", ", settlementNames), NamedTextColor.GREEN)));
+			nationInfo.appendNewline().append(Component.text("Territory: ").append(Component.text(n.getTerritory().size(), (n.isStrongEnough() ? NamedTextColor.GREEN : NamedTextColor.RED))));
+			nationInfo.appendNewline().append(Component.text("Power: " ).append(Component.text(n.getName(), (n.getPower() >= n.getTerritory().size() ? (n.getPower() == n.getTerritory().size() ? NamedTextColor.YELLOW :NamedTextColor.GREEN) : NamedTextColor.RED))));
+			nationInfo.appendNewline().append(Component.text("Maximum strength: " + n.getMaxPower(), NamedTextColor.YELLOW));
+			nationInfo.appendNewline().append(Component.text("Allies: ", NamedTextColor.YELLOW).append(Component.text(allyList.isEmpty() ? "None" : String.join(", ", allyList), NationSettings.RelationColors.getOrDefault(Relation.ALLY, NamedTextColor.DARK_PURPLE))));
+			nationInfo.appendNewline().append(Component.text("Truces: ", NamedTextColor.YELLOW).append(Component.text(truceList.isEmpty() ? "None" : String.join(", ", allyList), NationSettings.RelationColors.getOrDefault(Relation.TRUCE, NamedTextColor.LIGHT_PURPLE))));
+			nationInfo.appendNewline().append(Component.text("Enemies: ", NamedTextColor.YELLOW).append(Component.text(enemyList.isEmpty() ? "None" : String.join(", ", allyList), NationSettings.RelationColors.getOrDefault(Relation.ENEMY, NamedTextColor.RED))));
+			nationInfo.appendNewline().append(Component.text("Players online: ", NamedTextColor.YELLOW).append(Component.text(String.join(", ", onlinePlayers), color)));
+			nationInfo.appendNewline().append(Component.text("Players offline: ", NamedTextColor.YELLOW).append(Component.text(String.join(", ", offlinePlayers), color)));
+			p.sendMessage(nationInfo);
+	}
 	public static void generateTerritoryMap(NCPlayer p){
 		Compass compass = new Compass(Direction.fromYaw(p.getLocation().getYaw()));
 		int cx = p.getLocation().getBlockX() >> 4;
@@ -153,8 +166,11 @@ public class Messages {
 		final int minZ = cz - p.getMapHeight() / 2;
 		final int maxZ = cz + p.getMapHeight() / 2;
 		@NotNull final Map<Nation, String> nationMarkers = nationMarkers(p);
-		String header = cx + ", " + cz + TextColor.YELLOW + "}==={" +(locN != null ? nManager.getColor(p, locN) + locN.getName() : TextColor.DARK_GREEN + "Wilderness");
-		int clauseLength = 25 - (TextColor.strip(header).length() / 2);
+		TextComponent header = Component.text(cx + ", " + cz)
+				.append(Component.text("}==={", NamedTextColor.YELLOW))
+				.append((locN != null ? Component.text(locN.getName(), locN.getColor(p)) : Component.text("Wilderness", NamedTextColor.DARK_GREEN)));
+		int headerLength = PlainTextComponentSerializer.plainText().serialize(header).length();
+		int clauseLength = 25 - (headerLength / 2);
 		int index = 0;
 		String leftClause = "";
 		String rightClause = "";
@@ -171,38 +187,44 @@ public class Messages {
 			}
 			index++;
 		}
-		p.sendMessage(TextColor.YELLOW + leftClause + header + TextColor.YELLOW + rightClause);
+		TextComponent territoryMap = Component.text(leftClause, NamedTextColor.YELLOW)
+						.append(header)
+						.append(Component.text(rightClause, NamedTextColor.YELLOW));
+
+		//North-South
+		final int totalLines = maxZ - minZ;
 		for (int z = minZ ; z <= maxZ ; z++){
 			ChatText.Builder mapLine = ChatText.builder();
 			ChatText.Builder compassLine = ChatText.builder();
 			int line = z - minZ;
 			if (line <= 2) {
-				compassLine = compassLine.addText(compass.getLine(line))
-				.addText(" ");
+				territoryMap = territoryMap.append(compass.getLine(line)).appendSpace();
 			}
+			//West-East
 			for (int x = minX ; x <= maxX ; x++){
 				int column = x - minX;
 				Territory territory = new Territory(p.getLocation().getWorld(), x, z);
 				if (line <= 2 && column <= 4){
 					continue;
 				}
-				mapLine.addText(getTerritoryMarker(nationMarkers, territory, p));
+				territoryMap = territoryMap.append(getTerritoryMarker(nationMarkers, territory, p));
 
 			}
-			compassLine = compassLine.addText(mapLine.build());
-			p.sendMessage(compassLine.build());
+			territoryMap = territoryMap.appendNewline();
 		}
 		if (!nationMarkers.isEmpty()){
-			String nations = "";
 			for (Nation listed : nationMarkers.keySet()){
 				if (listed == null){
 					continue;
 				}
-				nations += NationManager.getInstance().getColor(p, listed) + nationMarkers.get(listed) + " " + listed.getName() + " " + TextColor.RESET;
+				territoryMap = territoryMap.append(
+						Component.text(nationMarkers.get(listed) + " " + listed.getName(), listed.getColor(p))
+				);
 			}
-			p.sendMessage(nations);
 		}
-		p.sendMessage(TextColor.YELLOW + "===================================================");
+		territoryMap = territoryMap.appendNewline();
+		territoryMap = territoryMap.append(Component.text("===================================================", NamedTextColor.YELLOW));
+		p.sendMessage(territoryMap);
 	}
 
 	public static void nearestSettlements(NCPlayer player){
@@ -280,50 +302,36 @@ public class Messages {
 		}
 		return returnMap;
 	}
-	private static ChatTextComponent getTerritoryMarker(Map<Nation, String> nationMarkers , Territory territory, NCPlayer player){
-		ChatTextComponent marker = new ChatTextComponent("-");
+	private static TextComponent getTerritoryMarker(Map<Nation, String> nationMarkers , Territory territory, NCPlayer player){
+		TextComponent marker = Component.text("-");
 		@Nullable final Nation n = territory.getNation();
-		Settlement settlement = null;
+		Settlement settlement = territory.getSettlement();
 
 		if (n != null ){
-			marker = new ChatTextComponent(n.getColor(player), nationMarkers.get(n) + TextColor.RESET, new HoverEvent(
-					HoverEvent.Action.SHOW_TEXT, n.getName(player)
-			));
-			for (Settlement s : n.getSettlements()){
-				if (s == null || !s.getTerritory().contains(territory)){
-					continue;
-				}
-				settlement = s;
-			}
-			if (n.getCapital() != null && (n.getCapital().getTerritory().contains(territory) || n.getCapital().getTownCenter().equalsTerritory(territory))){
-				settlement = n.getCapital();
-			}
+			marker = Component.text(nationMarkers.get(n), n.getColor(player))
+					.hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(n.getName(player)));
 		}
 		if (settlement != null){
 			if (settlement.getTownCenter().equalsTerritory(territory)){
-				marker = new ChatTextComponent(TextColor.DARK_BLUE, "T", new HoverEvent(
-						HoverEvent.Action.SHOW_TEXT,
-						TextColor.DARK_BLUE + settlement.getName() + " town center" + TextColor.RESET
+				marker = Component.text("T", NamedTextColor.DARK_BLUE).hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(
+						Component.text(settlement.getName() + "'s town center", NamedTextColor.DARK_BLUE)
 				));
-			} else if (n.getCapital().equals(settlement)){
-                marker = new ChatTextComponent(TextColor.GRAY, "C" + TextColor.RESET, new HoverEvent(
-						HoverEvent.Action.SHOW_TEXT,
-						TextColor.GRAY + settlement.getName() + ", capital of " + n.getName(player) + TextColor.RESET
+			} else if (n != null && n.getCapital() != null && n.getCapital().equals(settlement)){
+				marker = Component.text("C", NamedTextColor.DARK_BLUE).hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(
+						Component.text(settlement.getName() + ", capital of nation " + settlement.getNation().getName(), NamedTextColor.DARK_BLUE)
 				));
             }
 			else {
-				marker = new ChatTextComponent(TextColor.GRAY, "S" + TextColor.RESET, new HoverEvent(
-						HoverEvent.Action.SHOW_TEXT,
-						TextColor.GRAY + settlement.getName() + ", settlement of " + n.getName(player) + TextColor.RESET
+				marker = Component.text("S", NamedTextColor.DARK_BLUE).hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(
+						Component.text(settlement.getName() + ", settlement of " + settlement.getNation().getName(), NamedTextColor.DARK_BLUE)
 				));
 			}
 
 		}
 		if (territory.contains(player.getLocation())){
-			marker = new ChatTextComponent(TextColor.BLUE, "+" + TextColor.RESET, new HoverEvent(
-					HoverEvent.Action.SHOW_TEXT,
-					TextColor.GRAY + "Your position" + TextColor.RESET
-			));
+			marker = Component.text("+", NamedTextColor.BLUE).hoverEvent(
+					HoverEvent.showText(Component.text("Your position", NamedTextColor.GRAY))
+			);
 		}
 		return marker;
 	}
