@@ -5,7 +5,9 @@ import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
+import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import org.jetbrains.annotations.NotNull;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -14,11 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class TerritoryManager implements Iterable<Territory> {
-    private Set<Territory> territory = new HashSet<>();
     private ConcurrentMap<Nation, Collection<Territory>> nationTerritoryMap = new ConcurrentHashMap<>();
     private ConcurrentMap<Settlement, Collection<Territory>> settlementTerritoryMap = new ConcurrentHashMap<>();
     private NationCraftMain plugin;
     private static TerritoryManager INSTANCE;
+    private static Yaml yaml;
     private TerritoryManager() {
 
     }
@@ -89,12 +91,13 @@ public class TerritoryManager implements Iterable<Territory> {
             return;
         try {
             final InputStream inputStream = new FileInputStream(territoryFile);
-            final Yaml yaml = new Yaml();
             final Map data = yaml.load(inputStream);
             final List<Map<String, Object>> list = (List) data.get("territory");
+            if (list == null) {
+                return;
+            }
             for (Map<String, Object> entry : list) {
                 Territory terr = Territory.deserialize(entry);
-                territory.add(terr);
                 Nation nation = NationManager.getInstance().getNationByUUID(UUID.fromString((String) entry.get("nation")));
                 if (nation != null) {
                     if (nationTerritoryMap.containsKey(nation)) {
@@ -104,6 +107,21 @@ public class TerritoryManager implements Iterable<Territory> {
                         territoryColl.add(terr);
                         nationTerritoryMap.put(nation, territoryColl);
                     }
+                }
+                String settlementId = (String) entry.get("settlement");
+                if (settlementId == null) {
+                    continue;
+                }
+                Settlement settlement = SettlementManager.getInstance().getSettlementByUUID(UUID.fromString(settlementId));
+                if (settlement == null) {
+                    continue;
+                }
+                if (settlementTerritoryMap.containsKey(settlement)) {
+                    settlementTerritoryMap.get(settlement).add(terr);
+                } else {
+                    Collection<Territory> terriltoryColl = new HashSet<>();
+                    terriltoryColl.add(terr);
+                    settlementTerritoryMap.put(settlement, terriltoryColl);
                 }
             }
         } catch (FileNotFoundException e) {
@@ -123,10 +141,10 @@ public class TerritoryManager implements Iterable<Territory> {
         try {
             PrintWriter writer = new PrintWriter(territoryFile);
             writer.println("territory:");
-            territory.forEach( t -> {
+            getClaimedTerritory().forEach( t -> {
                 boolean first = true;
                 for (Map.Entry<String, Object> entry : t.serialize().entrySet()) {
-                    writer.println(" " + (first ? "-" : " ") + entry.getKey() + ": " + entry.getValue());
+                    writer.println((first ? "- " : "  ") + entry.getKey() + ": " + entry.getValue());
                     first = false;
                 }
             });
@@ -135,17 +153,25 @@ public class TerritoryManager implements Iterable<Territory> {
             throw new RuntimeException(e);
         }
     }
+
+    public Set<Territory> getClaimedTerritory() {
+        HashSet<Territory> claimedTerritory = new HashSet<>();
+        nationTerritoryMap.forEach((n, t) -> claimedTerritory.addAll(t));
+        settlementTerritoryMap.forEach((s, t) -> claimedTerritory.addAll(t));
+        return claimedTerritory;
+    }
+
     public int size() {
-        return territory.size();
+        return getClaimedTerritory().size();
     }
     public boolean contains(Territory territory) {
-        return this.territory.contains(territory);
+        return getClaimedTerritory().contains(territory);
     }
     public boolean isEmpty() {
-        return territory.isEmpty();
+        return getClaimedTerritory().isEmpty();
     }
     @NotNull public Iterator<Territory> iterator() {
-        return territory.iterator();
+        return Collections.unmodifiableSet(getClaimedTerritory()).iterator();
     }
 
     public static TerritoryManager getInstance() {
@@ -157,6 +183,9 @@ public class TerritoryManager implements Iterable<Territory> {
 
     public void initialize(NationCraftMain plugin) {
         this.plugin = plugin;
+        final LoaderOptions options = new LoaderOptions();
+        options.setCodePointLimit(Integer.MAX_VALUE);
+        yaml = new Yaml(options);
         loadFromFile();
     }
 

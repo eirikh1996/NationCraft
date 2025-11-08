@@ -168,7 +168,7 @@ public class Messages {
 		@NotNull final Map<Nation, String> nationMarkers = nationMarkers(p);
 		TextComponent header = Component.text(cx + ", " + cz)
 				.append(Component.text("}==={", NamedTextColor.YELLOW))
-				.append((locN != null ? Component.text(locN.getName(), locN.getColor(p)) : Component.text("Wilderness", NamedTextColor.DARK_GREEN)));
+				.append((locN != null ? locN.getName(p) : Component.text("Wilderness", NamedTextColor.DARK_GREEN)));
 		int headerLength = PlainTextComponentSerializer.plainText().serialize(header).length();
 		int clauseLength = 25 - (headerLength / 2);
 		int index = 0;

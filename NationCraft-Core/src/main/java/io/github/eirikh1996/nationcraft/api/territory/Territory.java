@@ -252,11 +252,11 @@ public final class Territory implements Comparable<Territory>, Serializable {
         serialized.put("world", world);
         Nation nation = NationManager.getInstance().getNationAt(this);
         if (nation != null) {
-            serialized.put("nation", nation.getUuid());
+            serialized.put("nation", "\"" + nation.getUuid() + "\"");
         }
         Settlement settlement = SettlementManager.getInstance().getSettlementAt(this);
         if (settlement != null) {
-            serialized.put("settlement", settlement.getUuid());
+            serialized.put("settlement", "\"" + settlement.getUuid() + "\"");
         }
         return serialized;
     }

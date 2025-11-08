@@ -80,6 +80,18 @@ public class SettlementManager implements Iterable<Settlement>{
 		return null;
 	}
 
+	public Settlement getSettlementByUUID(UUID uuid) {
+		Settlement returnSettlement = null;
+		for (Settlement s : getAllSettlements()) {
+			if (s.getUuid() != uuid) {
+				continue;
+			}
+			returnSettlement = s;
+			break;
+		}
+		return returnSettlement;
+	}
+
 	public Set<Settlement> getAllSettlements(){
 		HashSet<Settlement> returnList = new HashSet<>();
 		for (Nation n : NationManager.getInstance()){

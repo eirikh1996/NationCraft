@@ -271,7 +271,7 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		}
 		final ConfigurationSection relColors = nationSection.getConfigurationSection("RelationColors");
 		for (String key : relColors.getValues(true).keySet()) {
-			NationSettings.RelationColors.put(Relation.getRelationIgnoreCase(key), NamedTextColor.NAMES.value((String) relColors.getValues(true).get(key)));
+			NationSettings.RelationColors.put(Relation.getRelationIgnoreCase(key), NamedTextColor.NAMES.value(((String) relColors.getValues(true).get(key)).toLowerCase()));
 		}
 
 		//settlements

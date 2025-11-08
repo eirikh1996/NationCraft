@@ -32,10 +32,14 @@ public final class NationListCommand extends Command {
         }
         TopicPaginator paginator = new TopicPaginator("Nation list");
         for (Nation n : NationManager.getInstance()) {
-            TextComponent nationName = n.getName(player);
+            TextComponent nationEntry = n.getName(player);
             int settlements = n.getSettlements().isEmpty() ? n.getSettlements().size() : 0;
             String capital = n.getCapital() == null ? "None" : n.getCapital().getName();
-            paginator.addLine(Component.text(String.format("%s: Players: %d, Settlements: %d, Capital: %s", nationName, n.getPlayers().keySet().size(), settlements, capital), NamedTextColor.DARK_AQUA));
+            ;
+            paginator.addLine(nationEntry
+                    .append(Component.text(" Players: " + n.getPlayers().keySet().size() + ", ", NamedTextColor.AQUA))
+                    .append(Component.text("Settlements: " + settlements + ", ", NamedTextColor.AQUA))
+                    .append(Component.text("Capital: " + capital, NamedTextColor.AQUA)));
         }
         if (!paginator.isInBounds(page)) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Invalid page: " + page);
