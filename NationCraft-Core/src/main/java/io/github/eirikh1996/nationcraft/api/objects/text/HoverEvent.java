@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents a hover event for chat text components
  */
+@Deprecated
 public class HoverEvent {
 
     @NotNull private final Action action;

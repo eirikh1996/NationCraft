@@ -10,6 +10,7 @@ import java.util.Map;
 /**
  * Represents each individual component of a <code>ChatText</code>
  */
+@Deprecated
 public class ChatTextComponent {
 
     @Nullable

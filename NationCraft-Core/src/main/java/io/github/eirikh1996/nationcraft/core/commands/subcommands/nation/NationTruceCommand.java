@@ -2,13 +2,13 @@ package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
-import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
-import io.github.eirikh1996.nationcraft.api.objects.text.ClickEvent;
-import io.github.eirikh1996.nationcraft.api.objects.text.HoverEvent;
-import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,17 +44,23 @@ public class NationTruceCommand extends Command {
         }
         ownNation.addTruce(truce);
         if (!truce.getTruces().contains(ownNation) && !truce.getAllies().contains(ownNation)) {
-            truce.broadcast(ChatText.builder()
-                    .addText(ownNation.getName(truce) + "§r wants to be in truce with your nation. ")
-                    .addText(TextColor.GREEN + "[Accept]",
-                            new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/nation truce " + ownNation.getName()),
-                            new HoverEvent(HoverEvent.Action.SHOW_TEXT, "Click to accept truce"))
-                    .build());
-            ownNation.broadcast(player.getName() + " informed nation " + truce.getName(ownNation) + " that your nation wants to be in truce");
+            truce.broadcast(
+                ownNation.getName(truce)
+                .append(Component.text(" wants to be in truce with your nation. "))
+                .append(Component.text("[Accept]", NamedTextColor.GREEN)
+                        .clickEvent(ClickEvent.runCommand("/nation truce " + ownNation.getName()))
+                        .hoverEvent(HoverEvent.showText(Component.text("Click to accept truce")))
+                )
+            );
+
+            ownNation.broadcast(Component.text(player.getName())
+                    .append(Component.text(" informed nation "))
+                    .append(truce.getName(ownNation))
+                    .append(Component.text(" that your nation wants to be in truce")));
             return;
         }
-        truce.broadcast(ownNation.getName(truce) + " is now a nation in truce");
-        ownNation.broadcast(truce.getName(ownNation) + " is now a nation in truce");
+        truce.broadcast(ownNation.getName(truce).append(Component.text(" is now a nation in truce")));
+        ownNation.broadcast(truce.getName(ownNation).append(Component.text(" is now a nation in truce")));
 
     }
 

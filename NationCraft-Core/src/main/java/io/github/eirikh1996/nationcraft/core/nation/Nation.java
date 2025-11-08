@@ -338,7 +338,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 			}
 		}
 		int size = getTerritory().size() + CollectionUtils.filter(claims, getTerritory()).size();
-		if (size > getPower() && !player.isAdminMode()){
+		if (size > getPower() && !player.isAdminMode() && !isSafezone() && !isWarzone()){
 			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot claim more land. You need more power");
 			return;
 		}

@@ -9,6 +9,7 @@ import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.bukkit.NationCraft;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.OfflinePlayer;
 
 public class PlaceHolderUtils extends PlaceholderExpansion {
@@ -45,7 +46,7 @@ public class PlaceHolderUtils extends PlaceholderExpansion {
         final NCPlayer player = PlayerManager.getInstance().getPlayer(p.getUniqueId());
         if (params.equalsIgnoreCase("nation")) {
             final Nation pn = NationManager.getInstance().getNationByPlayer(p.getUniqueId());
-            return pn != null ? pn.getName(p.getUniqueId()) : "Wilderness";
+            return pn != null ? LegacyComponentSerializer.legacySection().serialize(pn.getName(p.getUniqueId())) : "Wilderness";
         }
 
         if (params.equalsIgnoreCase("settlement")) {
@@ -62,7 +63,7 @@ public class PlaceHolderUtils extends PlaceholderExpansion {
         }
 
         if (params.equalsIgnoreCase("nationterr")) {
-            return String.valueOf(player.getNation().getTerritoryManager().size());
+            return String.valueOf(player.getNation().getTerritory().size());
         }
 
         return null;

@@ -1,5 +1,6 @@
 package io.github.eirikh1996.nationcraft.api.objects.text;
 
+@Deprecated
 public enum TextStyle {
     OBFUSCATED("§k"),
     BOLD("§l"),

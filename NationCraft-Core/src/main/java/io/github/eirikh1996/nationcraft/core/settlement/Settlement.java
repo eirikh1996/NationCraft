@@ -260,6 +260,25 @@ final public class Settlement {
 		TerritoryManager.getInstance().addSettlementTerritory(this, claims);
 	}
 
+	public void unclaimTerritory(NCPlayer player, Shape shape, int radius) {
+		Collection<Territory> claims;
+		Territory origin = player.getLocation().getTerritory();
+		if (shape == Shape.LINE) {
+			claims = origin.line(Direction.fromYaw(player.getLocation().getYaw()), radius);
+		} else if (shape == Shape.ALL) {
+			claims = getTerritory();
+		} else if (shape == Shape.SINGLE) {
+			claims = new HashSet<>();
+			claims.add(origin);
+		} else {
+			claims = player.getLocation().getTerritory().adjacent(shape, radius);
+		}
+		//Remove territory not claimed by the nation
+		claims.removeIf(claim -> !getTerritory().contains(claim));
+		TerritoryManager.getInstance().removeSettlementTerritory(this, claims);
+		saveToFile();
+	}
+
 	
 	public void addPlayer(NCPlayer p) {
 		players.put(p, Ranks.CITIZEN);

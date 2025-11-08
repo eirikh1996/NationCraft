@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents a click event for a <code>ChatTextComponent</code>
  */
+@Deprecated
 public class ClickEvent {
 
     @NotNull private final Action action;

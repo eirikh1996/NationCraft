@@ -1,9 +1,5 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
-import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
-import io.github.eirikh1996.nationcraft.api.objects.text.ClickEvent;
-import io.github.eirikh1996.nationcraft.api.objects.text.HoverEvent;
-import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
@@ -12,6 +8,10 @@ import io.github.eirikh1996.nationcraft.core.messages.Messages;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.core.nation.Ranks;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,12 +50,17 @@ public final class NationInviteCommand extends Command {
         }
         NCPlayer target = PlayerManager.getInstance().getPlayer(args[0]);
         if (target != null) {
-            target.sendMessage(ChatText.builder()
-                    .addText("You have been invited to join " + n.getName(target) + " ")
-                    .addText(TextColor.AQUA, "[Accept]",
-                            new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/nation join " + n.getName()),
-                            new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextColor.AQUA + "Click to join " + n.getName()))
-                    .build());
+            target.sendMessage(
+                    Component
+                            .text("You have been invited to join ")
+                            .append(n.getName(target))
+                            .append(Component.space())
+                            .append(
+                                    Component.text("[Accept]", NamedTextColor.AQUA)
+                                            .clickEvent(ClickEvent.runCommand("/nation join " + n.getName()))
+                                            .hoverEvent(HoverEvent.showText(Component.text("Click to join " + n.getName(), NamedTextColor.AQUA)))
+                            )
+                    );
         } else {
             sender.sendMessage(Messages.ERROR + "Player " + args[0] + " has never joined the server!");
             return;

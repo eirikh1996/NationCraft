@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.bukkit.listener;
 
 import io.github.eirikh1996.nationcraft.api.config.NationSettings;
+import io.github.eirikh1996.nationcraft.bukkit.player.BukkitPlayerManager;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.core.nation.Relation;
@@ -36,8 +37,8 @@ public class EntityListener implements Listener {
         if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
             Player damager = (Player) event.getDamager();
             Player damagee = (Player) event.getEntity();
-            NCPlayer ncDamager = PlayerManager.getInstance().getPlayer(damager);
-            NCPlayer ncDamagee = PlayerManager.getInstance().getPlayer(damagee);
+            NCPlayer ncDamager = BukkitPlayerManager.getInstance().getPlayer(damager);
+            NCPlayer ncDamagee = BukkitPlayerManager.getInstance().getPlayer(damagee);
             Nation atDamagerLoc = BukkitUtils.getInstance().bukkitToNCLoc(damager.getLocation()).getNation();
             Nation atDamageeLoc = BukkitUtils.getInstance().bukkitToNCLoc(damagee.getLocation()).getNation();
             if (atDamageeLoc != null && !atDamageeLoc.pvpAllowed()) {

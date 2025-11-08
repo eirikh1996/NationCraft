@@ -4,6 +4,7 @@ import com.earth2me.essentials.Essentials;
 import io.github.eirikh1996.nationcraft.api.NationCraftAPI;
 import io.github.eirikh1996.nationcraft.api.config.NationSettings;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
+import io.github.eirikh1996.nationcraft.bukkit.player.BukkitPlayerManager;
 import io.github.eirikh1996.nationcraft.core.nation.Relation;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
@@ -65,12 +66,12 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event){
-
+        BukkitPlayerManager bpm = (BukkitPlayerManager) BukkitPlayerManager.getInstance();
         //TODO: Move to Core
         //if player enters nation territory
         NCLocation from = BukkitUtils.getInstance().bukkitToNCLoc(event.getFrom());
         NCLocation to = BukkitUtils.getInstance().bukkitToNCLoc(event.getTo());
-        NCPlayer player = PlayerManager.getInstance().getPlayer(event.getPlayer());
+        NCPlayer player = bpm.getPlayer(event.getPlayer());
         io.github.eirikh1996.nationcraft.api.events.player.PlayerMoveEvent pme = new io.github.eirikh1996.nationcraft.api.events.player.PlayerMoveEvent(player, from, to);
         NationCraftAPI.getInstance().callEvent(pme);
         event.setCancelled(pme.isCancelled());

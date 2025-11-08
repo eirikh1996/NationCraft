@@ -54,6 +54,6 @@ public class SettlementUnclaimCommand extends Command {
             return;
         }
 
-        settlement;
+        settlement.unclaimTerritory(player, shape, radius);
     }
 }

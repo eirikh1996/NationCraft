@@ -70,6 +70,10 @@ public class BukkitPlayerManager extends PlayerManager<Player> implements Listen
 
     @Override
     public NCPlayer getPlayer(@NotNull Player player) {
-        return getPlayer(((Player) player).getUniqueId());
+        return getPlayer(player.getUniqueId());
+    }
+
+    public static BukkitPlayerManager getInstance() {
+        return (BukkitPlayerManager) instance;
     }
 }

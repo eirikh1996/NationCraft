@@ -2,13 +2,13 @@ package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
-import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
-import io.github.eirikh1996.nationcraft.api.objects.text.ClickEvent;
-import io.github.eirikh1996.nationcraft.api.objects.text.HoverEvent;
-import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,10 @@ public final class NationNeutralCommand extends Command {
             return;
         }
         if (!ownNation.getAllies().contains(neutralNation) && !ownNation.getEnemies().contains(neutralNation) && !neutralNation.getEnemies().contains(ownNation) && !ownNation.getTruces().contains(neutralNation)) {
-            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + neutralNation.getName(ownNation) + " is already neutral");
+            player.sendMessage(
+                    NATIONCRAFT_COMMAND_PREFIX
+                            .append(neutralNation.getName(ownNation))
+                            .append(Component.text(" is already neutral")));
             return;
         }
         if (ownNation.getAllies().contains(neutralNation)) {
@@ -56,14 +59,16 @@ public final class NationNeutralCommand extends Command {
         //if the sender's nation is on the neutral nations enemy list
         if (neutralNation.getEnemies().contains(ownNation)) {
             ownNation.broadcast(player.getName() + " has informed " + neutralNation.getName(ownNation) + " that this nation wants to be neutral");
-            neutralNation.broadcast(ChatText.builder()
-                    .addText(ownNation.getName(neutralNation) + "§r wants to be neutral with your nation. ")
-                    .addText(
-                            TextColor.GREEN + "[Accept]",
-                            new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/nation neutral " + ownNation.getName()),
-                            new HoverEvent(HoverEvent.Action.SHOW_TEXT, "Click to accept neutrality")
+            neutralNation.broadcast(
+                ownNation.getName(neutralNation)
+                    .append(Component.text(" wants to be neutral with your nation. "))
+                    .append(Component
+                            .text("[Accept]", NamedTextColor.GREEN)
+                            .clickEvent(ClickEvent.runCommand("/nation neutral " + ownNation.getName()))
+                            .hoverEvent(HoverEvent.showText(Component.text("Click to accept neutrality")))
                     )
-                    .build());
+
+                );
             ownNation.removeEnemy(neutralNation);
             return;
         }

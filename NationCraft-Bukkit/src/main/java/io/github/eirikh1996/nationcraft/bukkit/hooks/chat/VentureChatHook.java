@@ -31,7 +31,7 @@ public class VentureChatHook implements Listener {
             NCPlayer sender = BukkitPlayerManager.getInstance().getPlayer(event.getPlayer());
             Iterator<Player> iter = event.getRecipients().iterator();
             while (iter.hasNext()) {
-                final NCPlayer recipient = PlayerManager.getInstance().getPlayer(iter.next());
+                final NCPlayer recipient = BukkitPlayerManager.getInstance().getPlayer(iter.next());
                 if (!sender.hasNation() && recipient.hasNation()) {
                     iter.remove();
                 } else if (!sender.isInNationWith(recipient)) {
@@ -42,7 +42,7 @@ public class VentureChatHook implements Listener {
             NCPlayer sender = BukkitPlayerManager.getInstance().getPlayer(event.getPlayer());
             Iterator<Player> iter = event.getRecipients().iterator();
             while (iter.hasNext()) {
-                final NCPlayer recipient = PlayerManager.getInstance().getPlayer(iter.next());
+                final NCPlayer recipient = BukkitPlayerManager.getInstance().getPlayer(iter.next());
                 if (!sender.hasSettlement() && recipient.hasSettlement()) {
                     iter.remove();
                 } else if (!sender.isInSettlementWith(recipient)) {
@@ -53,7 +53,7 @@ public class VentureChatHook implements Listener {
             NCPlayer sender = BukkitPlayerManager.getInstance().getPlayer(event.getPlayer());
             Iterator<Player> iter = event.getRecipients().iterator();
             while (iter.hasNext()) {
-                final NCPlayer recipient = PlayerManager.getInstance().getPlayer(iter.next());
+                final NCPlayer recipient = BukkitPlayerManager.getInstance().getPlayer(iter.next());
                 if (!sender.hasNation() && recipient.hasNation()) {
                     iter.remove();
                 } else if (!sender.isAlliedWith(recipient)) {
@@ -64,7 +64,7 @@ public class VentureChatHook implements Listener {
             NCPlayer sender = BukkitPlayerManager.getInstance().getPlayer(event.getPlayer());
             Iterator<Player> iter = event.getRecipients().iterator();
             while (iter.hasNext()) {
-                final NCPlayer recipient = PlayerManager.getInstance().getPlayer(iter.next());
+                final NCPlayer recipient = BukkitPlayerManager.getInstance().getPlayer(iter.next());
                 if (!sender.hasNation() && recipient.hasNation()) {
                     iter.remove();
                 } else if (!sender.isAlliedWith(recipient)) {

@@ -2,13 +2,13 @@ package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
-import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
-import io.github.eirikh1996.nationcraft.api.objects.text.ClickEvent;
-import io.github.eirikh1996.nationcraft.api.objects.text.HoverEvent;
-import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,12 +59,21 @@ public final class NationAllyCommand extends Command {
             allyNation.broadcast(ownNation.getName(allyNation) + " is now an allied nation");
             return;
         }
-        allyNation.broadcast(ChatText.builder()
-        .addText(NATIONCRAFT_COMMAND_PREFIX + ownNation.getName(allyNation) + " §r wishes to be an allied nation. ")
-        .addText(TextColor.DARK_GREEN + "[Accept]",
-                new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/nation ally " + ownNation.getName()),
-                new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextColor.GREEN + "Click to accept the alliance"))
-        .build());
+        allyNation.broadcast(NATIONCRAFT_COMMAND_PREFIX
+        .append(ownNation.getName(allyNation))
+        .append(Component.text(" wishes to be an allied nation. "))
+            .append(
+                Component.text("[Accept]", NamedTextColor.DARK_GREEN)
+                    .hoverEvent(
+                            HoverEvent.showText(Component.text(
+                                    "Click to accept the alliance",
+                                    NamedTextColor.GREEN
+                            )
+                            )
+                    )
+                    .clickEvent(ClickEvent.runCommand("/nation ally " + ownNation.getName()))
+            )
+        );
         ownNation.broadcast(player.getName() + " informed nation " + allyNation.getName(ownNation) + " that you wish to be an allied nation");
 
 

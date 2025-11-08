@@ -145,7 +145,7 @@ public class NationManager implements Runnable, Iterable<Nation> {
 	public Nation getNationAt(String world, int x, int z){
 		Nation returnNation = null;
 		for (Nation nation : nations){
-			for (Territory terr : nation.getTerritoryManager()){
+			for (Territory terr : nation.getTerritory()){
 				if (terr.getX() != x||terr.getZ() != z || !terr.getWorld().equals(world))
 					continue;
 				returnNation = nation;

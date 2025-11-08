@@ -8,6 +8,7 @@ import java.util.List;
 /**
  * Represents chat text that can be sent to a player
  */
+@Deprecated
 public class ChatText implements Comparable<ChatText> {
     private final List<ChatTextComponent> textComponents;
 

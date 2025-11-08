@@ -1,12 +1,13 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
-import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.Core;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.CommandRegistry;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.api.utils.TopicPaginator;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -32,10 +33,10 @@ public final class NationHelpCommand extends Command {
                 continue;
             if (!sender.hasPermission("nationcraft.nation." + entry.getKey().toLowerCase()))
                 continue;
-            paginator.addLine(ChatText.builder().addText("/nation, n " + entry.getKey() + " " + entry.getValue().getArgument()).build());
+            paginator.addLine(Component.text("/nation, n " + entry.getKey() + " " + entry.getValue().getArgument()));
         }
-        for (ChatText line : paginator.getPage(page, "/nation help ")){
-            ((NCPlayer)sender).sendMessage(line);
+        for (TextComponent line : paginator.getPage(page, "/nation help ")){
+            sender.sendMessage(line);
         }
     }
 }

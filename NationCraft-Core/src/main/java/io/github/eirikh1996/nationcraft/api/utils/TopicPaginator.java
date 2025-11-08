@@ -1,53 +1,93 @@
 package io.github.eirikh1996.nationcraft.api.utils;
 
-import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
-import io.github.eirikh1996.nationcraft.api.objects.text.ClickEvent;
-import io.github.eirikh1996.nationcraft.api.objects.text.HoverEvent;
-import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class TopicPaginator {
     private final String title;
-    private final List<ChatText> lines = new ArrayList<>();
+    private final List<TextComponent> lines = new ArrayList<>();
     public TopicPaginator(String title){
         this.title = title;
     }
 
-    public boolean addLine(ChatText line){
+    public boolean addLine(TextComponent line){
         boolean result = lines.add(line);
-        Collections.sort(lines);
+        Collections.sort(lines, Comparator.comparing(TextComponent::content));
         return result;
     }
 
-    public ChatText[] getPage(int pageNumber, String paginationCommand){
+    public TextComponent[] getPage(int pageNumber, String paginationCommand){
         if(!isInBounds(pageNumber))
             throw new IndexOutOfBoundsException("Page number " + pageNumber + " exceeds bounds <" + 1 + "," + getPageCount() + ">");
-        ChatText[] tempLines = new ChatText[pageNumber == getPageCount() ? (lines.size()%9) + 1 : 9];
+        TextComponent[] tempLines = new TextComponent[pageNumber == getPageCount() ? (lines.size()%9) + 1 : 9];
         String leftArrow = "[<<]";
         String rightArrow = "[>>]";
-        ChatText.Builder builder = ChatText.builder().addText(TextColor.DARK_GRAY, " ======= ")
-                .addText(TextColor.DARK_AQUA, title)
-                .addText(TextColor.DARK_GRAY, " ======= ")
-                .addText(TextColor.DARK_AQUA, "page ")
-                .addText(TextColor.AQUA, String.valueOf(pageNumber))
-                .addText(TextColor.DARK_AQUA, "/")
-                .addText(TextColor.AQUA, String.valueOf(getPageCount()))
-                .addText(TextColor.DARK_GRAY, " ====");
+        TextComponent header = Component.text(" ======= ", NamedTextColor.DARK_GRAY)
+                .append(Component.text(title, NamedTextColor.DARK_AQUA))
+                .append(Component.text(" ======= ", NamedTextColor.DARK_GRAY))
+                .append(Component.text("page ", NamedTextColor.DARK_AQUA))
+                .append(Component.text(String.valueOf(pageNumber), NamedTextColor.AQUA))
+                .append(Component.text("/", NamedTextColor.DARK_AQUA))
+                .append(Component.text(String.valueOf(getPageCount()), NamedTextColor.AQUA))
+                .append(Component.text(" ====", NamedTextColor.DARK_GRAY));
         if (pageNumber == 1) {
-            builder = builder.addText(TextColor.RED, leftArrow, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "§cThis is the last page"));
+            header = header.append(
+                Component
+                    .text(leftArrow, NamedTextColor.RED)
+                    .hoverEvent(
+                        HoverEvent.showText(
+                            Component.text("This is the first page", NamedTextColor.RED)
+                        )
+                    )
+                );
         } else {
-            builder = builder.addText(TextColor.GREEN, leftArrow, new ClickEvent(ClickEvent.Action.RUN_COMMAND, paginationCommand + (pageNumber - 1)), new HoverEvent(HoverEvent.Action.SHOW_TEXT, "Previous page"));
+            header = header.append(
+                Component
+                    .text(leftArrow, NamedTextColor.GREEN)
+                    .hoverEvent(
+                        HoverEvent.showText(
+                            Component.text("Previous page", NamedTextColor.GREEN)
+                        )
+                    )
+                    .clickEvent(
+                        ClickEvent.runCommand(paginationCommand + (pageNumber - 1))
+                    )
+            );
         }
 
         if (pageNumber == getPageCount()) {
-            builder = builder.addText(TextColor.RED, rightArrow, new HoverEvent(HoverEvent.Action.SHOW_TEXT, "§cThis is the last page"));
+            header = header.append(
+                Component
+                    .text(rightArrow, NamedTextColor.RED)
+                    .hoverEvent(
+                        HoverEvent.showText(
+                            Component.text("This is the last page", NamedTextColor.RED)
+                        )
+                    )
+            );
         } else {
-            builder = builder.addText(TextColor.GREEN, rightArrow, new ClickEvent(ClickEvent.Action.RUN_COMMAND, paginationCommand + (pageNumber + 1)), new HoverEvent(HoverEvent.Action.SHOW_TEXT, "Previous page"));
+            header = header.append(
+                    Component
+                            .text(leftArrow, NamedTextColor.GREEN)
+                            .hoverEvent(
+                                    HoverEvent.showText(
+                                            Component.text("Previous page", NamedTextColor.GREEN)
+                                    )
+                            )
+                            .clickEvent(
+                                    ClickEvent.runCommand(paginationCommand + (pageNumber + 1))
+                            )
+            );
         }
-            tempLines[0] = builder.build();
+            tempLines[0] = header;
                 //"§8§b" + title + " §8===== page §b" + pageNumber + "§3/§b" + getPageCount() + " §8======";
         for(int i = 0; i< tempLines.length-1; i++)
             tempLines[i+1] = lines.get(((9-1) * (pageNumber-1)) + i);

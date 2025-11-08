@@ -20,7 +20,7 @@ import static java.lang.Math.min;
 
 public abstract class PlayerManager<P> implements Runnable, Iterable<NCPlayer> {
     protected static Map<UUID, NCPlayer> players = new HashMap<>();
-    protected static PlayerManager instance;
+    protected static PlayerManager<?> instance;
     protected static File playersDir;
     protected static NationCraftMain main;
 
@@ -40,7 +40,7 @@ public abstract class PlayerManager<P> implements Runnable, Iterable<NCPlayer> {
         return players.containsKey(id);
     }
 
-    public static PlayerManager getInstance() {
+    public static PlayerManager<?> getInstance() {
         return instance;
     }
 
