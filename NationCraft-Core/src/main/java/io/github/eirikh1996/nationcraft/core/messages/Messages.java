@@ -189,7 +189,8 @@ public class Messages {
 		}
 		TextComponent territoryMap = Component.text(leftClause, NamedTextColor.YELLOW)
 						.append(header)
-						.append(Component.text(rightClause, NamedTextColor.YELLOW));
+						.append(Component.text(rightClause, NamedTextColor.YELLOW))
+						.appendNewline();
 
 		//North-South
 		final int totalLines = maxZ - minZ;

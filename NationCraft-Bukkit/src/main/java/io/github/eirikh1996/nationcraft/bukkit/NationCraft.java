@@ -63,10 +63,10 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 
 
 		SettlementManager.initialize(this);
-		TerritoryManager.getInstance().initialize(this);
 		Messages.initialize(this);
 		NationManager nManager = NationManager.getInstance();
-		nManager.loadNations();
+		//nManager.loadNations();
+		TerritoryManager.getInstance().initialize(this);
 		if (nManager.getNations().isEmpty()){
 			getLogger().info("No nation files loaded");
 		}

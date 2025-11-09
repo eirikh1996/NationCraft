@@ -41,6 +41,7 @@ public class NationManager implements Runnable, Iterable<Nation> {
 		ourInstance = new NationManager();
 		NationManager.plugin = plugin;
 		nationDir = new File(dataFolder, "nations");
+		getInstance().loadNations();
 	}
 
 	public File getNationDir() {
@@ -179,8 +180,11 @@ public class NationManager implements Runnable, Iterable<Nation> {
 	public Nation getNationByUUID(UUID nationUUID) {
 		Nation returnNation = null;
 		for (Nation n : nations){
-			if (n.getUuid() == nationUUID){
+			if (n == null)
+				continue;
+			if (n.getUuid().equals(nationUUID)){
 				returnNation = n;
+				break;
 			}
 		}
 		return returnNation;

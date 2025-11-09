@@ -81,7 +81,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		try {
 			InputStream input = new FileInputStream(nationFile);
 			Yaml yaml = new Yaml();
-			data = (Map) yaml.load(input);
+			data = yaml.load(input);
 			input.close();
 		} catch (IOException e) {
 			throw new NationNotFoundException("File at " + nationFile.getAbsolutePath() + " was fot found!");

@@ -2,6 +2,7 @@ package io.github.eirikh1996.nationcraft.api.territory;
 
 import io.github.eirikh1996.nationcraft.api.NationCraftMain;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
+import io.github.eirikh1996.nationcraft.core.Core;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
@@ -96,9 +97,12 @@ public class TerritoryManager implements Iterable<Territory> {
             if (list == null) {
                 return;
             }
+            //plugin.logInfo(String.valueOf(list.size()));
             for (Map<String, Object> entry : list) {
                 Territory terr = Territory.deserialize(entry);
-                Nation nation = NationManager.getInstance().getNationByUUID(UUID.fromString((String) entry.get("nation")));
+                UUID nationId = UUID.fromString((String) entry.get("nation"));
+                Nation nation = NationManager.getInstance().getNationByUUID(nationId);
+                //plugin.logInfo(nationId + "  " + nation);
                 if (nation != null) {
                     if (nationTerritoryMap.containsKey(nation)) {
                         nationTerritoryMap.get(nation).add(terr);
@@ -127,6 +131,8 @@ public class TerritoryManager implements Iterable<Territory> {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+        plugin.logInfo(String.valueOf(nationTerritoryMap.keySet().size()));
+        plugin.logInfo("Loaded " + getClaimedTerritory().size() + " chunks of territory claimed by " + nationTerritoryMap.keySet().size() + " nations and " + settlementTerritoryMap.keySet().size() + " settlements.");
     }
 
     private void saveToFile() {
