@@ -4,11 +4,16 @@
 
 plugins {
     id("buildlogic.java-conventions")
+    id("org.spongepowered.gradle.plugin") version "2.3.0"
+}
+
+repositories {
+    maven("https://repo.spongepowered.org/repository/maven-public/")
 }
 
 dependencies {
     api(project(":NationCraft-Core"))
-    compileOnly(libs.org.spongepowered.spongeapi)
+    compileOnly("org.spongepowered:spongeapi:17.0.0-SNAPSHOT")
 }
 
 description = "NationCraft-Sponge"

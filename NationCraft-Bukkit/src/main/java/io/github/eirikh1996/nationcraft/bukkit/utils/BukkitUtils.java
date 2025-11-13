@@ -28,10 +28,10 @@ public class BukkitUtils {
     }
 
     public NCCommandSender getCorrespondingSender(CommandSender sender) {
-        if (sender instanceof Player) {
-            return PlayerManager.getInstance().getPlayer(((Player) sender).getUniqueId());
-        } else if (sender instanceof ConsoleCommandSender) {
-            return new NCBukkitConsole((ConsoleCommandSender) sender);
+        if (sender instanceof Player player) {
+            return PlayerManager.getInstance().getPlayer(player.getUniqueId());
+        } else if (sender instanceof ConsoleCommandSender console) {
+            return new NCBukkitConsole(console);
         } else {
             return new NCBukkitBlockSender((BlockCommandSender) sender);
         }

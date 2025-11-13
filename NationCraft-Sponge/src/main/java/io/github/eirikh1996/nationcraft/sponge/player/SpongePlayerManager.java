@@ -6,16 +6,16 @@ import org.spongepowered.api.entity.living.player.Player;
 
 import java.util.UUID;
 
-public class SpongePlayerManager extends PlayerManager {
+public class SpongePlayerManager extends PlayerManager<Player> {
     @Override
     public void addPlayer(UUID id, String name) {
 
     }
 
     @Override
-    public <P> NCPlayer getPlayer(P player) {
-        if (!(player instanceof Player))
+    public NCPlayer getPlayer(Player player) {
+        if (player == null)
             throw new IllegalArgumentException();
-        return players.get(((Player) player).getUniqueId());
+        return players.get(player.uniqueId());
     }
 }

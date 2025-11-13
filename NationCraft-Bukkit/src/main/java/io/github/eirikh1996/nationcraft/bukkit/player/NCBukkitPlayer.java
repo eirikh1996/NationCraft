@@ -7,6 +7,7 @@ import io.github.eirikh1996.nationcraft.bukkit.NationCraft;
 import io.github.eirikh1996.nationcraft.bukkit.utils.BukkitUtils;
 import io.github.eirikh1996.nationcraft.core.chat.ChatMode;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -128,12 +129,12 @@ public class NCBukkitPlayer extends NCPlayer {
     }
 
     @Override
-    public void sendTitle(String toNationName, String s, int i, int i1, int i2) {
+    public void sendTitle(Title title) {
         final Player p = Bukkit.getPlayer(playerID);
         if (p == null) {
             throw new IllegalStateException("Player " + playerID + " is not online!");
         }
-        p.sendTitle(toNationName, s, i, i1, i2);
+        p.showTitle(title);
     }
 
     @Override

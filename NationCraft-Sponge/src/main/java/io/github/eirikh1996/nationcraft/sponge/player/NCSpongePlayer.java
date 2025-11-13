@@ -3,12 +3,11 @@ package io.github.eirikh1996.nationcraft.sponge.player;
 import io.github.eirikh1996.nationcraft.api.objects.NCLocation;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
-import org.spongepowered.api.text.title.Title;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -20,23 +19,20 @@ public class NCSpongePlayer extends NCPlayer {
 
     @Override
     public void sendMessage(@NotNull Component text) {
-        final Optional<Player> p = Sponge.getServer().getPlayer(playerID);
-        if (!p.isPresent()) {
+        final Optional<ServerPlayer> p = Sponge.server().player(playerID);
+        if (p.isEmpty()) {
             return;
         }
-        p.get().sendMessage(TextSerializers.JSON.deserialize(text.json()));
+        p.get().sendMessage(text);
     }
 
     @Override
-    public void sendActionBar(@NotNull String text) {
-        final Optional<Player> p = Sponge.getServer().getPlayer(playerID);
-        if (!p.isPresent()) {
+    public void sendActionBar(@NotNull Component actionBar) {
+        final Optional<ServerPlayer> p = Sponge.server().player(playerID);
+        if (p.isEmpty()) {
             return;
         }
-        final Title spongetitle = Title.builder()
-                .actionBar(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(text))
-                .build();
-        p.get().sendTitle(spongetitle);
+        p.get().sendActionBar(actionBar);
     }
 
     @Override
@@ -52,7 +48,7 @@ public class NCSpongePlayer extends NCPlayer {
 
     @Override
     public boolean isOnline() {
-        return Sponge.getServer().getPlayer(playerID).isPresent();
+        return Sponge.server().player(playerID).isPresent();
     }
 
     @Override
@@ -61,42 +57,18 @@ public class NCSpongePlayer extends NCPlayer {
     }
 
     @Override
-    public void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut) {
-        final Optional<Player> p = Sponge.getServer().getPlayer(playerID);
-        if (!p.isPresent()) {
+    public void sendTitle(Title title) {
+        final Optional<ServerPlayer> p = Sponge.server().player(playerID);
+        if (p.isEmpty()) {
             return;
         }
-        final Title spongetitle = Title.builder()
-                .title(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(title))
-                .subtitle(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(subtitle))
-                .fadeIn(fadeIn)
-                .stay(stay)
-                .fadeOut(fadeOut)
-                .build();
-        p.get().sendTitle(spongetitle);
+        p.get().showTitle(title);
     }
 
-    @Override
-    public void sendMessage(String message) {
-        final Optional<Player> sp = Sponge.getServer().getPlayer(playerID);
-        if (!sp.isPresent())
-            return;
-        sp.get().sendMessage(Text.of(message));
-    }
-
-    @Override
-    public void sendMessage(String[] messages) {
-        final Optional<Player> sp = Sponge.getServer().getPlayer(playerID);
-        if (!sp.isPresent())
-            return;
-        for (String msg : messages) {
-            sp.get().sendMessage(Text.of(msg));
-        }
-    }
 
     @Override
     public boolean hasPermission(String permission) {
-        final Optional<Player> sp = Sponge.getServer().getPlayer(playerID);
+        final Optional<ServerPlayer> sp = Sponge.server().player(playerID);
         return sp.map(player -> player.hasPermission(permission)).orElse(true);
     }
 }

@@ -10,6 +10,9 @@ import io.github.eirikh1996.nationcraft.core.chat.ChatMode;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.title.Title;
+import net.kyori.adventure.util.Ticks;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
@@ -68,7 +71,9 @@ public abstract class NCPlayer implements NCCommandSender {
 
     public abstract void sendMessage(@NotNull final Component text);
 
-    @Deprecated
+    @Deprecated(
+            forRemoval = true
+    )
     public void sendActionBar(@NotNull final String text) {
         sendActionBar(Component.text(text));
     }
@@ -274,7 +279,22 @@ public abstract class NCPlayer implements NCCommandSender {
         this.lastOnlineLocation = lastOnlineLocation;
     }
 
-    public abstract void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut);
+    @Deprecated(
+            forRemoval = true
+    )
+    public void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut) {
+        sendTitle(Title.title(
+                LegacyComponentSerializer.legacySection().deserialize(title),
+                LegacyComponentSerializer.legacySection().deserialize(subtitle),
+                Title.Times.times(
+                        Ticks.duration(fadeIn),
+                        Ticks.duration(stay),
+                        Ticks.duration(fadeOut)
+                )
+        ));
+    }
+
+    public abstract void sendTitle(Title title);
 
     private static class PlayerFileException extends RuntimeException {
         public PlayerFileException(String message, Throwable cause){
