@@ -24,33 +24,32 @@ public final class NationAllyCommand extends Command {
 
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
-        if (!(sender instanceof NCPlayer)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+        if (!(sender instanceof NCPlayer player)) {
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         if (!sender.hasPermission("nationcraft.nation.ally")) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + NO_PERMISSION);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(NO_PERMISSION));
             return;
         }
 
         NationManager nMgr = NationManager.getInstance();
-        final NCPlayer player = (NCPlayer) sender;
         Nation ownNation = player.getNation(); //sender's own nation
         if (ownNation == null) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + NOT_IN_A_NATION);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(NOT_IN_A_NATION));
             return;
         }
         if (args.length == 0) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must specify a nation");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You must specify a nation")));
             return;
         }
         Nation allyNation = nMgr.getNationByName(args[0]); //nation to ally
         if (allyNation == null) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "The given nation does not exist");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("The given nation does not exist")));
             return;
         }
         if (ownNation.isAlliedWith(allyNation)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "You have already set this relation wish with " + allyNation.getName());
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("You have already set this relation wish with " + allyNation.getName())));
             return;
         }
         ownNation.addAlly(allyNation);

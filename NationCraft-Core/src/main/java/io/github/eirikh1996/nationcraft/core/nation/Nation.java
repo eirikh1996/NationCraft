@@ -19,13 +19,13 @@ import io.github.eirikh1996.nationcraft.api.territory.TerritoryManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
-import static io.github.eirikh1996.nationcraft.core.messages.Messages.ERROR;
-import static io.github.eirikh1996.nationcraft.core.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
+import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
 
 final public class Nation implements Comparable<Nation>, Cloneable {
@@ -242,13 +242,9 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		return returnList;
 	}
 
+    @Deprecated
 	public void broadcast(@NotNull final String message) {
-		for (NCPlayer player : players.keySet()) {
-			if (!player.isOnline()) {
-				continue;
-			}
-			player.sendMessage(message);
-		}
+		broadcast(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
 	}
 
 	public void broadcast(TextComponent text) {
@@ -337,19 +333,19 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 				}
 			}
 		}
-        Collection<Territory> territoryColl = Collections.unmodifiableCollection(getTerritory());
+        Collection<Territory> territoryColl = new HashSet<>(getTerritory());
 		int size = territoryColl.size() + CollectionUtils.filter(claims, territoryColl).size();
 		if (size > getPower() && !player.isAdminMode()){
-			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot claim more land. You need more power");
+			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You cannot claim more land. You need more power", ERROR.color())));
 			return;
 		}
 		Set<Territory> filter = new HashSet<>();
 		if (!alreadyClaimed.isEmpty()){
-			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "Your nation already owns this land");
+			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("Your nation already owns this land")));
 			filter.addAll(alreadyClaimed);
 		}
 		if (!settlementLand.isEmpty()) {
-			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "Settlement land cannot be overclaimed. Use /settlement siege to conquer settlements");
+			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("Settlement land cannot be overclaimed. Use /settlement siege to conquer settlements")));
 			filter.addAll(settlementLand);
 		}
 		if (!overclaimedTerritories.isEmpty()){
@@ -357,20 +353,21 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 				Set<Territory> lost = overclaimedTerritories.get(overclaimed);
 				TerritoryManager.getInstance().removeNationTerritory(overclaimed, lost);
 				filter.addAll(lost);
-				player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("Claimed %d chunks of land from nation %s", overclaimedTerritories.get(overclaimed).size(), overclaimed.getName(this)));
+				player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text(String.format("Claimed %d chunks of land from nation ", overclaimedTerritories.get(overclaimed).size() )).append(overclaimed.getName(this)) ));
 				TerritoryManager.getInstance().addNationTerritory(this, overclaimedTerritories.get(overclaimed));
 			}
 		}
 		if (!strongEnoughNations.isEmpty()){
 			for (Nation strongEnough : strongEnoughNations.keySet()){
 				filter.addAll(strongEnoughNations.get(strongEnough));
-				player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + String.format("%s owns this land and is strong enough to hold it", strongEnough.getName(this)));
+				player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(strongEnough.getName(this)).append(Component.text(" owns this land and is strong enough to hold it")));
 			}
 		}
 		Collection<Territory> fromWilderness = CollectionUtils.filter(claims, filter);
 		if (fromWilderness.isEmpty()){
 			return;
 		}
+        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("Claimed " + fromWilderness.size() + " chunks of territory from ")).append(WILDERNESS));
 		TerritoryManager.getInstance().addNationTerritory(this, claims.stream().filter(claim -> !getTerritory().contains(claim)).collect(Collectors.toSet()));
 	}
 

@@ -10,6 +10,7 @@ import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.territory.Territory;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -193,6 +194,7 @@ public class NationManager implements Runnable, Iterable<Nation> {
 
 
 
+    @Deprecated
 	public TextColor getColor(@NotNull NCPlayer p, @NotNull Nation n){
 		TextColor returnColor = TextColor.RESET;
 		Nation pNation = NationManager.getInstance().getNationByPlayer(p.getPlayerID());
@@ -278,7 +280,7 @@ public class NationManager implements Runnable, Iterable<Nation> {
     public Nation createNation(String name, @NotNull NCPlayer founder) {
 		Nation n = new Nation(name, founder);
 		if (getNationByName(name) != null) {
-			founder.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "A nation called " + name + " already exists");
+			founder.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("A nation called " + name + " already exists")));
 			return null;
 		}
 		final NationCreateEvent event = new NationCreateEvent(n, founder);
@@ -301,14 +303,14 @@ public class NationManager implements Runnable, Iterable<Nation> {
             }
 
 	        final File nFile = getNationFile(n.getName());
-            plugin.broadcast(NATIONCRAFT_COMMAND_PREFIX + String.format("Nation %s has been disbanded", n.getName()));
+            plugin.broadcast(NATIONCRAFT_COMMAND_PREFIX.append(Component.text(String.format("Nation %s has been disbanded", n.getName()))));
 	        nFile.delete();
 	        iterator.remove();
 
         }
     }
 
-	public void addNation(Nation newNation) {
+	private void addNation(Nation newNation) {
 		nations.add(newNation);
 		newNation.saveToFile();
 	}

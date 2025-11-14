@@ -20,29 +20,29 @@ public class NationWarCommand extends Command {
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
         if (!(sender instanceof NCPlayer)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         if (args.length == 0) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must specify a nation");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You must specify a nation");
             return;
         }
         final NCPlayer player = (NCPlayer) sender;
         Nation pNation = NationManager.getInstance().getNationByPlayer(player);
         Nation enemy = NationManager.getInstance().getNationByName(args[0]);
         if (pNation == null){
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You are not in a nation");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You are not in a nation");
             return;
         }
         else if (enemy == null){
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + String.format("Nation %s does not exist", args[0]));
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + String.format("Nation %s does not exist", args[0]));
             return;
         } //Do not set relation wish with sender's own nation
         else if (pNation == enemy) {
-            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot set relation to your own nation!");
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You cannot set relation to your own nation!");
             return;
         }else if (pNation.isAtWarWith(enemy)){
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + String.format("Your nation is already at war with %s", args[0]));
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + String.format("Your nation is already at war with %s", args[0]));
             return;
         }
         if (pNation.getAllies().contains(enemy)){

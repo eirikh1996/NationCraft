@@ -23,11 +23,11 @@ public class NationTruceCommand extends Command {
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
         if (!(sender instanceof NCPlayer)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         if (args.length == 0) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must specify a nation");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You must specify a nation");
             return;
         }
         final NCPlayer player = (NCPlayer) sender;
@@ -35,11 +35,11 @@ public class NationTruceCommand extends Command {
         Nation ownNation = nMgr.getNationByPlayer(player); //sender's own nation
         Nation truce = nMgr.getNationByName(args[0]); //nation to neutral
         if (truce == null) {
-            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Nation " + args[0] + " does not exist!");
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "Nation " + args[0] + " does not exist!");
             return;
         }
         if (truce == ownNation) {
-            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot set relation to your own nation!");
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You cannot set relation to your own nation!");
             return;
         }
         ownNation.addTruce(truce);

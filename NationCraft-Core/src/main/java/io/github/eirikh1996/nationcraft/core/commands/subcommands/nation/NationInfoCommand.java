@@ -21,12 +21,11 @@ public final class NationInfoCommand extends Command {
 
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
-        if (!(sender instanceof NCPlayer)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+        if (!(sender instanceof NCPlayer player)) {
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         Nation n;
-        NCPlayer player = (NCPlayer) sender;
         if (args.length == 0) {
             n = NationManager.getInstance().getNationByPlayer(player.getPlayerID());
         } else {

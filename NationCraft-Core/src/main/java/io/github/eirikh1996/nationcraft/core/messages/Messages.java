@@ -35,18 +35,18 @@ import java.util.stream.Collectors;
 public class Messages {
 	private static ArrayList<String> MARKERS = new ArrayList<>();
 	public static NationCraftMain main;
-	public static String ERROR = TextColor.DARK_RED + "Error: ";
-	public static String WARNING = TextColor.YELLOW + "Warning: ";
+	public static TextComponent ERROR = Component.text("Error: ", NamedTextColor.DARK_RED);
+	public static TextComponent WARNING = Component.text("Warning: ", NamedTextColor.YELLOW);
 	public static TextComponent NATIONCRAFT_COMMAND_PREFIX = Component
 			.text("[", NamedTextColor.YELLOW)
 			.append(Component.text("Nation", NamedTextColor.AQUA))
 			.append(Component.text("Craft", NamedTextColor.GRAY))
 			.append(Component.text("] ", NamedTextColor.YELLOW));
-	public static String NOT_IN_A_NATION = "You are not in a nation";
-	public static String CLAIMED_TERRITORY = "%s claimed %d pieces of territory from %s";
-	public static String WILDERNESS = TextColor.DARK_GREEN + "Wilderness";
-	public static String MUST_BE_PLAYER = "You must be player to execute this command!";
-	public static String NO_PERMISSION = "You don't have permission!";
+	public static TextComponent NOT_IN_A_NATION = Component.text("You are not in a nation");
+	//public static TextComponent CLAIMED_TERRITORY = Component.text("%s claimed %d pieces of territory from %s");
+	public static TextComponent WILDERNESS = Component.text("Wilderness", NamedTextColor.DARK_GREEN);
+	public static TextComponent MUST_BE_PLAYER = Component.text("You must be player to execute this command!", NamedTextColor.DARK_RED);
+	public static TextComponent NO_PERMISSION = Component.text("You don't have permission!", NamedTextColor.DARK_RED);
 	static {
 		MARKERS.add(0,"/" );
 		MARKERS.add(1,"\\");
@@ -141,18 +141,18 @@ public class Messages {
 			Collections.sort(allyList);
 			Collections.sort(truceList);
 			Collections.sort(enemyList);
-			final TextComponent nationInfo = Component.text("------------------{ Nation: ", NamedTextColor.YELLOW).append(Component.text(name, color)).append(Component.text(" }-----------------", NamedTextColor.YELLOW));
-			nationInfo.appendNewline().append(Component.text("Description: ", NamedTextColor.YELLOW).append(Component.text(description, color)));
-			nationInfo.appendNewline().append(Component.text("Capital: " + capital, NamedTextColor.YELLOW));
-			nationInfo.appendNewline().append(Component.text("Settlements: ", NamedTextColor.YELLOW).append(Component.text(String.join(", ", settlementNames), NamedTextColor.GREEN)));
-			nationInfo.appendNewline().append(Component.text("Territory: ").append(Component.text(n.getTerritory().size(), (n.isStrongEnough() ? NamedTextColor.GREEN : NamedTextColor.RED))));
-			nationInfo.appendNewline().append(Component.text("Power: " ).append(Component.text(n.getName(), (n.getPower() >= n.getTerritory().size() ? (n.getPower() == n.getTerritory().size() ? NamedTextColor.YELLOW :NamedTextColor.GREEN) : NamedTextColor.RED))));
-			nationInfo.appendNewline().append(Component.text("Maximum strength: " + n.getMaxPower(), NamedTextColor.YELLOW));
-			nationInfo.appendNewline().append(Component.text("Allies: ", NamedTextColor.YELLOW).append(Component.text(allyList.isEmpty() ? "None" : String.join(", ", allyList), NationSettings.RelationColors.getOrDefault(Relation.ALLY, NamedTextColor.DARK_PURPLE))));
-			nationInfo.appendNewline().append(Component.text("Truces: ", NamedTextColor.YELLOW).append(Component.text(truceList.isEmpty() ? "None" : String.join(", ", allyList), NationSettings.RelationColors.getOrDefault(Relation.TRUCE, NamedTextColor.LIGHT_PURPLE))));
-			nationInfo.appendNewline().append(Component.text("Enemies: ", NamedTextColor.YELLOW).append(Component.text(enemyList.isEmpty() ? "None" : String.join(", ", allyList), NationSettings.RelationColors.getOrDefault(Relation.ENEMY, NamedTextColor.RED))));
-			nationInfo.appendNewline().append(Component.text("Players online: ", NamedTextColor.YELLOW).append(Component.text(String.join(", ", onlinePlayers), color)));
-			nationInfo.appendNewline().append(Component.text("Players offline: ", NamedTextColor.YELLOW).append(Component.text(String.join(", ", offlinePlayers), color)));
+			final TextComponent nationInfo = Component.text("------------------{ Nation: ", NamedTextColor.YELLOW).append(Component.text(name, color)).append(Component.text(" }-----------------", NamedTextColor.YELLOW))
+            .appendNewline().append(Component.text("Description: ", NamedTextColor.YELLOW).append(Component.text(description, color)))
+			.appendNewline().append(Component.text("Capital: " + capital, NamedTextColor.YELLOW))
+			.appendNewline().append(Component.text("Settlements: ", NamedTextColor.YELLOW).append(Component.text(String.join(", ", settlementNames), NamedTextColor.GREEN)))
+			.appendNewline().append(Component.text("Territory: ").append(Component.text(n.getTerritory().size(), (n.isStrongEnough() ? NamedTextColor.GREEN : NamedTextColor.RED))))
+			.appendNewline().append(Component.text("Power: " ).append(Component.text(n.getName(), (n.getPower() >= n.getTerritory().size() ? (n.getPower() == n.getTerritory().size() ? NamedTextColor.YELLOW :NamedTextColor.GREEN) : NamedTextColor.RED))))
+			.appendNewline().append(Component.text("Maximum strength: " + n.getMaxPower(), NamedTextColor.YELLOW))
+			.appendNewline().append(Component.text("Allies: ", NamedTextColor.YELLOW).append(Component.text(allyList.isEmpty() ? "None" : String.join(", ", allyList), NationSettings.RelationColors.getOrDefault(Relation.ALLY, NamedTextColor.DARK_PURPLE))))
+			.appendNewline().append(Component.text("Truces: ", NamedTextColor.YELLOW).append(Component.text(truceList.isEmpty() ? "None" : String.join(", ", allyList), NationSettings.RelationColors.getOrDefault(Relation.TRUCE, NamedTextColor.LIGHT_PURPLE))))
+			.appendNewline().append(Component.text("Enemies: ", NamedTextColor.YELLOW).append(Component.text(enemyList.isEmpty() ? "None" : String.join(", ", allyList), NationSettings.RelationColors.getOrDefault(Relation.ENEMY, NamedTextColor.RED))))
+			.appendNewline().append(Component.text("Players online: ", NamedTextColor.YELLOW).append(Component.text(String.join(", ", onlinePlayers), color)))
+			.appendNewline().append(Component.text("Players offline: ", NamedTextColor.YELLOW).append(Component.text(String.join(", ", offlinePlayers), color)));
 			p.sendMessage(nationInfo);
 	}
 	public static void generateTerritoryMap(NCPlayer p){
@@ -247,7 +247,7 @@ public class Messages {
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 
 		if (sorted.isEmpty()) {
-		    player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "No settlements nearby");
+		    player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("No settlements nearby")));
 		    return;
         }
 		player.sendMessage(TextColor.YELLOW + "================={" + TextColor.RESET + "Nearest settlements" + TextColor.YELLOW + "}=================");

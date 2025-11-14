@@ -6,12 +6,10 @@ import io.github.eirikh1996.nationcraft.api.NationCraftMain;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.CommandRegistry;
 import io.github.eirikh1996.nationcraft.core.commands.NCConsole;
+import net.kyori.adventure.text.TextComponent;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.exception.CommandException;
-import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
@@ -28,7 +26,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Plugin(
-        id = "nationcraft"
+        value = "nationcraft"
 )
 public class NationCraft implements NationCraftMain {
 
@@ -63,7 +61,7 @@ public class NationCraft implements NationCraftMain {
     }
 
     @Override
-    public void broadcast(String message) {
+    public void broadcast(TextComponent message) {
 
     }
 
@@ -94,7 +92,7 @@ public class NationCraft implements NationCraftMain {
 
     @Listener
     public void onServerStart(StartingEngineEvent<Server> event) {
-        Sponge.server()
+        Sponge.server();
     }
 
     @Listener
@@ -103,11 +101,13 @@ public class NationCraft implements NationCraftMain {
         for (Command cmd : commandRegistry) {
             org.spongepowered.api.command.Command.builder()
                     .executor(context -> {
-                        context.cause()
+                        context.cause();
                         return CommandResult.success();
-                    })
+                    });
         }
     }
 
-    public void onCommandRegister(RegisterCommandEvent)
+    public void onCommandRegister(RegisterCommandEvent<org.spongepowered.api.command.Command.Parameterized> event) {
+
+    }
 }

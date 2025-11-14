@@ -24,11 +24,11 @@ public final class NationNeutralCommand extends Command {
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
         if (!(sender instanceof NCPlayer)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         if (args.length == 0) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must specify a nation");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You must specify a nation");
             return;
         }
         final NCPlayer player = (NCPlayer) sender;
@@ -37,7 +37,7 @@ public final class NationNeutralCommand extends Command {
         Nation neutralNation = nMgr.getNationByName(args[0]); //nation to neutral
         //Do not set relation wish with sender's own nation
         if (ownNation == neutralNation) {
-            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot set relation to your own nation!");
+            player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You cannot set relation to your own nation!");
             return;
         }
         if (!ownNation.getAllies().contains(neutralNation) && !ownNation.getEnemies().contains(neutralNation) && !neutralNation.getEnemies().contains(ownNation) && !ownNation.getTruces().contains(neutralNation)) {

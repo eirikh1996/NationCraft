@@ -28,6 +28,7 @@ import io.github.eirikh1996.nationcraft.core.nation.Relation;
 import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import mineverse.Aust1n46.chat.MineverseChat;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.command.Command;
@@ -290,8 +291,8 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 	}
 
 	@Override
-	public void broadcast(String message) {
-		getServer().broadcastMessage(message);
+	public void broadcast(TextComponent message) {
+		getServer().broadcast(message);
 	}
 
 	@Override

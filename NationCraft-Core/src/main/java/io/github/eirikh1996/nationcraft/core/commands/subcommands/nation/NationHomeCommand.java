@@ -17,17 +17,17 @@ public class NationHomeCommand extends Command {
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
         if (!(sender instanceof NCPlayer)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         final NCPlayer player = (NCPlayer) sender;
         if (!player.hasNation()) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + NOT_IN_A_NATION);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(NOT_IN_A_NATION));
             return;
         }
         final Nation pNation = player.getNation();
         if (!pNation.hasCapital()) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Your nation has no settlements and thus, no capital. Create a settlement with /s create <name>. This will automatically be assigned as capital of your nation");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR)+ "Your nation has no settlements and thus, no capital. Create a settlement with /s create <name>. This will automatically be assigned as capital of your nation");
             return;
         }
         NCLocation destination = pNation.getCapital().getTownCenter().getTeleportationPoint();

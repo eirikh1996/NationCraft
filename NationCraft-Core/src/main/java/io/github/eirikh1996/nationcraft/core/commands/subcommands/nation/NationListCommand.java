@@ -21,7 +21,7 @@ public final class NationListCommand extends Command {
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
         if (!(sender instanceof NCPlayer)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         final NCPlayer player = (NCPlayer) sender;
@@ -42,7 +42,7 @@ public final class NationListCommand extends Command {
                     .append(Component.text("Capital: " + capital, NamedTextColor.AQUA)));
         }
         if (!paginator.isInBounds(page)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Invalid page: " + page);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "Invalid page: " + page);
             return;
         }
         for (TextComponent msg : paginator.getPage(page, "/nation list ")) {

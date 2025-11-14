@@ -22,7 +22,7 @@ public final class NationUnclaimCommand extends Command {
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
         if (!(sender instanceof NCPlayer)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         final NCPlayer player = (NCPlayer) sender;
@@ -45,7 +45,7 @@ public final class NationUnclaimCommand extends Command {
         Set<Territory> unclaimedTerritory = new HashSet<>();
         if (nationName.length() > 0) {
             if (!sender.hasPermission("nationcraft.nation.claim.other")) {
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You can only claim for your own nation.");
+                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You can only claim for your own nation.");
                 return;
             }
             nation = manager.getNationByName(nationName);
@@ -53,7 +53,7 @@ public final class NationUnclaimCommand extends Command {
             nation = manager.getNationByPlayer(player);
         }
         if (nation == null) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You are not in a nation!");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You are not in a nation!");
             return;
         }
 

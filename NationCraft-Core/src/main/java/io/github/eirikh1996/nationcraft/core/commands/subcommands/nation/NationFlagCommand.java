@@ -28,7 +28,7 @@ public class NationFlagCommand extends Command {
         } else if (args[0].equalsIgnoreCase("list")) {
             Nation target = args.length > 1 ? NationManager.getInstance().getNationByName(args[1]) : (sender instanceof NCPlayer ? ((NCPlayer) sender).getNation() : null);
             if (target == null) {
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + (args.length > 1 ? "Invalid nation name: " + args[1] : "You must specify a nation"));
+                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text((args.length > 1 ? "Invalid nation name: " + args[1] : "You must specify a nation"))));
                 return;
             }
             TextComponent text = Component.empty();
@@ -37,15 +37,15 @@ public class NationFlagCommand extends Command {
             for (String flag : NationManager.getInstance().getRegisteredFlags().keySet()) {
                 NamedTextColor color = target.hasFlag(flag) ? (target.getFlag(flag) ? NamedTextColor.GREEN : NamedTextColor.RED) : NamedTextColor.DARK_RED;
                 if (!(sender instanceof NCPlayer)) {
-                    text.append(Component.text(flag, color));
+                    text = text.append(Component.text(flag, color));
                     continue;
                 }
-                text.append(
+                text = text.append(
                         Component.text(flag, color)
                                 .clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/nation flag set " + flag + !target.getFlag(flag)))
                                 .hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(Component.text("Click to set this flag to " + !target.getFlag(flag)))));
                 if (index < max)
-                    text.append(Component.text(", "));
+                    text = text.append(Component.text(", "));
                 //builder.addText(color, flag + (index < max ? ", " : ""), new ClickEvent(ClickEvent.Action.RUN_COMMAND, , new HoverEvent(HoverEvent.Action.SHOW_TEXT, ));
                 index++;
             }
@@ -59,16 +59,16 @@ public class NationFlagCommand extends Command {
             sender.sendMessage(text);
         } else if (args[0].equalsIgnoreCase("set")) {
             if (args.length < 2) {
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You need to specify a flag");
+                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You need to specify a flag")));
                 return;
             }
             String flag = args[1];
             if (!NationManager.getInstance().registeredFlag(flag)) {
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Invalid flag: " + flag);
+                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("Invalid flag: " + flag, ERROR.color())));
                 return;
             }
             if (args.length < 3) {
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must specify either true or false");
+                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You must specify either true or false", ERROR.color())));
                 return;
             }
             boolean flagValue;
@@ -77,13 +77,13 @@ public class NationFlagCommand extends Command {
             } else if (args[2].equalsIgnoreCase("false")) {
                 flagValue = false;
             } else {
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must specify either true or false");
+                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You must specify either true or false", ERROR.color())));
                 return;
             }
 
             Nation target = sender instanceof NCPlayer ? (args.length < 4 ? ((NCPlayer) sender).getNation() : NationManager.getInstance().getNationByName(args[3])) : null;
             if (target == null) {
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + (args.length > 3 ? "Invalid nation name: " + args[1] : "You must specify a nation"));
+                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text((args.length > 3 ? "Invalid nation name: " + args[1] : "You must specify a nation"), ERROR.color())));
                 return;
             }
             target.setFlag(flag.toLowerCase(), flagValue);

@@ -20,17 +20,17 @@ public final class NationJoinCommand extends Command {
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
         if (!(sender instanceof NCPlayer)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         final NCPlayer player = (NCPlayer) sender;
         if (args.length == 0) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must specify a nation");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You must specify a nation");
             return;
         }
         Nation nation = NationManager.getInstance().getNationByName(name);
         if (nation == null) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + String.format("Nation %s does not exist", name));
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + String.format("Nation %s does not exist", name));
             return;
         }
         if (NationManager.getInstance().getNationByPlayer(player.getPlayerID()) != null) {

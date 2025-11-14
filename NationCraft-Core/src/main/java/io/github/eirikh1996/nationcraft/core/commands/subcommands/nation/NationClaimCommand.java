@@ -8,6 +8,7 @@ import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
+import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,14 +18,14 @@ import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
 public final class NationClaimCommand extends Command {
     public NationClaimCommand(){
-        super("claim", Arrays.asList("c"));
+        super("claim", List.of("c"));
         argument = String.join(", ", Shape.getShapeNames()) + " [radius] [nation]";
     }
 
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
-        if (!(sender instanceof NCPlayer)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+        if (!(sender instanceof NCPlayer player)) {
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         final Nation nation;
@@ -42,10 +43,9 @@ public final class NationClaimCommand extends Command {
             nationName = "";
         }
 
-        NCPlayer player = (NCPlayer) sender;
-        if (nationName.length() > 0) {
+        if (!nationName.isEmpty()) {
             if (!sender.hasPermission("nationcraft.nation.claim.other")) {
-                sender.sendMessage(Messages.ERROR + "You can only claim for your own nation.");
+                sender.sendMessage(Messages.ERROR.append(Component.text("You can only claim for your own nation.")));
                 return;
             }
             Core.getMain().broadcast(nationName);
@@ -54,7 +54,7 @@ public final class NationClaimCommand extends Command {
             nation = NationManager.getInstance().getNationByPlayer(player.getPlayerID());
         }
         if (nation == null) {
-            sender.sendMessage(Messages.ERROR + "You are not in a nation!");
+            sender.sendMessage(Messages.ERROR.append(Component.text("You are not in a nation!")));
             return;
         }
         nation.claimTerritory(player, shape, radius);

@@ -15,21 +15,21 @@ public class NationKickCommand extends Command {
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
         if (!(sender instanceof NCPlayer)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         final NCPlayer player = (NCPlayer) sender;
         if (args.length == 0) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must specify a player!");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You must specify a player!");
             return;
         }
         final NCPlayer target = PlayerManager.getInstance().getPlayer(args[0]);
         if (target == null) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Invalid player name: " + args[0]);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR)+ "Invalid player name: " + args[0]);
             return;
         }
         if (!target.hasNation() || !player.getNation().equals(target.getNation())) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You can only kick members from your own nation!");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You can only kick members from your own nation!");
             return;
         }
         player.getNation().kickPlayer(target, player);
