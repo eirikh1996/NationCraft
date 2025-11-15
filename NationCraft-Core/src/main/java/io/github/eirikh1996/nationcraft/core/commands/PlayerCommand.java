@@ -4,6 +4,7 @@ import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.core.commands.subcommands.player.PlayerAdminCommand;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
+import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,12 +32,12 @@ public class PlayerCommand extends Command {
             children.get(args[0]).execute(sender, Arrays.copyOfRange(args, 1, args.length));
             return;
         } else if (args.length == 0) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You must specify a player name or a sub command");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You must specify a player name or a sub command")));
             return;
         }
         NCPlayer player = PlayerManager.getInstance().getPlayer(args[0]);
         if (player == null) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Invalid player name: " + args[0]);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("Invalid player name: " + args[0])));
             return;
         }
         Messages.displayPlayerInfo(sender, player);

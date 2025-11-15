@@ -7,6 +7,9 @@ import io.github.eirikh1996.nationcraft.core.messages.Messages;
 
 import java.util.Arrays;
 
+import static io.github.eirikh1996.nationcraft.core.messages.Messages.ERROR;
+import static io.github.eirikh1996.nationcraft.core.messages.Messages.MUST_BE_PLAYER;
+
 public class MapCommand extends Command {
 
     MapCommand() {
@@ -19,7 +22,7 @@ public class MapCommand extends Command {
     public void execute(NCCommandSender sender, String[] args) {
         long startTime = System.currentTimeMillis();
         if (!(sender instanceof NCPlayer p)){
-            sender.sendMessage(Messages.ERROR + Messages.MUST_BE_PLAYER);
+            sender.sendMessage(ERROR.append(MUST_BE_PLAYER));
             return;
         }
         if (args.length == 0) {

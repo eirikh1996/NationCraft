@@ -11,20 +11,21 @@ import io.github.eirikh1996.nationcraft.bukkit.NationCraft;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
 
 public class PlaceHolderUtils extends PlaceholderExpansion {
     @Override
-    public String getIdentifier() {
+    public @NotNull String getIdentifier() {
         return "nationcraft";
     }
 
     @Override
-    public String getAuthor() {
+    public @NotNull String getAuthor() {
         return String.join(", ", NationCraft.getInstance().getAuthors());
     }
 
     @Override
-    public String getVersion() {
+    public @NotNull String getVersion() {
         return NationCraft.getInstance().getDescription().getVersion();
     }
 
@@ -39,7 +40,7 @@ public class PlaceHolderUtils extends PlaceholderExpansion {
     }
 
     @Override
-    public String onRequest(OfflinePlayer p, String params) {
+    public String onRequest(OfflinePlayer p, @NotNull String params) {
         if (p == null) {
             return "";
         }

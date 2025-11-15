@@ -7,6 +7,7 @@ import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
+import net.kyori.adventure.text.Component;
 
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
@@ -19,7 +20,7 @@ public class SettlementClaimCommand extends Command {
     protected void execute(NCCommandSender sender, String[] args) {
         Settlement settlement;
         if (!(sender instanceof NCPlayer)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         final NCPlayer player = (NCPlayer) sender;
@@ -38,7 +39,7 @@ public class SettlementClaimCommand extends Command {
         }
         if (settlementName.length() > 0){
             if (!sender.hasPermission("nationcraft.settlement.claim.other")){
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You can only claim for your own settlement");
+                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You can only claim for your own settlement")));
                 return;
             }
             settlement = SettlementManager.getInstance().getSettlementByName(settlementName);
@@ -46,17 +47,17 @@ public class SettlementClaimCommand extends Command {
             settlement = player.getSettlement();
         }
         if (settlement == null){
-            if (settlementName.length() > 0){
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + String.format("No settlement called %s exists", settlementName));
+            if (!settlementName.isEmpty()){
+                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text(String.format("No settlement called %s exists", settlementName))));
             } else {
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You are not in a settlement");
+                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You are not in a settlement")));
             }
             return;
         }
         Nation pNation = player.getNation();
         Nation locNation = player.getLocation().getNation();
         if (locNation != pNation){
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You can only claim for your settlement within the territory of your own nation");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You can only claim for your settlement within the territory of your own nation")));
             return;
         }
 

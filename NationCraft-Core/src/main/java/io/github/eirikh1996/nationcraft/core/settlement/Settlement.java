@@ -189,16 +189,16 @@ final public class Settlement {
 
 	public boolean invite(@NotNull NCPlayer inviter, @NotNull NCPlayer invitee) {
 		if (invitedPlayers.contains(invitee)) {
-			inviter.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + invitee.getName() + " is already invited to " + name);
+			inviter.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text(invitee.getName() + " is already invited to " + name)));
 			return false;
 		}
 		final String banReason = getNation().isBanned(invitee);
 		if (banReason != null) {
-			inviter.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You cannot invite " + invitee.getName() + " since the player is banned from " + nation);
+			inviter.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You cannot invite " + invitee.getName() + " since the player is banned from " + nation)));
 			return false;
 		}
 		getNation().invite(invitee);
-		getNation().broadcast(NATIONCRAFT_COMMAND_PREFIX + inviter.getName() + " invited " + invitee.getName() + " to settlement " + name + " and therefore, also to " + nation);
+		getNation().broadcast(NATIONCRAFT_COMMAND_PREFIX.append(Component.text(inviter.getName() + " invited " + invitee.getName() + " to settlement " + name + " and therefore, also to " + nation)));
 		TextComponent text = NATIONCRAFT_COMMAND_PREFIX
 				.append(Component.text(inviter.getName() + " invited you to join settlement " + name + " belonging to nation " + nation + " "))
 				.append(Component
@@ -222,10 +222,10 @@ final public class Settlement {
 	 */
 	public boolean deinvite(@NotNull NCPlayer deinviter, @NotNull NCPlayer deinvitee) {
 		if (!invitedPlayers.contains(deinvitee)) {
-			deinviter.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + deinvitee.getName() + " is currently not invited to " + name);
+			deinviter.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text(deinvitee.getName() + " is currently not invited to " + name)));
 			return false;
 		}
-		deinvitee.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + deinviter.getName() + " revoked your invitation you to join settlement " + name + " belonging to nation " + nation);
+		deinvitee.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text(deinviter.getName() + " revoked your invitation you to join settlement " + name + " belonging to nation " + nation)));
 		broadcast(deinviter.getName() + " revoked " + deinvitee.getName() + "'s invitation to join " + name);
 		invitedPlayers.remove(deinvitee);
 		return true;

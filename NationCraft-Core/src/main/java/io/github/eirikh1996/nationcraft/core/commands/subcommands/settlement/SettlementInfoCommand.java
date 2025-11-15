@@ -25,11 +25,10 @@ public class SettlementInfoCommand extends Command {
 
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
-        if (!(sender instanceof NCPlayer) ) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+        if (!(sender instanceof NCPlayer player) ) {
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
-        NCPlayer player = (NCPlayer) sender;
         Settlement settlement = args.length > 0 ? SettlementManager.getInstance().getSettlementByName(args[0]) : SettlementManager.getInstance().getSettlementByPlayer(player);
         if (settlement == null){
             if (args.length > 0){

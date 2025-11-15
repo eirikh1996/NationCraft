@@ -24,8 +24,6 @@ import static io.github.eirikh1996.nationcraft.core.messages.Messages.NATIONCRAF
 
 public class NCBukkitPlayer extends NCPlayer {
 
-    private final String NMS_PACKAGE = "net.minecraft.server." + getServerVersion() + ".";
-
 
     public NCBukkitPlayer(UUID playerID, String name) {
         super(playerID, name);
@@ -65,7 +63,7 @@ public class NCBukkitPlayer extends NCPlayer {
         final Location bukkitDest = BukkitUtils.getInstance().ncToBukkitLoc(destination);
         int timePassed = (int) ((System.currentTimeMillis() - lastTeleportationTime) / 1000);
         if (timePassed <= Settings.player.TeleportationCooldown && !p.hasPermission("nationcraft.teleport.bypasscooldown")) {
-            p.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "You need to wait " + (Settings.player.TeleportationCooldown - timePassed) + " before you can teleport");
+            p.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You need to wait " + (Settings.player.TeleportationCooldown - timePassed) + " before you can teleport")));
             return;
         }
         if (p.hasPermission("nationcraft.teleport.bypasswarmup")) {
@@ -79,12 +77,12 @@ public class NCBukkitPlayer extends NCPlayer {
             @Override
             public void run() {
                 if (p.getLocation() != origin && !p.hasPermission("nationcraft.teleport.move")) {
-                    p.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + "Teleport cancelled due to motion");
+                    p.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("Teleport cancelled due to motion")));
                     cancel();
                     return;
                 }
                 if (timePassed >= Settings.player.TeleportationWarmup) {
-                    if (teleportMessage.length() > 0)
+                    if (!teleportMessage.isEmpty())
                         p.sendMessage(teleportMessage);
                     p.teleport(bukkitDest);
                     lastTeleportationTime = System.currentTimeMillis();

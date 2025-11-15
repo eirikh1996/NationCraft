@@ -3,6 +3,7 @@ package io.github.eirikh1996.nationcraft.core.commands;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.chat.ChatMode;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,11 +21,11 @@ public class ChatModeCommand extends Command {
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
         if (!(sender instanceof NCPlayer)){
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + MUST_BE_PLAYER);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         if (Settings.UseExternalChatPlugin) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "External chat plugin is being used");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("External chat plugin is being used")));
             return;
         }
         final NCPlayer player = (NCPlayer) sender;
@@ -34,12 +35,11 @@ public class ChatModeCommand extends Command {
         }
         ChatMode cMode = ChatMode.getChatMode(args[0].toUpperCase());
         if (cMode == null){
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + args[0] + " is not a chat mode!");
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text(args[0] + " is not a chat mode!")));
             return;
         }
-        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + cMode.name().toLowerCase() + " chatmode set");
+        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text(cMode.name().toLowerCase() + " chatmode set")));
         player.setChatMode(cMode);
-        return;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package io.github.eirikh1996.nationcraft.api;
 
-import io.github.eirikh1996.nationcraft.core.commands.NCBlockSender;
 import io.github.eirikh1996.nationcraft.core.commands.NCConsole;
 import io.github.eirikh1996.nationcraft.core.listener.BlockListener;
 import io.github.eirikh1996.nationcraft.core.listener.PlayerListener;

@@ -4,6 +4,7 @@ import java.util.*;
 
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.commands.subcommands.nation.*;
+import net.kyori.adventure.text.TextComponent;
 
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
@@ -29,7 +30,7 @@ public class NationCommand extends Command {
 		addChild(new NationUnclaimCommand());
 		addChild(new NationWarCommand());
 	}
-	private final String PERMISSION_MESSAGE = NATIONCRAFT_COMMAND_PREFIX + ERROR + NO_PERMISSION;
+	private final TextComponent PERMISSION_MESSAGE = NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(NO_PERMISSION);
 
 	@Override
 	public void execute(NCCommandSender sender, String[] args) {

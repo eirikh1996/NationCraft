@@ -16,6 +16,7 @@ import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -125,7 +126,7 @@ public class PlayerListener implements Listener {
             Nation tp = BukkitUtils.getInstance().bukkitToNCLoc(home).getNation();
             if (tp != null && !tp.equals(pNation)){
                 ess.getUser(p.getUniqueId()).getHomes().remove(homeName);
-                p.sendMessage(NATIONCRAFT_COMMAND_PREFIX + ERROR + String.format("Your home %s was removed as it was set in the territory of %s", homeName, tp.getName(pNation)));
+                p.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text(String.format("Your home %s was removed as it was set in the territory of %s", homeName, tp.getName(pNation)))));
             }
         }
         if (pNation != null) {
