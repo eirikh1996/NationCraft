@@ -21,12 +21,7 @@ dependencies {
 }
 
 group = "io.github.eirikh1996"
-version = "parent"
+version = "1.0"
 java.sourceCompatibility = JavaVersion.VERSION_23
 java.targetCompatibility = JavaVersion.VERSION_23
 
-publishing {
-    publications.create<MavenPublication>("maven") {
-        from(components["java"])
-    }
-}

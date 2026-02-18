@@ -44,8 +44,7 @@ public class NationCraftAPI {
                     if (Thread.currentThread() != serverThread && !event.isAsync()) {
                         throw new IllegalStateException(event.getClass().getName() + " cannot be fired asynchronously from another thread");
                     }
-                    if (event instanceof Cancellable) {
-                        Cancellable can = (Cancellable) event;
+                    if (event instanceof Cancellable can) {
                         if (method.getAnnotation(EventListener.class).ignoreCancelled() && can.isCancelled()) {
                             continue;
                         }

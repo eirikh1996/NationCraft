@@ -6,6 +6,7 @@ plugins {
     id("buildlogic.java-conventions")
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.19"
     id("com.gradleup.shadow") version "9.0.0-rc2"
+    `maven-publish`
 }
 
 repositories {
@@ -28,11 +29,22 @@ dependencies {
 }
 
 tasks.shadowJar {
-    archiveBaseName.set("NationCraft")
+    archiveBaseName.set("NationCraft-Bukkit")
     archiveClassifier.set("")
     archiveVersion.set("")
     dependencies {
         include(project(":NationCraft-Core"))
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("NationCraftBukkitMaven") {
+            groupId = "io.github.eirikh1996"
+            artifactId = "NationCraft-Bukkit"
+            version = "1.0"
+            artifact(tasks["shadowJar"])
+        }
     }
 }
 

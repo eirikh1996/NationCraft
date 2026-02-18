@@ -10,6 +10,11 @@ public abstract class NationEvent extends Event {
         this.nation = nation;
     }
 
+    protected NationEvent(Nation nation, boolean isAsync) {
+        super(isAsync);
+        this.nation = nation;
+    }
+
     public Nation getNation() {
         return nation;
     }

@@ -48,7 +48,7 @@ public final class NationClaimCommand extends Command {
                 sender.sendMessage(Messages.ERROR.append(Component.text("You can only claim for your own nation.")));
                 return;
             }
-            Core.getMain().broadcast(nationName);
+            //Core.getMain().broadcast(nationName);
             nation = NationManager.getInstance().getNationByName(nationName);
         } else {
             nation = NationManager.getInstance().getNationByPlayer(player.getPlayerID());

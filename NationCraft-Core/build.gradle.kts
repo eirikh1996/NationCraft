@@ -4,12 +4,30 @@
 
 plugins {
     id("buildlogic.java-conventions")
+    id("com.gradleup.shadow") version "9.0.0-rc2"
 }
 
 dependencies {
     implementation("net.kyori:adventure-text-serializer-plain:4.22.0")
     implementation("net.kyori:adventure-text-serializer-legacy:4.25.0")
     //api(libs.org.jetbrains.annotations)
+}
+
+tasks.shadowJar {
+    archiveBaseName.set("NationCraft-Core")
+    archiveClassifier.set("")
+    archiveVersion.set("")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("NationCraftCoreMaven") {
+            groupId = "io.github.eirikh1996"
+            artifactId = "NationCraft-Core"
+            version = "1.0"
+            artifact(tasks["shadowJar"])
+        }
+    }
 }
 
 description = "NationCraft-Core"

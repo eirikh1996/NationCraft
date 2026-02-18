@@ -2,6 +2,7 @@ package io.github.eirikh1996.nationcraft.core.nation;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import io.github.eirikh1996.nationcraft.api.config.NationSettings;
@@ -11,6 +12,7 @@ import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
 import io.github.eirikh1996.nationcraft.api.utils.CollectionUtils;
 import io.github.eirikh1996.nationcraft.api.utils.Direction;
+import io.github.eirikh1996.nationcraft.core.claiming.ClaimTask;
 import io.github.eirikh1996.nationcraft.core.claiming.Shape;
 import io.github.eirikh1996.nationcraft.core.exception.NationNotFoundException;
 import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
@@ -283,92 +285,9 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	public void claimTerritory(NCPlayer player, Shape shape, int radius) {
-		Collection<Territory> claims;
-		Territory origin = player.getLocation().getTerritory();
-		if (shape == Shape.LINE) {
-			claims = origin.line(Direction.fromYaw(player.getLocation().getYaw()), radius);
-		} else if (shape == Shape.ALL) {
-			throw new IllegalArgumentException("Invalid shape " + shape);
-		} else if (shape == Shape.SINGLE) {
-			claims = new HashSet<>();
-			claims.add(origin);
-		} else {
-			claims = player.getLocation().getTerritory().adjacent(shape, radius);
-		}
-		//Remove territory already claimed by the nation
-		claims.removeIf(claim -> getTerritory().contains(claim));
-		//Then check if claimed territory is claimed by other nations
-		Set<Territory> alreadyClaimed = new HashSet<>();
-		HashMap<Nation, Set<Territory>> strongEnoughNations = new HashMap<>();
-		HashMap<Nation, Set<Territory>> overclaimedTerritories = new HashMap<>();
-		Set<Territory> settlementLand = new HashSet<>();
-		for (Territory territory : claims){
-			Nation nation = territory.getNation();
-			//Ignore territories not belonging to a nation
-			if (nation == null){
-				continue;
-			}
-			//If there is a settlement on the land, do not overclaim them, they can be taken through sieges
-			else if (territory.getSettlement() != null) {
-				settlementLand.add(territory);
-			}
-			else if (nation.equals(this)){
-				alreadyClaimed.add(territory);
-			}
-			else if (nation.isStrongEnough() && !isWarzone() && !isSafezone()){
-				if (strongEnoughNations.containsKey(nation)){
-					strongEnoughNations.get(nation).add(territory);
-				} else {
-					Set<Territory> canHold = new HashSet<>();
-					canHold.add(territory);
-					strongEnoughNations.put(nation, canHold);
-				}
-			} else {
-				if (overclaimedTerritories.containsKey(nation)){
-					overclaimedTerritories.get(nation).add(territory);
-				} else {
-					Set<Territory> lost = new HashSet<>();
-					lost.add(territory);
-					overclaimedTerritories.put(nation, lost);
-				}
-			}
-		}
-        Collection<Territory> territoryColl = new HashSet<>(getTerritory());
-		int size = territoryColl.size() + CollectionUtils.filter(claims, territoryColl).size();
-		if (size > getPower() && !player.isAdminMode()){
-			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You cannot claim more land. You need more power", ERROR.color())));
-			return;
-		}
-		Set<Territory> filter = new HashSet<>();
-		if (!alreadyClaimed.isEmpty()){
-			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("Your nation already owns this land")));
-			filter.addAll(alreadyClaimed);
-		}
-		if (!settlementLand.isEmpty()) {
-			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("Settlement land cannot be overclaimed. Use /settlement siege to conquer settlements")));
-			filter.addAll(settlementLand);
-		}
-		if (!overclaimedTerritories.isEmpty()){
-			for (Nation overclaimed : overclaimedTerritories.keySet()){
-				Set<Territory> lost = overclaimedTerritories.get(overclaimed);
-				TerritoryManager.getInstance().removeNationTerritory(overclaimed, lost);
-				filter.addAll(lost);
-				player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text(String.format("Claimed %d chunks of land from nation ", overclaimedTerritories.get(overclaimed).size() )).append(overclaimed.getName(this)) ));
-				TerritoryManager.getInstance().addNationTerritory(this, overclaimedTerritories.get(overclaimed));
-			}
-		}
-		if (!strongEnoughNations.isEmpty()){
-			for (Nation strongEnough : strongEnoughNations.keySet()){
-				filter.addAll(strongEnoughNations.get(strongEnough));
-				player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(strongEnough.getName(this)).append(Component.text(" owns this land and is strong enough to hold it")));
-			}
-		}
-		Collection<Territory> fromWilderness = CollectionUtils.filter(claims, filter);
-		if (fromWilderness.isEmpty()){
-			return;
-		}
-        player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("Claimed " + fromWilderness.size() + " chunks of territory from ")).append(WILDERNESS));
-		TerritoryManager.getInstance().addNationTerritory(this, claims.stream().filter(claim -> !getTerritory().contains(claim)).collect(Collectors.toSet()));
+		final ClaimTask task = new NationClaimTask(this, player, shape, radius);
+		Thread thread = new Thread(task);
+		thread.start();
 	}
 
 	public void unclaimTerritory(NCPlayer player, Shape shape, int radius) {
