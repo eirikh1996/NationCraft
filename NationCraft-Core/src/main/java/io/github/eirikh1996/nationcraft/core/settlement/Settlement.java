@@ -121,25 +121,6 @@ final public class Settlement {
 			return UUID.fromString(str);
 		}
 	}
-	private Set<Territory> chunkListFromObject(Object obj){
-		Set<Territory> returnList = new HashSet<>();
-		List<Object> objList = (List<Object>) obj;
-		if (objList == null){
-			return Collections.emptySet();
-		}
-		for (Object o : objList){
-			if (o instanceof ArrayList){
-				List<?> objects = (List<?>) o;
-				int x = (Integer) objects.get(1);
-				int z = (Integer) objects.get(2);
-				String world = (String) objects.get(0);
-				returnList.add(new Territory(world, x, z));
-			} else if (o instanceof String){
-
-			}
-		}
-		return returnList;
-	}
 
 	/**
 	 *
@@ -256,6 +237,7 @@ final public class Settlement {
 		claims.removeIf(claim -> getTerritory().contains(claim));
 		if (claims.size() + getTerritory().size() > getMaxTerritory()) {
 			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("You cannot claim more territory for your settlement")));
+			return;
 		}
 		TerritoryManager.getInstance().addSettlementTerritory(this, claims);
 	}
@@ -355,6 +337,7 @@ final public class Settlement {
 
 				PrintWriter writer = new PrintWriter(settlementFile);
 				writer.println("name: " + getName());
+				writer.println("uuid: " + uuid.toString());
 				writer.println("nation: " + nation);
 				writer.println("townCenter:");
 				writer.println("  x: " + getTownCenter().getX());
@@ -426,7 +409,20 @@ final public class Settlement {
         return uuid;
     }
 
-    private class SettlementNotFoundException extends RuntimeException{
+	@Override
+	public int hashCode() {
+		return uuid.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Settlement other)) {
+			return false;
+		}
+		return getUuid().equals(other.getUuid());
+	}
+
+	private class SettlementNotFoundException extends RuntimeException{
 		public SettlementNotFoundException(String s){
 			super(s);
 		}

@@ -100,6 +100,8 @@ public abstract class NCPlayer implements NCCommandSender {
      */
     public abstract boolean charge(double fare);
 
+    public abstract double getFunds();
+
     public void teleport(NCLocation destination) {
         teleport(destination, "", "");
     }

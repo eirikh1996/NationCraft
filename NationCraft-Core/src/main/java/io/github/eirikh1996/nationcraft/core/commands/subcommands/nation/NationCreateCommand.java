@@ -51,10 +51,10 @@ public final class NationCreateCommand extends Command {
             return;
         }
         if (NationSettings.CreateCost > 0 && !player.charge(NationSettings.CreateCost)) {
-
+            sender.sendMessage(ERROR.append(Component.text("You do not have sufficient funds required to create a nation.")));
             return;
         }
-        Nation newNation = NationManager.getInstance().createNation(name, player);
+        Nation newNation = NationManager.getInstance().createNation(args[0], player);
         if (newNation == null) {
             return;
         }

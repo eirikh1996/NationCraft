@@ -3,6 +3,7 @@ package io.github.eirikh1996.nationcraft.core.nation;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public enum Ranks {
 	RECRUIT(10000), MEMBER(1000), OFFICER(100), OFFICIAL(10), LEADER(1);
 

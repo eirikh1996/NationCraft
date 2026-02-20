@@ -60,10 +60,11 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		long start = System.currentTimeMillis();
 
 		BukkitPlayerManager.initialize(this);
+		SettlementManager.initialize(this);
 		NationManager.initialize(getDataFolder(),this);
 
 
-		SettlementManager.initialize(this);
+
 		Messages.initialize(this);
 		NationManager nManager = NationManager.getInstance();
 		//nManager.loadNations();
@@ -221,7 +222,6 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		//Read config file
 		//player
 		ConfigurationSection playerSection = getConfig().getConfigurationSection("Player");
-		Settings.player.chatFormat = playerSection.getString("ChatFormat", "(%NATION%)(%SETTLEMENT%)");
 		Settings.player.MaxDaysInactivity = playerSection.getInt("MaxDaysInactivity", 25);
 		Settings.player.MaxPower = playerSection.getDouble("MaxPower", 100.0);
 		Settings.player.InitialPower = playerSection.getDouble("InitialPower", 10.0);
@@ -231,7 +231,13 @@ public class NationCraft extends JavaPlugin implements NationCraftMain {
 		Settings.player.RegeneratePowerOffline = playerSection.getBoolean("RegenerateOffline", false);
 		Settings.player.TeleportationWarmup = playerSection.getInt("TeleportationWarmup", 10);
 		Settings.player.TeleportationCooldown = playerSection.getInt("TeleportationCooldown", 60);
-
+		//chat
+		ConfigurationSection chatSection = getConfig().getConfigurationSection("Chat");
+		Settings.chat.globalFormat = chatSection.getString("GlobalFormat", "(%NATION%)(%SETTLEMENT%)");
+		Settings.chat.nationFormat = chatSection.getString("NationFormat", "(%SETTLEMENT%)");
+		Settings.chat.settlementFormat = chatSection.getString("SettlementFormat", "");
+		Settings.chat.allyFormat = chatSection.getString("AllyFormat", "(%NATION%)(%SETTLEMENT%)");
+		Settings.chat.truceFormat = chatSection.getString("TruceFormat", "(%NATION%)(%SETTLEMENT%)");
 		//world
 		ConfigurationSection worldSection = getConfig().getConfigurationSection("World");
 		WorldSettings.powerGainEnabled = worldSection.getStringList("PowerGainEnabled");

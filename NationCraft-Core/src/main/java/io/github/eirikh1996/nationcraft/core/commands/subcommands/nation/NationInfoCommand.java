@@ -6,6 +6,7 @@ import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
+import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +33,7 @@ public final class NationInfoCommand extends Command {
             n = NationManager.getInstance().getNationByName(args[0]);
         }
         if (n == null) {
-            sender.sendMessage(Messages.ERROR + "Nation does not exist!");
+            sender.sendMessage(Messages.ERROR.append(Component.text("Nation does not exist!")));
             return;
         }
         Messages.nationInfo(n, player);

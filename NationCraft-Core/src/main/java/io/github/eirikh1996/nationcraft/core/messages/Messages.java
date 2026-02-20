@@ -9,7 +9,6 @@ import io.github.eirikh1996.nationcraft.core.nation.Relation;
 import io.github.eirikh1996.nationcraft.api.objects.NCVector;
 import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
 import io.github.eirikh1996.nationcraft.api.objects.text.ChatTextComponent;
-import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.core.commands.NCConsole;
@@ -25,6 +24,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -77,11 +77,11 @@ public class Messages {
 
 	public static void logMessage() {
 		final NCConsole log = main.getConsole();
-		log.sendMessage("");
-		log.sendMessage(TextColor.AQUA + "|\\  |  /\\ === | /--\\ |\\  |" + TextColor.GRAY + " /--  |--\\  /\\  |== ===");
-		log.sendMessage(TextColor.AQUA + "| \\ | /__\\ |  ||   | | \\ ||  " + TextColor.GRAY + "  |--/  /__\\ |=   | ");
-		log.sendMessage(TextColor.AQUA + "|  \\|/    \\|  | \\--/ |  \\| " + TextColor.GRAY + "\\-- |  \\/    \\|    | ");
-		log.sendMessage("");
+		log.sendMessage(Component.empty());
+		log.sendMessage(Component.text("|\\  |  /\\ === | /--\\ |\\  |", NamedTextColor.AQUA).append(Component.text(" /--  |--\\  /\\  |== ===", NamedTextColor.GRAY)));
+		log.sendMessage(Component.text("| \\ | /__\\ |  ||   | | \\ ||  ", NamedTextColor.AQUA).append(Component.text("  |--/  /__\\ |=   | ", NamedTextColor.GRAY)));
+		log.sendMessage(Component.text("|  \\|/    \\|  | \\--/ |  \\| ", NamedTextColor.AQUA).append(Component.text("\\-- |  \\/    \\|    | ", NamedTextColor.GRAY)));
+		log.sendMessage(Component.empty());
 	}
 	public static void nationInfo(Nation n, NCPlayer p) {
 		String name = n.getName();
@@ -195,8 +195,6 @@ public class Messages {
 		//North-South
 		final int totalLines = maxZ - minZ;
 		for (int z = minZ ; z <= maxZ ; z++){
-			ChatText.Builder mapLine = ChatText.builder();
-			ChatText.Builder compassLine = ChatText.builder();
 			int line = z - minZ;
 			if (line <= 2) {
 				territoryMap = territoryMap.append(compass.getLine(line)).appendSpace();
@@ -250,16 +248,23 @@ public class Messages {
 		    player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("No settlements nearby")));
 		    return;
         }
-		player.sendMessage(TextColor.YELLOW + "================={" + TextColor.RESET + "Nearest settlements" + TextColor.YELLOW + "}=================");
+		TextComponent header = Component.text("================={ ", NamedTextColor.YELLOW);
+		header = header.append(Component.text("Nearest settlements", NamedTextColor.AQUA));
+		header = header.append(Component.text(" }=================", NamedTextColor.YELLOW));
+		player.sendMessage(header);
 		int count = 0;
 		for (Settlement s : sorted.keySet()){
-			player.sendMessage(s.getName() + String.format(" [%d, %d]", s.getTownCenter().getCenterPoint().getBlockX(), s.getTownCenter().getCenterPoint().getBlockZ()) + String.format(" %d blocks away", sorted.get(s)));
+			player.sendMessage(
+				Component.text(
+					s.getName() + String.format(" [%d, %d]", s.getTownCenter().getCenterPoint().getBlockX(), s.getTownCenter().getCenterPoint().getBlockZ()) + String.format(" %d blocks away", sorted.get(s))
+				)
+			);
 			if (count >= 9){
 				break;
 			}
 			count++;
 		}
-		player.sendMessage(TextColor.YELLOW + "=====================================================");
+		player.sendMessage(Component.text("=====================================================", NamedTextColor.YELLOW));
 	}
 
 	private static String rankMarker(NCPlayer player, Ranks r) {
@@ -344,46 +349,78 @@ public class Messages {
 	}
 
 	public static void displayPlayerInfo(NCCommandSender sender, NCPlayer target){
-		final String[] powerBar = new String[103];
+		//final String[] powerBar = new String[103];
 		double ratio = Settings.player.MaxPower / 101.0;
 
-		powerBar[0] = TextColor.GOLD + "[" + TextColor.RESET;
-		powerBar[102] = TextColor.GOLD + "]" + TextColor.RESET;
+		final TextComponent powerBarStart = Component.text("[", NamedTextColor.GOLD);
+		final TextComponent powerBarEnd = Component.text("]", NamedTextColor.GOLD);
+		//powerBar[0] = TextColor + "[" + TextColor.RESET;
+		//powerBar[102] = TextColor.GOLD + "]" + TextColor.RESET;
 		float percent = (float) ((target.getPower() / Settings.player.MaxPower ) * 100f);
+		TextComponent powerBar = powerBarStart;
 		for (int i = 1 ; i < 102 ; i++){
 			double powerLevel = ratio * i;
-			String point = "";
+			TextColor color;
 
 			if (powerLevel <= target.getPower()){
-				point += getTextColor(percent);
+				color = getTextColor(percent);
 			} else {
-				point += TextColor.GRAY;
+				color= NamedTextColor.GRAY;
 			}
-			point += "|" + TextColor.RESET;
-			powerBar[i] = point;
+			powerBar = powerBar.append(Component.text("|", color));
 		}
+		powerBar = powerBar.append(powerBarEnd);
 		final Date lastLogin = new Date(target.getLastActivityTime());
+		TextComponent header = Component.text(
+			"========={ ", NamedTextColor.DARK_GRAY
+		).append(
+				Component.text(
+					"Player " + target.getName(), NamedTextColor.DARK_AQUA
+				)
+		).append(
+				Component.text(" }=========", NamedTextColor.DARK_GRAY)
+		);
+		TextComponent powerInfo = Component.text(
+				"Power: ", NamedTextColor.DARK_GRAY
+		).append(
+				Component.text(
+						target.getPower() + " / " + Settings.player.MaxPower, NamedTextColor.DARK_AQUA
+				)
+		);
+		TextComponent lastActivity = Component.text(
+				"Last activity: ", NamedTextColor.DARK_GRAY
+		).append(
+				Component.text(
+						(target.isOnline() ? "Currently online " : lastLogin.toString()), (target.isOnline() ? NamedTextColor.GREEN : NamedTextColor.DARK_AQUA)
+				)
+		);
+		TextComponent nation = Component.text(
+				"Nation: ", NamedTextColor.DARK_GRAY
+		).append(
+				(sender instanceof NCPlayer player) ? target.getNation().getName(player) : Component.text(target.getNation().getName(), NamedTextColor.WHITE)
+		);
 
 
-		sender.sendMessage("§8========={ §3Player " + target.getName() + "§8}=========");
-		sender.sendMessage(String.format("§7Power: §3%.2f / %.2f", target.getPower(), Settings.player.MaxPower));
-		sender.sendMessage(String.join("", powerBar));
-		sender.sendMessage("§7Last activity: " + (target.isOnline() ? TextColor.GREEN + "Currently online " : TextColor.DARK_AQUA + lastLogin.toString()));
+		sender.sendMessage(header);
+		sender.sendMessage(powerInfo);
+		sender.sendMessage(powerBar);
+		sender.sendMessage(lastActivity);
+		sender.sendMessage(nation);
 	}
 
 	private static TextColor getTextColor(float percent){
 		if (percent <= 10f){
-			return TextColor.DARK_RED;
+			return NamedTextColor.DARK_RED;
 		} else if (percent <=30f) {
-		    return TextColor.RED;
+		    return NamedTextColor.RED;
         } else if (percent <= 70f) {
-			return TextColor.YELLOW;
+			return NamedTextColor.YELLOW;
 		} else if (percent <= 85f) {
-		    return TextColor.GREEN;
+		    return NamedTextColor.GREEN;
         }
 
 		else {
-			return TextColor.DARK_GREEN;
+			return NamedTextColor.DARK_GREEN;
 		}
 	}
 

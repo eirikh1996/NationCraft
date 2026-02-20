@@ -30,7 +30,7 @@ public class SettlementListCommand extends Command {
             if (s == null)
                 continue;
             paginator.addLine(
-                    Component.text(s.getName() + " [" + s.getTownCenter().getCenterPoint().getBlockX() + ", "+ s.getTownCenter().getCenterPoint().getBlockX() + "]", NamedTextColor.DARK_AQUA)
+                    Component.text(s.getName() + " [" + s.getTownCenter().getCenterPoint().getBlockX() + ", "+ s.getTownCenter().getCenterPoint().getBlockZ() + "]", NamedTextColor.DARK_AQUA)
                     );
 
         }

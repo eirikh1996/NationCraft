@@ -580,14 +580,14 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 
 	public void removePlayer(NCPlayer p){
 		if (p.isOnline()) {
-			p.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "You left your nation");
+			p.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("You left your nation")));
 		}
 		players.remove(p);
 		for (NCPlayer player : players.keySet()){
 			if (!player.isOnline()){
 				continue;
 			}
-			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX + p.getName() + " left your nation");
+			player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text(p.getName())).append(Component.text(" left your nation")));
 		}
 		saveToFile();
 	}
@@ -790,7 +790,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
             writer.println("creationTimeMS: " + getCreationTimeMS());
 			writer.println("originalName: " + originalName);
             writer.println("description: " + getDescription() );
-            writer.println("capital: " + (getCapital() != null ? getCapital().getName().toLowerCase() : "" ));
+            writer.println("capital: " + (getCapital() != null ? getCapital().getName() : "" ));
             writer.println("allies:");
             if (!getAllies().isEmpty()) {
             	for (Nation ally : getAllies()) {

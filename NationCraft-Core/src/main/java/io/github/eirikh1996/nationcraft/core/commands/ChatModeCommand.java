@@ -30,7 +30,7 @@ public class ChatModeCommand extends Command {
         }
         final NCPlayer player = (NCPlayer) sender;
         if (args.length == 0){
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "Usage: /chatmode <global|g|ally|a|truce|t|nation|n|settlement|s>. Current chat mode: " + player.getChatMode().name().toLowerCase());
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("Usage: /chatmode <global|g|ally|a|truce|t|nation|n|settlement|s>. Current chat mode: " + player.getChatMode().name().toLowerCase())));
             return;
         }
         ChatMode cMode = ChatMode.getChatMode(args[0].toUpperCase());

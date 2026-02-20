@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public class SettlementManager implements Iterable<Settlement>{
 	private static SettlementManager instance;
 	private static NationCraftMain main;
+	private Map<UUID, Settlement> settlements = new HashMap<>();
 	//This is a singleton object, so don't instantiate it
 	private SettlementManager(){
 	}
@@ -83,7 +84,7 @@ public class SettlementManager implements Iterable<Settlement>{
 	public Settlement getSettlementByUUID(UUID uuid) {
 		Settlement returnSettlement = null;
 		for (Settlement s : getAllSettlements()) {
-			if (s.getUuid() != uuid) {
+			if (!s.getUuid().equals(uuid)) {
 				continue;
 			}
 			returnSettlement = s;

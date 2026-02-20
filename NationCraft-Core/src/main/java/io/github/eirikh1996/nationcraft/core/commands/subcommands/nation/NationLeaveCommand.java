@@ -6,6 +6,7 @@ import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
+import net.kyori.adventure.text.Component;
 
 import java.util.Arrays;
 
@@ -26,7 +27,7 @@ public final class NationLeaveCommand extends Command {
         final NCPlayer player = (NCPlayer) sender;
         Nation nation = NationManager.getInstance().getNationByPlayer(player.getPlayerID());
         if (nation == null) {
-            sender.sendMessage(Messages.ERROR + "You are not in a nation!");
+            sender.sendMessage(Messages.ERROR.append(Component.text("You are not in a nation!")));
             return;
         }
         nation.removePlayer(player);

@@ -7,6 +7,12 @@ Player:
   RegenerateOffline: false
   TeleportationWarmup: 10
   TeleportationCooldown: 60
+Chat:
+  globalFormat: "(%NATION%)(%SETTLEMENT%)"
+  nationFormat: "(%SETTLEMENT%)"
+  settlementFormat: ""
+  allyFormat: "(%NATION%)(%SETTLEMENT%)"
+  truceFormat: "(%NATION%)(%SETTLEMENT%)"
 World:
   PowerGainEnabled:
     - world

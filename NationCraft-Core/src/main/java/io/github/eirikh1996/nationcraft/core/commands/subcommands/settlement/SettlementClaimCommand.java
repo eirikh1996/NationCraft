@@ -9,27 +9,28 @@ import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import net.kyori.adventure.text.Component;
 
+import java.util.Arrays;
+
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 
 public class SettlementClaimCommand extends Command {
     public SettlementClaimCommand() {
-        super("claim");
+        super("claim", Arrays.asList("c"));
     }
 
     @Override
     protected void execute(NCCommandSender sender, String[] args) {
         Settlement settlement;
-        if (!(sender instanceof NCPlayer)) {
+        if (!(sender instanceof NCPlayer player)) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
-        final NCPlayer player = (NCPlayer) sender;
         final Shape shape = args.length > 0 ? Shape.getShape(args[0]) : Shape.SINGLE;
         int radius;
         try {
             radius = Integer.parseInt(args[1]);
         } catch (Exception e) {
-            radius = 0;
+            radius = 1;
         }
         String settlementName;
         try {
@@ -37,7 +38,7 @@ public class SettlementClaimCommand extends Command {
         } catch (ArrayIndexOutOfBoundsException e) {
             settlementName = "";
         }
-        if (settlementName.length() > 0){
+        if (!settlementName.isEmpty()){
             if (!sender.hasPermission("nationcraft.settlement.claim.other")){
                 sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You can only claim for your own settlement")));
                 return;

@@ -15,6 +15,9 @@ import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class PlayerListener implements NCListener {
     
     @EventListener
@@ -61,11 +64,43 @@ public class PlayerListener implements NCListener {
         final NCPlayer player = event.getPlayer();
         String format = event.getFormat();
         event.setFormat(
-                Settings.player.chatFormat
+                Settings.chat.globalFormat
                 .replace("%NATION%", player.hasNation() ? player.getNation().getName() : "")
                 .replace("%SETTLEMENT%", player.hasSettlement() ? player.getSettlement().getName() : "")
                 + format
         );
+        Set<NCPlayer> toRemove = new HashSet<>();
+        switch (player.getChatMode()) {
+            case SETTLEMENT -> event.getRecipients().forEach(r -> {
+                if (!player.getSettlement().getPlayers().containsKey(r)) {
+                    toRemove.add(r);
+                }
+            });
+            case NATION -> event.getRecipients().forEach(r -> {
+                if (!player.hasNation() && r.hasNation()) {
+                    toRemove.add(r);
+                }
+                if (!player.getNation().equals(r.getNation())) {
+                    toRemove.add(r);
+                }
+            });
+            case ALLY -> event.getRecipients().forEach(r -> {
+                if (!player.hasNation() && r.hasNation()) {
+                    toRemove.add(r);
+                }
+                if (!player.getNation().isAlliedWith(r.getNation())) {
+                    toRemove.add(r);
+                }
+            });
+            case TRUCE -> event.getRecipients().forEach(r -> {
+                if (!player.hasNation() && r.hasNation()) {
+                    toRemove.add(r);
+                }
+                if (!player.getNation().isTrucedWith(r.getNation())) {
+                    toRemove.add(r);
+                }
+            });
+        }
     }
 
 }

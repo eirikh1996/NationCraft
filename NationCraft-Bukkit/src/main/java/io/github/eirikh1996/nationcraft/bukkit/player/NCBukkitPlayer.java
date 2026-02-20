@@ -122,6 +122,16 @@ public class NCBukkitPlayer extends NCPlayer {
     }
 
     @Override
+    public double getFunds() {
+        final Economy eco = NationCraft.getInstance().getEconomy();
+        if (eco == null) { //Economy is disabled
+            return -1;
+        }
+        OfflinePlayer op = Bukkit.getOfflinePlayer(playerID);
+        return eco.getBalance(op);
+    }
+
+    @Override
     public void setLastOnlineLocation(NCLocation lastOnlineLocation) {
 
     }

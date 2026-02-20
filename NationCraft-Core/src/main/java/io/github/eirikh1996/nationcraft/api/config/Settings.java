@@ -9,9 +9,11 @@ import java.util.List;
 public class Settings {
 	public static final PlayerSettings player;
 	public static final SettlementSettings settlement;
+	public static final ChatSettings chat;
 	static {
 		player = new PlayerSettings();
 		settlement = new SettlementSettings();
+		chat = new ChatSettings();
 	}
 	public static class PlayerSettings {
 		private PlayerSettings() {
@@ -26,22 +28,22 @@ public class Settings {
 		public int TeleportationWarmup = 10;
 		public int TeleportationCooldown = 60;
 		public List<String> reducePowerInWorlds = new ArrayList<>();
-		public String chatFormat = "";
 	}
 	public static class SettlementSettings {
 		public int TerritoryPerPlayer = 10;
 		public int NationTerritoryBonus = 10;
 
 	}
+	public static class ChatSettings {
+		public String globalFormat = "";
+		public String nationFormat = "";
+		public String settlementFormat = "";
+		public String allyFormat = "";
+		public String truceFormat = "";
+	}
 
 
 	//Player settings
-
-
-
-
-
-
 	public static boolean Debug;
     public static float MinimumSettlementExposurePercent;
     public static int SiegeRequiredAttackerPresenceTime;

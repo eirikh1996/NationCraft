@@ -17,8 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class TerritoryManager implements Iterable<Territory> {
-    private ConcurrentMap<Nation, Collection<Territory>> nationTerritoryMap = new ConcurrentHashMap<>();
-    private ConcurrentMap<Settlement, Collection<Territory>> settlementTerritoryMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Nation, Collection<Territory>> nationTerritoryMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Settlement, Collection<Territory>> settlementTerritoryMap = new ConcurrentHashMap<>();
     private NationCraftMain plugin;
     private static TerritoryManager INSTANCE;
     private static Yaml yaml;
@@ -88,75 +88,154 @@ public class TerritoryManager implements Iterable<Territory> {
     }
     private void loadFromFile() {
         File territoryFile = new File(plugin.getDataFolder(), "territory.yml");
-        if (!territoryFile.exists())
-            return;
-        try {
-            final InputStream inputStream = new FileInputStream(territoryFile);
-            final Map data = yaml.load(inputStream);
-            final List<Map<String, Object>> list = (List) data.get("territory");
-            if (list == null) {
-                return;
-            }
-            //plugin.logInfo(String.valueOf(list.size()));
-            for (Map<String, Object> entry : list) {
-                Territory terr = Territory.deserialize(entry);
-                UUID nationId = UUID.fromString((String) entry.get("nation"));
-                Nation nation = NationManager.getInstance().getNationByUUID(nationId);
-                //plugin.logInfo(nationId + "  " + nation);
-                if (nation != null) {
-                    if (nationTerritoryMap.containsKey(nation)) {
-                        nationTerritoryMap.get(nation).add(terr);
+        if (territoryFile.exists()) {
+            try {
+                final InputStream inputStream = new FileInputStream(territoryFile);
+                final Map data = yaml.load(inputStream);
+                final List<Map<String, Object>> list = (List) data.get("territory");
+                if (list == null) {
+                    return;
+                }
+                //plugin.logInfo(String.valueOf(list.size()));
+                for (Map<String, Object> entry : list) {
+                    Territory terr = Territory.deserialize(entry);
+                    UUID nationId = UUID.fromString((String) entry.get("nation"));
+                    Nation nation = NationManager.getInstance().getNationByUUID(nationId);
+                    //plugin.logInfo(nationId + "  " + nation);
+                    if (nation != null) {
+                        if (nationTerritoryMap.containsKey(nation)) {
+                            nationTerritoryMap.get(nation).add(terr);
+                        } else {
+                            Collection<Territory> territoryColl = new HashSet<>();
+                            territoryColl.add(terr);
+                            nationTerritoryMap.put(nation, territoryColl);
+                        }
+                    }
+                    String settlementId = (String) entry.get("settlement");
+                    if (settlementId == null) {
+                        continue;
+                    }
+                    Settlement settlement = SettlementManager.getInstance().getSettlementByUUID(UUID.fromString(settlementId));
+                    if (settlement == null) {
+                        continue;
+                    }
+                    if (settlementTerritoryMap.containsKey(settlement)) {
+                        settlementTerritoryMap.get(settlement).add(terr);
                     } else {
-                        Collection<Territory> territoryColl = new HashSet<>();
-                        territoryColl.add(terr);
-                        nationTerritoryMap.put(nation, territoryColl);
+                        Collection<Territory> terriltoryColl = new HashSet<>();
+                        terriltoryColl.add(terr);
+                        settlementTerritoryMap.put(settlement, terriltoryColl);
                     }
                 }
-                String settlementId = (String) entry.get("settlement");
-                if (settlementId == null) {
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            territoryFile.delete();
+        }
+
+
+        File territoryDir = new File(plugin.getDataFolder(), "territory");
+        if (territoryDir.exists()) {
+            for (File regionFile : territoryDir.listFiles()) {
+                if (regionFile == null)
+                    continue;
+                if (!regionFile.getName().startsWith("region ") || !regionFile.getName().endsWith(".yml")) {
                     continue;
                 }
-                Settlement settlement = SettlementManager.getInstance().getSettlementByUUID(UUID.fromString(settlementId));
-                if (settlement == null) {
-                    continue;
-                }
-                if (settlementTerritoryMap.containsKey(settlement)) {
-                    settlementTerritoryMap.get(settlement).add(terr);
-                } else {
-                    Collection<Territory> terriltoryColl = new HashSet<>();
-                    terriltoryColl.add(terr);
-                    settlementTerritoryMap.put(settlement, terriltoryColl);
+                try {
+                    final InputStream inputStream = new FileInputStream(regionFile);
+                    final Map data = yaml.load(inputStream);
+                    final List<Map<String, Object>> list = (List) data.get("territory");
+                    if (list == null) {
+                        return;
+                    }
+                    //plugin.logInfo(String.valueOf(list.size()));
+                    for (Map<String, Object> entry : list) {
+                        Territory terr = Territory.deserialize(entry);
+                        UUID nationId = UUID.fromString((String) entry.get("nation"));
+                        Nation nation = NationManager.getInstance().getNationByUUID(nationId);
+                        //plugin.logInfo(nationId + "  " + nation);
+                        if (nation != null) {
+                            if (nationTerritoryMap.containsKey(nation)) {
+                                nationTerritoryMap.get(nation).add(terr);
+                            } else {
+                                Collection<Territory> territoryColl = new HashSet<>();
+                                territoryColl.add(terr);
+                                nationTerritoryMap.put(nation, territoryColl);
+                            }
+                        }
+                        String settlementId = (String) entry.get("settlement");
+                        if (settlementId == null) {
+                            continue;
+                        }
+                        Settlement settlement = SettlementManager.getInstance().getSettlementByUUID(UUID.fromString(settlementId));
+                        if (settlement == null) {
+                            continue;
+                        }
+                        if (settlementTerritoryMap.containsKey(settlement)) {
+                            settlementTerritoryMap.get(settlement).add(terr);
+                        } else {
+                            Collection<Territory> territoryColl = new HashSet<>();
+                            territoryColl.add(terr);
+                            settlementTerritoryMap.put(settlement, territoryColl);
+                        }
+                    }
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
             }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         }
+
+
         plugin.logInfo(String.valueOf(nationTerritoryMap.keySet().size()));
         plugin.logInfo("Loaded " + getClaimedTerritory().size() + " chunks of territory claimed by " + nationTerritoryMap.keySet().size() + " nations and " + settlementTerritoryMap.keySet().size() + " settlements.");
+        saveToFile();
     }
 
     private void saveToFile() {
-        File territoryFile = new File(plugin.getDataFolder(), "territory.yml");
-        if (!territoryFile.exists()) {
+        final Map<String, Collection<Territory>> regionTerritoryCache = new HashMap<>();
+        getClaimedTerritory().forEach(
+                territory -> {
+                    final String regionCoords = (territory.getX() >> 5) + ", " + (territory.getZ() >> 5);
+                    if (regionTerritoryCache.containsKey(regionCoords)) {
+                        regionTerritoryCache.get(regionCoords).add(territory);
+                    } else {
+                        Collection<Territory> territoryColl = new HashSet<>();
+                        territoryColl.add(territory);
+                        regionTerritoryCache.put(regionCoords, territoryColl);
+                    }
+                }
+        );
+        File territoryDir = new File(plugin.getDataFolder(), "territory");
+        if (!territoryDir.exists()) {
+            territoryDir.mkdirs();
+        }
+        for (String regionCoords : regionTerritoryCache.keySet()) {
+            File regionFile = new File(territoryDir, "region " + regionCoords + ".yml");
+            if (!regionFile.exists()) {
+                try {
+                    regionFile.createNewFile();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            Collection<Territory> regionizedTerritory = regionTerritoryCache.get(regionCoords);
             try {
-                territoryFile.createNewFile();
-            } catch (IOException e) {
+                PrintWriter writer = new PrintWriter(regionFile);
+                writer.println("territory:");
+                regionizedTerritory.forEach(
+                        territory -> {
+                            boolean first = true;
+                            for (Map.Entry<String, Object> entry : territory.serialize().entrySet()) {
+                                writer.println((first ? "- " : "  ") + entry.getKey() + ": " + entry.getValue());
+                                first = false;
+                            }
+                        }
+                );
+                writer.close();
+            } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             }
-        }
-        try {
-            PrintWriter writer = new PrintWriter(territoryFile);
-            writer.println("territory:");
-            getClaimedTerritory().forEach( t -> {
-                boolean first = true;
-                for (Map.Entry<String, Object> entry : t.serialize().entrySet()) {
-                    writer.println((first ? "- " : "  ") + entry.getKey() + ": " + entry.getValue());
-                    first = false;
-                }
-            });
-            writer.close();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
