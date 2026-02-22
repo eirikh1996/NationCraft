@@ -13,6 +13,7 @@ import io.github.eirikh1996.nationcraft.api.territory.Territory;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.yaml.snakeyaml.Yaml;
 
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.ERROR;
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
@@ -96,7 +97,23 @@ public class NationManager implements Runnable, Iterable<Nation> {
 			if (!file.getName().contains(".nation")) {
 				continue;
 			}
-			Nation n = new Nation(file);
+			try {
+				Yaml yaml = new Yaml();
+				InputStream input = new FileInputStream(file);
+				final Map data = yaml.load(input);
+				input.close();
+				String name = (String) data.get("name");
+				UUID uuid = UUID.fromString((String) data.get("uuid"));
+				File rename = new File(nationDir, uuid + ".nation");
+				if (file.getName().startsWith(name.toLowerCase())) {
+					file.renameTo(rename);
+					file = rename;
+				}
+			} catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            Nation n = new Nation(file);
 			nations.add(n);
 		}
         plugin.logInfo("Nations loaded: ");

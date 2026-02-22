@@ -39,6 +39,10 @@ public final class TownCenter {
         return teleportationPoint;
     }
 
+    public boolean contains(NCLocation location) {
+        return location.getWorld() == getWorld() && location.getChunkX() == getX() && location.getChunkZ() == getZ();
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(x, z, world, teleportationPoint);
@@ -46,9 +50,8 @@ public final class TownCenter {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof TownCenter))
+        if (!(obj instanceof TownCenter other))
             return false;
-        TownCenter other = (TownCenter) obj;
         return getX() == other.getX() &&
                 getZ() == other.getZ() &&
                 getWorld().equals(other.getWorld()) &&

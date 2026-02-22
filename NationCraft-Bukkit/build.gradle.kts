@@ -19,6 +19,8 @@ repositories {
 dependencies {
     api(project(":NationCraft-Core"))
     paperweight.paperDevBundle("1.21.10-R0.1-SNAPSHOT")
+
+    implementation("net.kyori:adventure-text-minimessage:4.26.1")
     compileOnly("net.ess3:EssentialsX:2.18.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     compileOnly("com.github.sirblobman.api:core:2.9-SNAPSHOT")

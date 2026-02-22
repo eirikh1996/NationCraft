@@ -2,15 +2,11 @@ package io.github.eirikh1996.nationcraft.core.nation;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import io.github.eirikh1996.nationcraft.api.config.NationSettings;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
-import io.github.eirikh1996.nationcraft.api.objects.text.ChatText;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
-import io.github.eirikh1996.nationcraft.api.utils.CollectionUtils;
 import io.github.eirikh1996.nationcraft.api.utils.Direction;
 import io.github.eirikh1996.nationcraft.core.claiming.ClaimTask;
 import io.github.eirikh1996.nationcraft.core.claiming.Shape;
@@ -18,6 +14,7 @@ import io.github.eirikh1996.nationcraft.core.exception.NationNotFoundException;
 import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.api.territory.Territory;
 import io.github.eirikh1996.nationcraft.api.territory.TerritoryManager;
+import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -35,9 +32,9 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	@NotNull private final UUID uuid;
 	@NotNull private final String originalName;
 	@NotNull private String name, description;
-	@Nullable private Settlement capital;
-	@NotNull private final Set<Nation> allies, enemies, truces;
-	@NotNull private final Set<Settlement> settlements;
+	@Nullable private UUID capital;
+	@NotNull private final Set<UUID> allies, enemies, truces;
+	//@NotNull private final Set<UUID> settlements;
 	@NotNull private final Map<String, Boolean> flags = new HashMap<>();
 	@NotNull private final Map<NCPlayer, Ranks> players;
 	@NotNull private final Set<NCPlayer> invitedPlayers = new HashSet<>();
@@ -52,7 +49,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		this.allies = new HashSet<>();
 		this.enemies = new HashSet<>();
 		this.truces = new HashSet<>();
-		this.settlements = new HashSet<>();
+		//this.settlements = new HashSet<>();
 		this.players = new HashMap<>();
 		flags.putAll(NationManager.getInstance().getRegisteredFlags());
 		creationTimeMS = System.currentTimeMillis();
@@ -68,7 +65,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		this.allies = new HashSet<>();
 		this.enemies = new HashSet<>();
 		this.truces = new HashSet<>();
-		this.settlements = new HashSet<>();
+		//this.settlements = new HashSet<>();
 		this.players = new HashMap<>();
 		players.put(leader, Ranks.LEADER);
 		flags.putAll(NationManager.getInstance().getRegisteredFlags());
@@ -86,13 +83,14 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 			data = yaml.load(input);
 			input.close();
 		} catch (IOException e) {
-			throw new NationNotFoundException("File at " + nationFile.getAbsolutePath() + " was fot found!");
+			throw new NationNotFoundException("File at " + nationFile.getAbsolutePath() + " was fot found!", e);
 		}
 		uuid = UUID.fromString((String) data.get("uuid"));
 		name = (String) data.get("name");
 		originalName = (String) data.get("originalName");
 		description = (String) data.get("description");
-		capital = Settlement.loadFromFile((String) data.get("capital"));
+		Object tempCapital = data.get("capital");
+		capital = tempCapital != null ? UUID.fromString((String) tempCapital) : null;
 
 		Map<String, Object> flagMap = (Map<String, Object>) data.get("flags");
 		for (String key : flagMap.keySet()) {
@@ -111,19 +109,10 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		allies = new HashSet<>();
 		enemies = new HashSet<>();
 		truces = new HashSet<>();
-		settlements = new HashSet<>();
-		new Timer().schedule(
-				new TimerTask() {
-					@Override
-					public void run() {
-						allies.addAll(nationListFromObject(data.get("allies")));
-						enemies.addAll(nationListFromObject(data.get("enemies")));
-						truces.addAll(nationListFromObject(data.get("truces")));
-						settlements.addAll(settlementListFromObject(data.get("settlements")));
-					}
-				},
-				3000
-		);
+		//settlements = uuidSetFromObject(data.get("settlements"));
+		allies.addAll(uuidSetFromObject(data.get("allies")));
+		enemies.addAll(uuidSetFromObject(data.get("enemies")));
+		truces.addAll(uuidSetFromObject(data.get("truces")));
 	}
 	private Set<Nation> nationListFromObject(Object obj){
 		HashSet<Nation> returnList = new HashSet<>();
@@ -187,6 +176,19 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 			}
 		}
 		return returnList;
+	}
+
+	private Set<UUID> uuidSetFromObject(final Object obj) {
+		final Set<UUID> returnSet = new HashSet<>();
+		if (obj instanceof List<?> list) {
+			for (Object e : list) {
+				if (!(e instanceof String str)) {
+					continue;
+				}
+				returnSet.add(UUID.fromString(str));
+			}
+		}
+		return returnSet;
 	}
 	private Map<NCPlayer, Ranks> getPlayersAndRanksFromObject(Object obj){
 		HashMap<NCPlayer, Ranks> returnMap = new HashMap<>();
@@ -538,25 +540,32 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	 */
 	@Nullable
 	@Contract(pure = true)
-	public Settlement getCapital(){ return capital; }
+	public Settlement getCapital(){ return capital == null ? null : SettlementManager.getInstance().getSettlementsByUUID(capital); }
 
 	/**
 	 * Set a settlement as a nation's capital
 	 * @param capital the settlement to set as nation capital
 	 */
-	public void setCapital(@Nullable Settlement capital) { this.capital = capital; }
+	public void setCapital(@Nullable Settlement capital) { this.capital = capital == null ? null : capital.getUuid(); }
 
 	@NotNull public Set<Nation> getAllies(){
-		return allies;
+		final Set<Nation> alliedNations = new HashSet<>();
+		allies.forEach(id -> {
+			Nation ally = NationManager.getInstance().getNationByUUID(id);
+			if (ally != null) {
+				alliedNations.add(ally);
+			}
+		});
+		return alliedNations;
 	}
 
 	public boolean addAlly(Nation ally){
 		if (ally.isSafezone() || ally.isWarzone()) {
 			throw new IllegalArgumentException("Relations cannot be set with warzones or safezones");
 		}
-		enemies.remove(ally);
-		truces.remove(ally);
-		boolean added = allies.add(ally);
+		enemies.remove(ally.getUuid());
+		truces.remove(ally.getUuid());
+		boolean added = allies.add(ally.getUuid());
 		saveToFile();
 		return added;
 	}
@@ -565,16 +574,17 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		if (ally.isSafezone() || ally.isWarzone()) {
 			throw new IllegalArgumentException("Relations cannot be set with warzones or safezones");
 		}
-		boolean removed = allies.remove(ally);
+		boolean removed = allies.remove(ally.getUuid());
 		saveToFile();
 		return removed;
 	}
 
 	public void addSettlement(Settlement settlement) {
 		if (capital == null) {
-			capital = settlement;
+			capital = settlement.getUuid();
 		}
-		settlements.add(settlement);
+		settlement.setNation(this);
+		SettlementManager.getInstance().addSettlement(settlement);
 		saveToFile();
 	}
 
@@ -599,16 +609,23 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	@NotNull public Set<Nation> getEnemies(){
-		return Collections.unmodifiableSet(enemies);
+		final Set<Nation> enemyNations = new HashSet<>();
+		enemies.forEach(id -> {
+			Nation enemy = NationManager.getInstance().getNationByUUID(id);
+			if (enemy != null) {
+				enemyNations.add(enemy);
+			}
+		});
+		return enemyNations;
 	}
 
 	public boolean addEnemy(Nation enemy){
 		if (enemy.isSafezone() || enemy.isWarzone()) {
 			throw new IllegalArgumentException("Relations cannot be set with warzones or safezones");
 		}
-		allies.remove(enemy);
-		truces.remove(enemy);
-		boolean updated = enemies.add(enemy);
+		allies.remove(enemy.getUuid());
+		truces.remove(enemy.getUuid());
+		boolean updated = enemies.add(enemy.getUuid());
 		saveToFile();
 		return updated;
 	}
@@ -617,12 +634,14 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		if (enemy.isSafezone() || enemy.isWarzone()) {
 			throw new IllegalArgumentException("Relations cannot be set with warzones or safezones");
 		}
-		boolean updated = enemies.remove(enemy);
+		boolean updated = enemies.remove(enemy.getUuid());
 		saveToFile();
 		return updated;
 	}
 
-	@NotNull public Set<Settlement> getSettlements() { return settlements; }
+	@NotNull public Set<Settlement> getSettlements() {
+		return SettlementManager.getInstance().getSettlementsByNation(this);
+	}
 
 	@NotNull
 	public Collection<Territory> getTerritory() {
@@ -714,11 +733,11 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	 * @return
 	 */
 	public boolean isAlliedWith(Nation alliedNation) {
-		return allies.contains(alliedNation) && alliedNation.getAllies().contains(this);
+		return getAllies().contains(alliedNation) && alliedNation.getAllies().contains(this);
 	}
 
 	public boolean isTrucedWith(Nation truce) {
-		return truces.contains(truce) && (truce.getTruces().contains(this) || truce.getAllies().contains(this));
+		return getTruces().contains(truce) && (truce.getTruces().contains(this) || truce.getAllies().contains(this));
 	}
 
 	/**
@@ -727,11 +746,11 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	 * @return true if either this or the other nation has declared war, otherwise false
 	 */
 	public boolean isAtWarWith(Nation enemyNation) {
-		return enemies.contains(enemyNation) || enemyNation.getEnemies().contains(this);
+		return getEnemies().contains(enemyNation) || enemyNation.getEnemies().contains(this);
 	}
 
 	public boolean isInTruceWith(Nation truce) {
-		return truces.contains(truce) && (truce.truces.contains(this) || truce.allies.contains(this));
+		return getTruces().contains(truce) && (truce.getTruces().contains(this) || truce.getAllies().contains(this));
 	}
 
 	@NotNull
@@ -773,7 +792,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 	}
 
 	boolean saveToFile(){
-        File f = new File(NationManager.getInstance().getNationDir(), getName().toLowerCase() + ".nation");
+        File f = new File(NationManager.getInstance().getNationDir(), getUuid() + ".nation");
         if (!f.exists()){
             try {
                 f.createNewFile();
@@ -790,7 +809,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
             writer.println("creationTimeMS: " + getCreationTimeMS());
 			writer.println("originalName: " + originalName);
             writer.println("description: " + getDescription() );
-            writer.println("capital: " + (getCapital() != null ? getCapital().getName() : "" ));
+            writer.println("capital: " + (getCapital() != null ? getCapital().getUuid() : "" ));
             writer.println("allies:");
             if (!getAllies().isEmpty()) {
             	for (Nation ally : getAllies()) {
@@ -801,21 +820,12 @@ final public class Nation implements Comparable<Nation>, Cloneable {
             	}
             }
             writer.println("enemies:");
-            if (!getEnemies().isEmpty()) {
-            	for (Nation enemy : getEnemies()) {
+            if (!enemies.isEmpty()) {
+            	for (UUID enemy : enemies) {
             		if (enemy == null){
             			continue;
 					}
-            		writer.println("- " + enemy.getName());
-            	}
-            }
-            writer.println("settlements:");
-            if (!getSettlements().isEmpty()) {
-            	for (Settlement settlement : getSettlements()) {
-            		if (settlement == null){
-            			continue;
-					}
-            		writer.println("- " + settlement.getName());
+            		writer.println("- " + enemy);
             	}
             }
 
@@ -869,20 +879,42 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		String str = "Nation: \n";
 		str += String.format("name: %s \n",name);
 		str += String.format("description: %s \n",description);
-		str += String.format("capital: %s \n",capital != null ? capital.getName() : "null");
-		str += String.format("allies: %s \n",allies.toString());
+		str += String.format("capital: %s \n",capital != null ? getCapital().getName() : "null");
+		List<String> allies = new ArrayList<>();
+		getAllies().forEach(ally -> {
+			allies.add(ally.getName());
+		});
+		Collections.sort(allies);
+		str += String.format("allies: %s \n", allies.toString());
+		List<String> enemies = new ArrayList<>();
+		getEnemies().forEach(enemy -> {
+			enemies.add(enemy.getName());
+		});
+		Collections.sort(enemies);
 		str += String.format("enemies: %s \n",enemies.toString());
+		List<String> settlements = new ArrayList<>();
+		getSettlements().forEach(settlement -> {
+			settlements.add(settlement.getName());
+		});
+		Collections.sort(settlements);
 		str += String.format("settlements: %s \n",settlements.toString());
 		return str;
 	}
 
 	@NotNull
 	public Set<Nation> getTruces() {
-		return Collections.unmodifiableSet(truces);
+		final Set<Nation> truceNations = new HashSet<>();
+		allies.forEach(id -> {
+			Nation truce = NationManager.getInstance().getNationByUUID(id);
+			if (truce != null) {
+				truceNations.add(truce);
+			}
+		});
+		return truceNations;
 	}
 
 	public void removeTruce(Nation truce) {
-		truces.remove(truce);
+		truces.remove(truce.getUuid());
 		saveToFile();
 	}
 
@@ -890,9 +922,9 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		if (truce.isSafezone() || truce.isWarzone()) {
 			throw new IllegalArgumentException("Relations cannot be set with warzones or safezones");
 		}
-		enemies.remove(truce);
-		allies.remove(truce);
-		truces.add(truce);
+		enemies.remove(truce.getUuid());
+		allies.remove(truce.getUuid());
+		truces.add(truce.getUuid());
 		saveToFile();
 	}
 }

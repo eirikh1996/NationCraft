@@ -31,7 +31,7 @@ final public class Settlement {
 	private final UUID uuid;
 	private String name;
 	private final String world;
-	private String nation;
+	private UUID nation;
 	private TownCenter townCenter;
 	private final HashMap<NCPlayer, Ranks> players;
 	private final Set<NCPlayer> invitedPlayers;
@@ -50,7 +50,7 @@ final public class Settlement {
 		}
 		uuid = UUID.fromString((String) data.get("uuid"));
 		name = (String) data.get("name");
-		nation = (String) data.get("nation");
+		nation = UUID.fromString((String) data.get("nation"));
 		world = (String) data.get("world");
 		Map<String, Object> tcData = (Map<String, Object>) data.get("townCenter");
 		final int tcX = (int) tcData.get("x");
@@ -86,7 +86,7 @@ final public class Settlement {
 		}
 
 	}
-	Settlement(String name, String nation, String world, TownCenter townCenter, HashMap<NCPlayer, Ranks> players) {
+	Settlement(String name, UUID nation, String world, TownCenter townCenter, HashMap<NCPlayer, Ranks> players) {
 		this.uuid = UUID.randomUUID();
 		this.name = name;
 		this.nation = nation;
@@ -98,9 +98,10 @@ final public class Settlement {
 	public Settlement(String name, NCPlayer creator){
 		this.uuid = UUID.randomUUID();
 		this.name = name;
-		nation = NationManager.getInstance().getNationByPlayer(creator.getPlayerID()).getName();
+		nation = NationManager.getInstance().getNationByPlayer(creator.getPlayerID()).getUuid();
 		world = creator.getLocation().getWorld();
-		townCenter = new TownCenter(creator.getLocation().getBlockX() >> 4, creator.getLocation().getBlockZ() >> 4, world, creator.getLocation());
+		townCenter = new TownCenter(creator.getLocation().getChunkX(), creator.getLocation().getChunkZ(), world, creator.getLocation());
+		claimTerritory(creator, Shape.SINGLE, 0);
 		players = new HashMap<>();
 		players.put(creator, Ranks.MAYOR);
 		invitedPlayers = new HashSet<>();
@@ -111,6 +112,7 @@ final public class Settlement {
 			return null;
 		}
 		File settlementFile = new File(SettlementManager.getInstance().getSettlementDir(), name.toLowerCase() + ".settlement");
+
 		return settlementFile.exists() ? new Settlement(settlementFile) : null;
 	}
 	private UUID uuidFromObject(Object obj){
@@ -305,7 +307,7 @@ final public class Settlement {
 		}
 		int territoriesNotOwnedByNation = 0;
 		for (Territory territory : surrounding){
-			if (NationManager.getInstance().getNationAt(territory) != null && NationManager.getInstance().getNationAt(territory).getName().equalsIgnoreCase(nation))
+			if (NationManager.getInstance().getNationAt(territory) != null && NationManager.getInstance().getNationAt(territory).getUuid().equals(nation))
 				continue;
 			territoriesNotOwnedByNation++;
 		}
@@ -325,7 +327,7 @@ final public class Settlement {
 	}
 
 	public void saveToFile() {
-		File settlementFile = new File(SettlementManager.getInstance().getSettlementDir(), name + ".settlement");
+		File settlementFile = new File(SettlementManager.getInstance().getSettlementDir(), uuid.toString() + ".settlement");
 		if (!settlementFile.exists()) {
 			try {
 				settlementFile.createNewFile();
@@ -372,7 +374,7 @@ final public class Settlement {
 	 * @return the nation this settlement belongs to
 	 */
 	public Nation getNation() {
-		return NationManager.getInstance().getNationByName(nation);
+		return NationManager.getInstance().getNationByUUID(nation);
 	}
 
 	public String getName() {
@@ -401,8 +403,13 @@ final public class Settlement {
 		return world;
 	}
 
-	public void setNation(String name) {
-		this.nation = name;
+	public void setNation(Nation nation) {
+		if (nation == null) {
+			this.nation = null;
+			return;
+		}
+		this.nation = nation.getUuid();
+		saveToFile();
 	}
 
     public UUID getUuid() {

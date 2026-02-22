@@ -48,6 +48,17 @@ public abstract class PlayerManager<P> implements Runnable, Iterable<NCPlayer> {
         return players;
     }
 
+    public Set<NCPlayer> getOnlinePlayers() {
+        Set<NCPlayer> onlinePlayers = new HashSet<>();
+        for (UUID id : getPlayers().keySet()) {
+            NCPlayer player = getPlayers().get(id);
+            if (player == null || !player.isOnline())
+                continue;
+            onlinePlayers.add(player);
+        }
+        return onlinePlayers;
+    }
+
     public abstract void addPlayer(UUID id, String name);
 
     @NotNull

@@ -38,15 +38,15 @@ public class NCLocation {
     }
 
     public int getBlockX() {
-        return (int) x;
+        return (int) Math.floor(x);
     }
 
     public int getBlockY() {
-        return (int) y;
+        return (int) Math.floor(y);
     }
 
     public int getBlockZ() {
-        return (int) z;
+        return (int) Math.floor(z);
     }
 
     public float getPitch() {

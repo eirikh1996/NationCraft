@@ -87,53 +87,6 @@ public class TerritoryManager implements Iterable<Territory> {
         return settlementTerritoryMap.getOrDefault(settlement, new HashSet<>());
     }
     private void loadFromFile() {
-        File territoryFile = new File(plugin.getDataFolder(), "territory.yml");
-        if (territoryFile.exists()) {
-            try {
-                final InputStream inputStream = new FileInputStream(territoryFile);
-                final Map data = yaml.load(inputStream);
-                final List<Map<String, Object>> list = (List) data.get("territory");
-                if (list == null) {
-                    return;
-                }
-                //plugin.logInfo(String.valueOf(list.size()));
-                for (Map<String, Object> entry : list) {
-                    Territory terr = Territory.deserialize(entry);
-                    UUID nationId = UUID.fromString((String) entry.get("nation"));
-                    Nation nation = NationManager.getInstance().getNationByUUID(nationId);
-                    //plugin.logInfo(nationId + "  " + nation);
-                    if (nation != null) {
-                        if (nationTerritoryMap.containsKey(nation)) {
-                            nationTerritoryMap.get(nation).add(terr);
-                        } else {
-                            Collection<Territory> territoryColl = new HashSet<>();
-                            territoryColl.add(terr);
-                            nationTerritoryMap.put(nation, territoryColl);
-                        }
-                    }
-                    String settlementId = (String) entry.get("settlement");
-                    if (settlementId == null) {
-                        continue;
-                    }
-                    Settlement settlement = SettlementManager.getInstance().getSettlementByUUID(UUID.fromString(settlementId));
-                    if (settlement == null) {
-                        continue;
-                    }
-                    if (settlementTerritoryMap.containsKey(settlement)) {
-                        settlementTerritoryMap.get(settlement).add(terr);
-                    } else {
-                        Collection<Territory> terriltoryColl = new HashSet<>();
-                        terriltoryColl.add(terr);
-                        settlementTerritoryMap.put(settlement, terriltoryColl);
-                    }
-                }
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            territoryFile.delete();
-        }
-
-
         File territoryDir = new File(plugin.getDataFolder(), "territory");
         if (territoryDir.exists()) {
             for (File regionFile : territoryDir.listFiles()) {

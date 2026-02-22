@@ -146,7 +146,7 @@ public class Messages {
 			.appendNewline().append(Component.text("Capital: " + capital, NamedTextColor.YELLOW))
 			.appendNewline().append(Component.text("Settlements: ", NamedTextColor.YELLOW).append(Component.text(String.join(", ", settlementNames), NamedTextColor.GREEN)))
 			.appendNewline().append(Component.text("Territory: ").append(Component.text(n.getTerritory().size(), (n.isStrongEnough() ? NamedTextColor.GREEN : NamedTextColor.RED))))
-			.appendNewline().append(Component.text("Power: " ).append(Component.text(n.getName(), (n.getPower() >= n.getTerritory().size() ? (n.getPower() == n.getTerritory().size() ? NamedTextColor.YELLOW :NamedTextColor.GREEN) : NamedTextColor.RED))))
+			.appendNewline().append(Component.text("Power: " ).append(Component.text(n.getPower(), (n.getPower() >= n.getTerritory().size() ? (n.getPower() == n.getTerritory().size() ? NamedTextColor.YELLOW :NamedTextColor.GREEN) : NamedTextColor.RED))))
 			.appendNewline().append(Component.text("Maximum strength: " + n.getMaxPower(), NamedTextColor.YELLOW))
 			.appendNewline().append(Component.text("Allies: ", NamedTextColor.YELLOW).append(Component.text(allyList.isEmpty() ? "None" : String.join(", ", allyList), NationSettings.RelationColors.getOrDefault(Relation.ALLY, NamedTextColor.DARK_PURPLE))))
 			.appendNewline().append(Component.text("Truces: ", NamedTextColor.YELLOW).append(Component.text(truceList.isEmpty() ? "None" : String.join(", ", allyList), NationSettings.RelationColors.getOrDefault(Relation.TRUCE, NamedTextColor.LIGHT_PURPLE))))
@@ -397,7 +397,7 @@ public class Messages {
 		TextComponent nation = Component.text(
 				"Nation: ", NamedTextColor.DARK_GRAY
 		).append(
-				(sender instanceof NCPlayer player) ? target.getNation().getName(player) : Component.text(target.getNation().getName(), NamedTextColor.WHITE)
+				(target.hasNation() ? ((sender instanceof NCPlayer player) ? target.getNation().getName(player) : Component.text(target.getNation().getName(), NamedTextColor.WHITE)) : Component.text("None"))
 		);
 
 

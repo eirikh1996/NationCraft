@@ -8,8 +8,8 @@ public class Siege {
     private final Settlement settlement;
     private final Nation defender;
     private final Nation attacker;
-    private int attackerPresenceTime = 0;
-    private int attackerAbsenceTime = 0;
+    private long attackerPresenceTime = -1L;
+    private long attackerAbsenceTime = -1L;
 
     public Siege(Settlement settlement, Nation attacker) {
         this.settlement = settlement;
@@ -30,19 +30,19 @@ public class Siege {
         return settlement;
     }
 
-    public int getAttackerAbsenceTime() {
+    public long getAttackerAbsenceTime() {
         return attackerAbsenceTime;
     }
 
-    public void setAttackerAbsenceTime(int attackerAbsenceTime) {
+    public void setAttackerAbsenceTime(long attackerAbsenceTime) {
         this.attackerAbsenceTime = attackerAbsenceTime;
     }
 
-    public int getAttackerPresenceTime() {
+    public long getAttackerPresenceTime() {
         return attackerPresenceTime;
     }
 
-    public void setAttackerPresenceTime(int attackerPresenceTime) {
+    public void setAttackerPresenceTime(long attackerPresenceTime) {
         this.attackerPresenceTime = attackerPresenceTime;
     }
 }

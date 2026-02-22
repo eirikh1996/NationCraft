@@ -13,12 +13,16 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.util.Ticks;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.util.*;
 
+/**
+ * NationCraft API's representation of a Minecraft player
+ */
 public abstract class NCPlayer implements NCCommandSender {
     protected final UUID playerID;
     protected ChatMode chatMode;
@@ -172,18 +176,39 @@ public abstract class NCPlayer implements NCCommandSender {
         savetoFile();
     }
 
+
+    /**
+     * Gets the nation the player is in
+     *
+     * @return the nation the player is part of, or null if players is not in a nation
+     */
     public Nation getNation() {
         return NationManager.getInstance().getNationByPlayer(this);
     }
 
+    /**
+     * Checks if the player is part of a nation
+     *
+     * @return true if player has a nation, false otherwise
+     */
     public boolean hasNation() {
         return getNation() != null;
     }
 
+    /**
+     * Gets the settlement the player is part of
+     *
+     * @return the settlement the player is in, or null if not in a settlement
+     */
     public Settlement getSettlement() {
         return SettlementManager.getInstance().getSettlementByPlayer(this);
     }
 
+    /**
+     * Checks if the player is part of a settlement
+     *
+     * @return true if player has a settlement, false otherwise
+     */
     public boolean hasSettlement() {
         return getSettlement() != null;
     }

@@ -2,6 +2,7 @@ package io.github.eirikh1996.nationcraft.core.settlement.siege;
 
 import io.github.eirikh1996.nationcraft.api.NationCraftMain;
 import io.github.eirikh1996.nationcraft.api.config.Settings;
+import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -48,16 +49,18 @@ public class SiegeManager implements Runnable {
 
         for (Siege siege : sieges){
             new Thread(new SiegePlayerCheckTask(siege)).start();
-            if (siege.getAttackerPresenceTime() >= Settings.SiegeRequiredAttackerPresenceTime){
-                main.broadcast(NATIONCRAFT_COMMAND_PREFIX + String.format("%s has sucessfully taken control of %s from %s", siege.getAttacker().getName(), siege.getSettlement().getName(), siege.getDefender().getName()));
-                siege.getSettlement().setNation(siege.getAttacker().getName());
+            if (siege.getAttackerPresenceTime() > -1L &&
+                    ((System.currentTimeMillis() - siege.getAttackerPresenceTime()) / 1000) >= Settings.SiegeRequiredAttackerPresenceTime){
+                main.broadcast(NATIONCRAFT_COMMAND_PREFIX.append(Component.text(String.format("%s has sucessfully taken control of %s from %s", siege.getAttacker().getName(), siege.getSettlement().getName(), siege.getDefender().getName()))));
+                siege.getSettlement().setNation(siege.getAttacker());
                 completedSieges.add(siege);
-            } else if (siege.getAttackerAbsenceTime() >= Settings.SiegeMaximumAttackerAbsenceTime){
-                main.broadcast(NATIONCRAFT_COMMAND_PREFIX + String.format("%s's siege on %s was sucessfully crushed by %s", siege.getAttacker().getName(), siege.getSettlement().getName(), siege.getDefender().getName()));
+            } else if (siege.getAttackerAbsenceTime() > -1L &&
+                    ((System.currentTimeMillis() - siege.getAttackerAbsenceTime()) / 1000) >= Settings.SiegeMaximumAttackerAbsenceTime){
+                main.broadcast(NATIONCRAFT_COMMAND_PREFIX.append(Component.text(String.format("%s's siege on %s was sucessfully crushed by %s", siege.getAttacker().getName(), siege.getSettlement().getName(), siege.getDefender().getName()))));
                 completedSieges.add(siege);
             }
         }
-        if (completedSieges.size() > 0){
+        if (!completedSieges.isEmpty()){
             sieges.removeAll(completedSieges);
         }
     }
@@ -67,18 +70,17 @@ public class SiegeManager implements Runnable {
             return;
         }
         SiegeTask poll = completedTaskQueue.poll();
-        if (poll instanceof SiegePlayerCheckTask){
-            SiegePlayerCheckTask task = (SiegePlayerCheckTask) poll;
+        if (poll instanceof SiegePlayerCheckTask task){
             if (task.isEnemyPlayersInTownCenter()){
-                task.getSiege().setAttackerAbsenceTime(0);
-                int time = task.getSiege().getAttackerPresenceTime();
-                time++;
-                task.getSiege().setAttackerPresenceTime(time);
+                task.getSiege().setAttackerAbsenceTime(-1L);
+                if (task.getSiege().getAttackerPresenceTime() <= -1L) {
+                    task.getSiege().setAttackerPresenceTime(System.currentTimeMillis());
+                }
             } else {
-                task.getSiege().setAttackerPresenceTime(0);
-                int time = task.getSiege().getAttackerAbsenceTime();
-                time++;
-                task.getSiege().setAttackerAbsenceTime(time);
+                task.getSiege().setAttackerPresenceTime(-1L);
+                if (task.getSiege().getAttackerAbsenceTime() <= -1L) {
+                    task.getSiege().setAttackerAbsenceTime(System.currentTimeMillis());
+                }
             }
         }
     }

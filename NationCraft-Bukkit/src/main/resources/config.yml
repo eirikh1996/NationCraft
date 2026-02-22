@@ -8,11 +8,11 @@ Player:
   TeleportationWarmup: 10
   TeleportationCooldown: 60
 Chat:
-  globalFormat: "(%NATION%)(%SETTLEMENT%)"
-  nationFormat: "(%SETTLEMENT%)"
-  settlementFormat: ""
-  allyFormat: "(%NATION%)(%SETTLEMENT%)"
-  truceFormat: "(%NATION%)(%SETTLEMENT%)"
+  GlobalFormat: "<dark_gray>(%NATION%<dark_gray>)(<aqua>%SETTLEMENT%<dark_gray>)"
+  NationFormat: "<dark_gray>(<aqua>%SETTLEMENT%<dark_gray>)"
+  SettlementFormat: ""
+  AllyFormat: "<dark_gray>(%NATION%<dark_gray>)(<aqua>%SETTLEMENT%<dark_gray>)"
+  TruceFormat: "<dark_gray>(%NATION%<dark_gray>)(<aqua>%SETTLEMENT%<dark_gray>)"
 World:
   PowerGainEnabled:
     - world

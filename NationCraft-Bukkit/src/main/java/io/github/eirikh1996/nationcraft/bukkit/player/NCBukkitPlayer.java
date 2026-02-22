@@ -22,6 +22,9 @@ import java.util.UUID;
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.ERROR;
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.NATIONCRAFT_COMMAND_PREFIX;
 
+/**
+ * Bukkit implementation of class NCPlayer
+ */
 public class NCBukkitPlayer extends NCPlayer {
 
 
@@ -145,6 +148,7 @@ public class NCBukkitPlayer extends NCPlayer {
         p.showTitle(title);
     }
 
+    @Deprecated
     @Override
     public void sendMessage(String message) {
         final Player p = Bukkit.getPlayer(playerID);
@@ -154,6 +158,7 @@ public class NCBukkitPlayer extends NCPlayer {
         p.sendMessage(message);
     }
 
+    @Deprecated
     @Override
     public void sendMessage(String[] messages) {
         final Player p = Bukkit.getPlayer(playerID);
