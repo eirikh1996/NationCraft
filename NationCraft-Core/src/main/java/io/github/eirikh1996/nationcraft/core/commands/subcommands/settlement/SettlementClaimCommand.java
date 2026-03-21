@@ -19,7 +19,7 @@ public class SettlementClaimCommand extends Command {
     }
 
     @Override
-    protected void execute(NCCommandSender sender, String[] args) {
+    protected void execute(NCCommandSender sender) {
         Settlement settlement;
         if (!(sender instanceof NCPlayer player)) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));

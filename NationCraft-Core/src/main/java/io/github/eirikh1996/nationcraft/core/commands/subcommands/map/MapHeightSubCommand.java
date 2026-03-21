@@ -14,7 +14,7 @@ public class MapHeightSubCommand extends Command {
     }
 
     @Override
-    public void execute(NCCommandSender sender, String[] args) {
+    public void execute(NCCommandSender sender) {
         if (!(sender instanceof NCPlayer) ) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;

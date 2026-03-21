@@ -1,5 +1,6 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
+import io.github.eirikh1996.nationcraft.core.commands.parameters.NationParameterType;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
@@ -15,10 +16,11 @@ public class NationWarCommand extends Command {
 
     public NationWarCommand() {
         super("war", "enemy");
+        addParameter("nation", new NationParameterType(), true);
     }
 
     @Override
-    protected void execute(NCCommandSender sender, String[] args) {
+    protected void execute(NCCommandSender sender) {
         if (!(sender instanceof NCPlayer)) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;

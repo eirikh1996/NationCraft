@@ -15,7 +15,7 @@ public class PlayerAdminCommand extends Command {
     }
 
     @Override
-    protected void execute(NCCommandSender sender, String[] args) {
+    protected void execute(NCCommandSender sender) {
         if (!sender.hasPermission("nationcraft.player.adminmode")) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(NO_PERMISSION));
             return;
@@ -23,5 +23,6 @@ public class PlayerAdminCommand extends Command {
         final NCPlayer player = (NCPlayer) sender;
         player.setAdminMode(!player.isAdminMode());
         sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("Admin mode " +(player.isAdminMode() ? "en" : "dis") + "abled")));
+        main.logInfo("Player " + player.getName() + (player.isAdminMode() ? "en" : "dis") + "abled admin mode at " + player.getLocation());
     }
 }

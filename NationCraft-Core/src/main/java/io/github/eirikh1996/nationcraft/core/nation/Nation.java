@@ -325,7 +325,7 @@ final public class Nation implements Comparable<Nation>, Cloneable {
 		if (bannedPlayers.containsKey(banned)) {
 			return false;
 		}
-		banned.sendMessage(NATIONCRAFT_COMMAND_PREFIX + "You have been banned from nation " + name + " for " + reason);
+		banned.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("You have been banned from nation " + name + " for " + reason)));
 		bannedPlayers.put(banned, reason);
 		players.remove(banned);
 		return true;

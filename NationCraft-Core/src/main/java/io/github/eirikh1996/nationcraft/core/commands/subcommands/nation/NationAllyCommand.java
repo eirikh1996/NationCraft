@@ -1,5 +1,6 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
+import io.github.eirikh1996.nationcraft.core.commands.parameters.NationParameterType;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
@@ -19,11 +20,12 @@ import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 public final class NationAllyCommand extends Command {
     public NationAllyCommand(){
         super("ally", Arrays.asList("a"));
+        addParameter("allyNation", new NationParameterType());
         argument = "<nation>";
     }
 
     @Override
-    protected void execute(NCCommandSender sender, String[] args) {
+    protected void execute(NCCommandSender sender) {
         if (!(sender instanceof NCPlayer player)) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
@@ -35,15 +37,12 @@ public final class NationAllyCommand extends Command {
 
         NationManager nMgr = NationManager.getInstance();
         Nation ownNation = player.getNation(); //sender's own nation
+        Nation allyNation = getParameter("allyNation").getValue();
         if (ownNation == null) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(NOT_IN_A_NATION));
             return;
         }
-        if (args.length == 0) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You must specify a nation")));
-            return;
-        }
-        Nation allyNation = nMgr.getNationByName(args[0]); //nation to ally
+        //Nation allyNation = nMgr.getNationByName(args[0]); //nation to ally
         if (allyNation == null) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("The given nation does not exist")));
             return;

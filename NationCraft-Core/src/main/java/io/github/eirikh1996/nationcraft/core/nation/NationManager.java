@@ -190,6 +190,7 @@ public class NationManager implements Runnable, Iterable<Nation> {
 		for (Nation n : nations){
 			if (n.getName().equalsIgnoreCase(name)){
 				returnNation = n;
+				break;
 			}
 		}
 		return returnNation;

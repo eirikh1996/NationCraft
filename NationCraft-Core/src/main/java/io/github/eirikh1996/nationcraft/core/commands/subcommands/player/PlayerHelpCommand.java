@@ -9,7 +9,7 @@ public class PlayerHelpCommand extends Command {
     }
 
     @Override
-    protected void execute(NCCommandSender sender, String[] args) {
+    protected void execute(NCCommandSender sender) {
 
     }
 }

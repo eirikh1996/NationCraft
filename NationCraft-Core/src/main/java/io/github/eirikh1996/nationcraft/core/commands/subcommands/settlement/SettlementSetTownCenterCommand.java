@@ -17,7 +17,7 @@ public final class SettlementSetTownCenterCommand extends Command {
     }
 
     @Override
-    protected void execute(NCCommandSender sender, String[] args) {
+    protected void execute(NCCommandSender sender) {
         if (!(sender instanceof NCPlayer) ) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;

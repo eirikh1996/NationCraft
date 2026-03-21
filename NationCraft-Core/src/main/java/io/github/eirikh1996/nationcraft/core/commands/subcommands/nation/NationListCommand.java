@@ -3,6 +3,7 @@ package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
+import io.github.eirikh1996.nationcraft.core.commands.parameters.IntegerParameterType;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
@@ -16,16 +17,17 @@ import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 public final class NationListCommand extends Command {
     public NationListCommand(){
         super("list");
+        addParameter("page", new IntegerParameterType());
     }
 
     @Override
-    protected void execute(NCCommandSender sender, String[] args) {
+    protected void execute(NCCommandSender sender) {
         if (!(sender instanceof NCPlayer)) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         final NCPlayer player = (NCPlayer) sender;
-        int page = args.length == 0 ? 1 : Integer.parseInt(args[0]);
+        int page = Math.max(getParameter("page").getValue(), 1);
         if (NationManager.getInstance().getNations().isEmpty()) {
             sender.sendMessage(Messages.ERROR + "No nations found");
             return;
@@ -37,12 +39,12 @@ public final class NationListCommand extends Command {
             String capital = n.getCapital() == null ? "None" : n.getCapital().getName();
             ;
             paginator.addLine(nationEntry
-                    .append(Component.text(" Players: " + n.getPlayers().keySet().size() + ", ", NamedTextColor.AQUA))
+                    .append(Component.text(" Players: " + n.getPlayers().size() + ", ", NamedTextColor.AQUA))
                     .append(Component.text("Settlements: " + settlements + ", ", NamedTextColor.AQUA))
                     .append(Component.text("Capital: " + capital, NamedTextColor.AQUA)));
         }
         if (!paginator.isInBounds(page)) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "Invalid page: " + page);
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("Invalid page: " + page)));
             return;
         }
         for (TextComponent msg : paginator.getPage(page, "/nation list ")) {

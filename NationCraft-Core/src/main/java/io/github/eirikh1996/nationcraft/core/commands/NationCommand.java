@@ -29,29 +29,22 @@ public class NationCommand extends Command {
 		addChild(new NationTruceCommand());
 		addChild(new NationUnclaimCommand());
 		addChild(new NationWarCommand());
+		permission = "nationcraft.command.nation";
 	}
 	private final TextComponent PERMISSION_MESSAGE = NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(NO_PERMISSION);
 
 	@Override
-	public void execute(NCCommandSender sender, String[] args) {
+	protected boolean validateCommandSender(NCCommandSender sender) {
 		if (!(sender instanceof NCPlayer)) {
 			sender.sendMessage("Error: You must be a player to execute this command!");
-			return;
+			return false;
 		}
-		if (args.length < 1) {
-			sender.sendMessage("Type /nation help for help on the nation command");
-			return;
-		}
-		if (!children.containsKey(args[0])) {
-			sender.sendMessage("Invalid sub-command: " + args[0]);
-			return;
-		}
-		children.get(args[0]).execute(sender, Arrays.copyOfRange(args, 1, args.length));
+		return true;
 	}
 
-	private class NoSuchSubCommandException extends RuntimeException {
-		public NoSuchSubCommandException(String s){
-			super(s);
-		}
+	@Override
+	public void execute(NCCommandSender sender) {
+
+		sender.sendMessage("Type /nation help for help on the nation command");
 	}
 }

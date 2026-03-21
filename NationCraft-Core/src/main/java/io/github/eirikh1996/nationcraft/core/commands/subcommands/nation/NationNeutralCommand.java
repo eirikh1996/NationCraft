@@ -1,5 +1,6 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
+import io.github.eirikh1996.nationcraft.core.commands.parameters.NationParameterType;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
@@ -19,22 +20,21 @@ public final class NationNeutralCommand extends Command {
 
     public NationNeutralCommand(){
         super("neutral");
+        addParameter("nation", new NationParameterType());
     }
 
     @Override
-    protected void execute(NCCommandSender sender, String[] args) {
+    protected void execute(NCCommandSender sender) {
         if (!(sender instanceof NCPlayer)) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
-        if (args.length == 0) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You must specify a nation");
+        final NCPlayer player = (NCPlayer) sender;
+        Nation ownNation = player.getNation(); //sender's own nation
+        Nation neutralNation = getParameter("nation").getValue(); //nation to neutral
+        if (neutralNation == null) {
             return;
         }
-        final NCPlayer player = (NCPlayer) sender;
-        NationManager nMgr = NationManager.getInstance();
-        Nation ownNation = nMgr.getNationByPlayer(player); //sender's own nation
-        Nation neutralNation = nMgr.getNationByName(args[0]); //nation to neutral
         //Do not set relation wish with sender's own nation
         if (ownNation == neutralNation) {
             player.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR) + "You cannot set relation to your own nation!");

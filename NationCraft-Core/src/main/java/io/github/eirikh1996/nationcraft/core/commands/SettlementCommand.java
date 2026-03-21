@@ -2,7 +2,6 @@ package io.github.eirikh1996.nationcraft.core.commands;
 
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.commands.subcommands.settlement.*;
-import io.github.eirikh1996.nationcraft.core.messages.Messages;
 import net.kyori.adventure.text.Component;
 
 import java.util.Arrays;
@@ -24,7 +23,7 @@ public class SettlementCommand extends Command {
         addChild(new SettlementUnclaimCommand());
     }
     @Override
-    public void execute(NCCommandSender sender, String[] args) {
+    public void execute(NCCommandSender sender) {
         if (!(sender instanceof NCPlayer)){
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
@@ -33,13 +32,5 @@ public class SettlementCommand extends Command {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(NO_PERMISSION));
             return;
         }
-        if (args.length == 0){
-            return;
-        }
-        if (!children.containsKey(args[0])) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("Invalid subcommand: " + args[0])));
-            return;
-        }
-        children.get(args[0]).execute(sender, Arrays.copyOfRange(args, 1, args.length));
     }
 }

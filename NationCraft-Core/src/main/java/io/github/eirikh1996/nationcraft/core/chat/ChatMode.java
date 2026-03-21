@@ -17,6 +17,8 @@ public enum ChatMode {
         }
     }
     public static ChatMode getChatMode(String name){
+        if (name.isEmpty())
+            return null;
         return BY_NAME.get(name);
     }
 

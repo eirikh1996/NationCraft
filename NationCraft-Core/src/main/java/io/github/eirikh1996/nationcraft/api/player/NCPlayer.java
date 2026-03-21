@@ -98,12 +98,16 @@ public abstract class NCPlayer implements NCCommandSender {
     public abstract boolean isOnline();
 
     /**
-     * Charges the player a fare
+     * Charges the player a fare. Requires an economy plugin to work
      * @param fare The fare to charge the player
      * @return true if the player has sufficient funds. False otherwise
      */
     public abstract boolean charge(double fare);
 
+    /**
+     * Gets the funds a player has. Requires an economy plugin to work
+     * @return the player's funds
+     */
     public abstract double getFunds();
 
     public void teleport(NCLocation destination) {
@@ -291,6 +295,9 @@ public abstract class NCPlayer implements NCCommandSender {
     }
 
     public void setChatMode(ChatMode chatMode) {
+        if (Settings.UseExternalChatPlugin) {
+            throw new IllegalStateException("An external chat plugin is used to manage chats");
+        }
         this.chatMode = chatMode;
     }
 

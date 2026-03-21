@@ -18,24 +18,18 @@ public class NationCraftCommand extends Command {
     }
 
     @Override
-    public void execute(NCCommandSender sender, String[] args) {
+    public void execute(NCCommandSender sender) {
         if (!name.equalsIgnoreCase("nationcraft")){
             return;
         }
-        if (args.length == 0) {
-            final NationCraftMain main = Core.getMain();
-            final String[] message = {
-                    DARK_GRAY + "====================={" + AQUA + "Nation" + GRAY + "Craft" + DARK_GRAY + "}=====================",
-                    DARK_AQUA + "Version: " + main.getVersion(),
-                    DARK_AQUA + "Authors: " + String.join(", ", main.getAuthors()),
-                    DARK_AQUA + "Type /nationcraft help for command help",
-                    DARK_GRAY + "========================================================================="
-            } ;
-            sender.sendMessage(message);
-            return;
-        }
-        if (args[0].equalsIgnoreCase("convertfromfactions")){
-
-        }
+        final NationCraftMain main = Core.getMain();
+        final String[] message = {
+                DARK_GRAY + "====================={" + AQUA + "Nation" + GRAY + "Craft" + DARK_GRAY + "}=====================",
+                DARK_AQUA + "Version: " + main.getVersion(),
+                DARK_AQUA + "Authors: " + String.join(", ", main.getAuthors()),
+                DARK_AQUA + "Type /nationcraft help for command help",
+                DARK_GRAY + "========================================================================="
+        } ;
+        sender.sendMessage(message);
     }
 }

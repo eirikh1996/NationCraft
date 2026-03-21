@@ -80,4 +80,8 @@ public class NCLocation {
     public Settlement getSettlement() {
         return getTerritory().getSettlement();
     }
+
+    public String toString() {
+        return "NCLocation(" + world + ", " + x + ", " + y + ", " + z + ")";
+    }
 }

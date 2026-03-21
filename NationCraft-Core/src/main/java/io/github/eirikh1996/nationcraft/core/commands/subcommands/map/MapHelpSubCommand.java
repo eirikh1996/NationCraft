@@ -5,8 +5,6 @@ import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.util.RGBLike;
 
 public class MapHelpSubCommand extends Command {
     public MapHelpSubCommand() {
@@ -14,7 +12,7 @@ public class MapHelpSubCommand extends Command {
     }
 
     @Override
-    protected void execute(NCCommandSender sender, String[] args) {
+    protected void execute(NCCommandSender sender) {
         final NCPlayer p = (NCPlayer) sender;
         p.sendMessage(Component.text("=================== Map help ==================="));
         p.sendMessage(Component.text("Enemy", NamedTextColor.RED));

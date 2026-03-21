@@ -1,17 +1,16 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.nation;
 
 import io.github.eirikh1996.nationcraft.api.config.NationSettings;
-import io.github.eirikh1996.nationcraft.api.objects.text.TextColor;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
+import io.github.eirikh1996.nationcraft.core.commands.parameters.StringParameterType;
 import io.github.eirikh1996.nationcraft.core.messages.Messages;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
@@ -19,11 +18,12 @@ import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 public final class NationCreateCommand extends Command {
     public NationCreateCommand(){
         super("create", List.of("c"));
+        addParameter("name", new StringParameterType());
         argument = "<name>";
     }
 
     @Override
-    protected void execute(NCCommandSender sender, String[] args) {
+    protected void execute(NCCommandSender sender) {
         if (!(sender instanceof NCPlayer player)) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
@@ -32,17 +32,18 @@ public final class NationCreateCommand extends Command {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You do not have permission to use this command!", NamedTextColor.DARK_RED)));
             return;
         }
-        if (args.length == 0) {
+        String name = getParameter("name").getValue();
+        if (name.isEmpty()) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You must supply a name!", NamedTextColor.DARK_RED)));
             return;
         }
-        if (args[0].length() <= 2) {
+        if (name.length() <= 2) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("Nation names must be at least 2 characters long")));
             return;
         }
         for (Nation existing : NationManager.getInstance().getNations()) {
-            if (existing.getName().equalsIgnoreCase(args[0])) {
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text(String.format("A nation with the name of %s already exists!", args[0]))));
+            if (existing.getName().equalsIgnoreCase(name)) {
+                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text(String.format("A nation with the name of %s already exists!", name))));
                 return;
             }
         }
@@ -54,7 +55,7 @@ public final class NationCreateCommand extends Command {
             sender.sendMessage(ERROR.append(Component.text("You do not have sufficient funds required to create a nation.")));
             return;
         }
-        Nation newNation = NationManager.getInstance().createNation(args[0], player);
+        Nation newNation = NationManager.getInstance().createNation(name, player);
         if (newNation == null) {
             return;
         }
