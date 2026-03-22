@@ -76,7 +76,7 @@ public class CommandRegistry implements Iterable<Command> {
         Command command = cmd;
         for (int i = 0; i < args.length ; i++) {
             Optional<Command> child = command.getChild(args[i]);
-            if (child.isEmpty()) {
+            if (child.isEmpty() && command.getRegisteredParameters() == 0) {
                 sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Messages.ERROR).append(Component.text("Invalid subcommand: " + args[i])));
                 return;
             }

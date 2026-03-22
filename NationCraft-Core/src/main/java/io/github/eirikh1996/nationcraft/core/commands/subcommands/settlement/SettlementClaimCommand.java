@@ -2,6 +2,10 @@ package io.github.eirikh1996.nationcraft.core.commands.subcommands.settlement;
 
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.claiming.Shape;
+import io.github.eirikh1996.nationcraft.core.commands.parameters.IntegerParameterType;
+import io.github.eirikh1996.nationcraft.core.commands.parameters.NationParameterType;
+import io.github.eirikh1996.nationcraft.core.commands.parameters.SettlementParameterType;
+import io.github.eirikh1996.nationcraft.core.commands.parameters.ShapeParameterType;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
@@ -16,43 +20,25 @@ import static io.github.eirikh1996.nationcraft.core.messages.Messages.*;
 public class SettlementClaimCommand extends Command {
     public SettlementClaimCommand() {
         super("claim", Arrays.asList("c"));
+        addParameter("shape", new ShapeParameterType());
+        addParameter("radius", new IntegerParameterType());
+        addParameter("settlement", new SettlementParameterType());
     }
 
     @Override
     protected void execute(NCCommandSender sender) {
-        Settlement settlement;
         if (!(sender instanceof NCPlayer player)) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
-        final Shape shape = args.length > 0 ? Shape.getShape(args[0]) : Shape.SINGLE;
-        int radius;
-        try {
-            radius = Integer.parseInt(args[1]);
-        } catch (Exception e) {
-            radius = 1;
-        }
-        String settlementName;
-        try {
-            settlementName = shape == Shape.SINGLE ? args[1] : args[2];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            settlementName = "";
-        }
-        if (!settlementName.isEmpty()){
-            if (!sender.hasPermission("nationcraft.settlement.claim.other")){
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You can only claim for your own settlement")));
-                return;
-            }
-            settlement = SettlementManager.getInstance().getSettlementByName(settlementName);
-        } else {
-            settlement = player.getSettlement();
+        final Shape shape = getParameter("shape").getValue();
+        int radius = getParameter("radius").getValue();
+        Settlement settlement = getParameter("settlement").getValue();
+        if (settlement != player.getSettlement() && !sender.hasPermission("nationcraft.settlement.claim.other")){
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You can only claim for your own settlement")));
+            return;
         }
         if (settlement == null){
-            if (!settlementName.isEmpty()){
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text(String.format("No settlement called %s exists", settlementName))));
-            } else {
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You are not in a settlement")));
-            }
             return;
         }
         Nation pNation = player.getNation();

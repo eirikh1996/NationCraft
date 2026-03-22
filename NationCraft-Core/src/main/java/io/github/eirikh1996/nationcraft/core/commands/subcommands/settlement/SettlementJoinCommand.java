@@ -1,5 +1,6 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.settlement;
 
+import io.github.eirikh1996.nationcraft.core.commands.parameters.SettlementParameterType;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
@@ -16,22 +17,18 @@ public class SettlementJoinCommand extends Command {
 
     public SettlementJoinCommand() {
         super("join", Arrays.asList("j"));
+        addParameter("settlement", new SettlementParameterType());
     }
 
     @Override
     protected void execute(NCCommandSender sender) {
-        if (!(sender instanceof NCPlayer)) {
+        if (!(sender instanceof NCPlayer player)) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
-        final NCPlayer player = (NCPlayer) sender;
-        if (args.length == 0) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You must specify a settlement")));
-            return;
-        }
-        final Settlement settlement = SettlementManager.getInstance().getSettlementByName(args[0]);
+        final Settlement settlement = getParameter("settlement").getValue();
         if (settlement == null) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("Settlement " + args[0] + " does not exist!")));
+            //sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("Settlement " + args[0] + " does not exist!")));
             return;
         }
         Nation sn = settlement.getNation();

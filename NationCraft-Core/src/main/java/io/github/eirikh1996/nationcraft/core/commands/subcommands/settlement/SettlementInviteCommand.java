@@ -2,6 +2,7 @@ package io.github.eirikh1996.nationcraft.core.commands.subcommands.settlement;
 
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
 import io.github.eirikh1996.nationcraft.api.player.PlayerManager;
+import io.github.eirikh1996.nationcraft.core.commands.parameters.PlayerParameterType;
 import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
 import io.github.eirikh1996.nationcraft.core.commands.NCCommandSender;
@@ -16,6 +17,7 @@ public class SettlementInviteCommand extends Command {
 
     public SettlementInviteCommand() {
         super("invite", "i");
+        addParameter("player", new PlayerParameterType());
     }
     @Override
     protected void execute(NCCommandSender sender) {
@@ -28,14 +30,9 @@ public class SettlementInviteCommand extends Command {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You are not in a settlement")));
             return;
         }
-        if (args.length == 0) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You must specify a player")));
-            return;
-        }
-        final NCPlayer target = PlayerManager.getInstance().getPlayer(args[0]);
-
+        final NCPlayer target = getParameter("player").getValue();
         if (target == null) {
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("Invalid player: " + args[0])));
+            //sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("Invalid player: " + args[0])));
             return;
         }
         ps.invite(player, target);

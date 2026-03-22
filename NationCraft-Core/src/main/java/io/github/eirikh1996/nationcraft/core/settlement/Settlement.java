@@ -223,6 +223,16 @@ final public class Settlement {
 		return null;
 	}
 
+	/**
+	 *
+	 * Claims territory for the settlement
+	 *
+	 * @param player The player claiming territory
+	 * @param shape The shape of the territory claimed
+	 * @param radius The radius of the claimed territory
+	 *
+	 * @throws IllegalArgumentException if Shape.ALL is supplied as shape
+	 */
 	public void claimTerritory(NCPlayer player, Shape shape, int radius) {
 		Collection<Territory> claims;
 		Territory origin = player.getLocation().getTerritory();

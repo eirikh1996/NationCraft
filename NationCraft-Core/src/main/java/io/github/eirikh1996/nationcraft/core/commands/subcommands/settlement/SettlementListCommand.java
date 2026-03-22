@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.settlement;
 
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
+import io.github.eirikh1996.nationcraft.core.commands.parameters.IntegerParameterType;
 import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
@@ -16,16 +17,16 @@ public class SettlementListCommand extends Command {
 
     public SettlementListCommand() {
         super("list");
+        addParameter("page", new IntegerParameterType());
     }
 
     @Override
     protected void execute(NCCommandSender sender) {
-        if (!(sender instanceof NCPlayer)) {
+        if (!(sender instanceof NCPlayer player)) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
         TopicPaginator paginator = new TopicPaginator("Settlements");
-        NCPlayer player = (NCPlayer) sender;
         for (Settlement s : SettlementManager.getInstance().getAllSettlements()){
             if (s == null)
                 continue;
@@ -34,7 +35,7 @@ public class SettlementListCommand extends Command {
                     );
 
         }
-        int page = args.length == 0 ? 1 : Integer.parseInt(args[0]);
+        int page = Math.max(getParameter("page").getValue(), 1);
         if (!paginator.isInBounds(page)) {
             return;
         }

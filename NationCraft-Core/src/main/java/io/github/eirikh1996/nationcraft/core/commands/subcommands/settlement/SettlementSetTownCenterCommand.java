@@ -1,6 +1,7 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.settlement;
 
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
+import io.github.eirikh1996.nationcraft.core.commands.parameters.SettlementParameterType;
 import io.github.eirikh1996.nationcraft.core.settlement.Settlement;
 import io.github.eirikh1996.nationcraft.core.settlement.SettlementManager;
 import io.github.eirikh1996.nationcraft.core.commands.Command;
@@ -14,31 +15,22 @@ public final class SettlementSetTownCenterCommand extends Command {
 
     public SettlementSetTownCenterCommand() {
         super("settowncenter");
+        addParameter("settlement", new SettlementParameterType());
     }
 
     @Override
     protected void execute(NCCommandSender sender) {
-        if (!(sender instanceof NCPlayer) ) {
+        if (!(sender instanceof NCPlayer player) ) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
-        NCPlayer player = (NCPlayer) sender;
-        Settlement settlement;
-        if (args.length > 0){
-            if (!sender.hasPermission("nationcraft.settlement.settowncenter.other")){
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You can only set town center for your own settlement")));
-                return;
-            }
-            settlement = SettlementManager.getInstance().getSettlementByName(args[0]);
-        } else {
-            settlement = SettlementManager.getInstance().getSettlementByPlayer(player);
+        Settlement settlement = getParameter("settlement").getValue();
+        if (settlement != player.getSettlement() && !sender.hasPermission("nationcraft.settlement.settowncenter.other")){
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You can only set town center for your own settlement")));
+            return;
         }
         if (settlement == null){
-            if (args.length > 0){
-                sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("No settlement named " + args[0] + " exist")));
-                return;
-            }
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You are not in a settlement")));
+            //sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You are not in a settlement")));
             return;
         }
         Settlement atLoc = SettlementManager.getInstance().getSettlementAt(player.getLocation());

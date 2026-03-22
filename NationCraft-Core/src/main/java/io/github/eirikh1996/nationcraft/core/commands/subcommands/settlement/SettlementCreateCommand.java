@@ -1,5 +1,6 @@
 package io.github.eirikh1996.nationcraft.core.commands.subcommands.settlement;
 
+import io.github.eirikh1996.nationcraft.core.commands.parameters.StringParameterType;
 import io.github.eirikh1996.nationcraft.core.nation.Nation;
 import io.github.eirikh1996.nationcraft.core.nation.NationManager;
 import io.github.eirikh1996.nationcraft.api.player.NCPlayer;
@@ -15,22 +16,23 @@ public class SettlementCreateCommand extends Command {
     
     public SettlementCreateCommand() {
         super("create");
+        addParameter("name", new StringParameterType());
     }
 
     @Override
     protected void execute(NCCommandSender sender) {
-        if (!(sender instanceof NCPlayer) ) {
+        if (!(sender instanceof NCPlayer player) ) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(MUST_BE_PLAYER));
             return;
         }
-        if (args.length == 0) {
+        String name = getParameter("name").getValue();
+        if (name.isEmpty()) {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You must specify a name")));
             return;
         }
-        NCPlayer player = (NCPlayer) sender;
         Nation testNation = player.getLocation().getNation();
         Nation pNation = NationManager.getInstance().getNationByPlayer(player);
-        Settlement existing = SettlementManager.getInstance().getSettlementByName(args[0]);
+        Settlement existing = SettlementManager.getInstance().getSettlementByName(name);
         if (pNation == null){//Reject attempts to create new settlement if settlement doesn't exist
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You must be part of a nation to create a settlement")));
             return;
@@ -44,11 +46,11 @@ public class SettlementCreateCommand extends Command {
             sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(ERROR).append(Component.text("You cannot create settlements on land belonging to other nations")));
             return;
         }
-        sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("You successfully created a new settlement named " + args[0] + ".")));
+        sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("You successfully created a new settlement named " + name + ".")));
         sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text("The chunk you are standing in is now your settlement's town center. This can be relocated using /settlement towncenter set")));
-        Settlement newSettlement = new Settlement(args[0], player);
+        Settlement newSettlement = new Settlement(name, player);
         if (pNation.getCapital() == null){
-            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text(args[0] + "has been assigned as capital of " + pNation.getName() + ". You can change this by using /settlement setcapital")));
+            sender.sendMessage(NATIONCRAFT_COMMAND_PREFIX.append(Component.text(name + "has been assigned as capital of " + pNation.getName() + ". You can change this by using /settlement setcapital")));
         }
         pNation.addSettlement(newSettlement);
         newSettlement.saveToFile();
